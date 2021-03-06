@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
                             itemsModelClass.setImage(imageUri);
                             itemsModelClass.setPrice(price);
                             itemsModelClass.setAvailability("");
-                            itemsModelClass.setSchedule("");
+                            itemsModelClass.setSchedule("11:00 am to 2:00 pm");
 
                             items.add(itemsModelClass);
                         }
