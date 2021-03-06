@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -33,7 +34,15 @@ public class MainActivityAdapter extends RecyclerView.Adapter<MainActivityAdapte
 
     @Override
     public void onBindViewHolder(@NonNull MainActivityAdapter.ViewHolder holder, int position) {
+        ItemsModelClass itemsModelClass = items.get(position);
 
+        String itemName = itemsModelClass.getItemName();
+        String imageUri = itemsModelClass.getImage();
+        String price = itemsModelClass.getPrice();
+        String available = itemsModelClass.getAvailability();
+        String schedule = itemsModelClass.getSchedule();
+
+        holder.tvItem.setText(itemName);
     }
 
     @Override
@@ -42,8 +51,12 @@ public class MainActivityAdapter extends RecyclerView.Adapter<MainActivityAdapte
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
+        private TextView tvItem;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
+
+            tvItem = (TextView) itemView.findViewById(R.id.tvItem);
+
         }
     }
 }

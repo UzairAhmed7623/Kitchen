@@ -69,7 +69,7 @@
                             android:layout_marginStart="30dp"
                             android:layout_marginBottom="5dp"
                             android:gravity="left"
-                            android:text="Price"
+                            android:text="PKR300"
                             android:textAllCaps="true"
                             android:textColor="@android:color/white"
                             android:textSize="15sp"
@@ -79,46 +79,9 @@
 
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:gravity="end|center_vertical"
-                        android:layout_gravity="center_vertical"
-                        android:background="?attr/selectableItemBackgroundBorderless" >
+                        android:layout_height="match_parent">
 
-                        <ImageButton
-                            android:id="@+id/ibSelectItem"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="end"
-                            android:visibility="visible"
-                            android:src="@drawable/add_to_cart"
-                            android:background="@android:color/transparent"
-                            android:layout_marginEnd="30dp"/>
 
-                        <TextView
-                            android:id="@+id/tvaddItem"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Click to add item"
-                            android:textColor="@android:color/white"
-                            android:fontFamily="@font/poppins_medium"
-                            android:textSize="9sp"
-                            android:visibility="visible"
-                            android:layout_gravity="end"
-                            android:layout_marginEnd="8dp" />
-
-                        <TextView
-                            android:id="@+id/tvAdded"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Added\nsuccessfully!"
-                            android:textColor="@android:color/white"
-                            android:fontFamily="@font/poppins_medium"
-                            android:textSize="12sp"
-                            android:visibility="gone"
-                            android:layout_gravity="end"
-                            android:gravity="center"
-                            android:layout_marginEnd="8dp" />
 
                     </LinearLayout>
 

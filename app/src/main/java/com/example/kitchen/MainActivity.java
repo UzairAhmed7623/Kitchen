@@ -32,7 +32,6 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseAuth firebaseAuth;
     private FirebaseFirestore firebaseFirestore;
     private ArrayList<ItemsModelClass> items = new ArrayList<>();
-    private String restName;
     private RecyclerView rvItems;
 
     @Override
@@ -48,6 +47,8 @@ public class MainActivity extends AppCompatActivity {
 
         rvItems = (RecyclerView) findViewById(R.id.rvItems);
         rvItems.setLayoutManager(new LinearLayoutManager(MainActivity.this));
+
+        Toast.makeText(this, resName, Toast.LENGTH_SHORT).show();
 
         firebaseFirestore.collection("Restaurants").document(resName).collection("Items")
                 .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -65,8 +66,8 @@ public class MainActivity extends AppCompatActivity {
                             itemsModelClass.setItemName(itemName);
                             itemsModelClass.setImage(imageUri);
                             itemsModelClass.setPrice(price);
-                            itemsModelClass.setAvailability("");
-                            itemsModelClass.setSchedule("11:00 am to 2:00 pm");
+                            itemsModelClass.setAvailability("Yes");
+                            itemsModelClass.setSchedule("11:00 am to 2:00 pm ");
 
                             items.add(itemsModelClass);
                         }
