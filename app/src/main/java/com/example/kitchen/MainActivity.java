@@ -9,6 +9,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
@@ -42,7 +43,6 @@ public class MainActivity extends AppCompatActivity {
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseFirestore = FirebaseFirestore.getInstance();
 
-
         String resName = getIntent().getStringExtra("resName");
 
         rvItems = (RecyclerView) findViewById(R.id.rvItems);
@@ -62,7 +62,10 @@ public class MainActivity extends AppCompatActivity {
                             String imageUri = documentSnapshot.getString("imageUri");
                             String price = documentSnapshot.getString("price");
 
+                            Log.d("TAG", itemName+imageUri+price);
+
                             ItemsModelClass itemsModelClass = new ItemsModelClass();
+                            itemsModelClass.setResName(resName);
                             itemsModelClass.setItemName(itemName);
                             itemsModelClass.setImage(imageUri);
                             itemsModelClass.setPrice(price);

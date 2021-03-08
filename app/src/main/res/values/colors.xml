@@ -9,4 +9,9 @@
     <color name="white">#FFFFFFFF</color>
     <color name="myColor">#FF5721</color>
     <color name="myColorSecond">#DAFF5721</color>
+
+    <color name="background_color">#009688</color>
+    <color name="white_greyish">#EEEEEE</color>
+    <color name="button_selectorcolor">#9E9E9E</color>
+
 </resources>

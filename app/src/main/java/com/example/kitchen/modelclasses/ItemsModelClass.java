@@ -1,17 +1,26 @@
 package com.example.kitchen.modelclasses;
 
 public class ItemsModelClass {
-    private String itemName, price, image, availability, schedule;
+    private String resName, itemName, price, image, availability, schedule;
 
     public ItemsModelClass() {
     }
 
-    public ItemsModelClass(String itemName, String price, String image, String availability, String schedule) {
+    public ItemsModelClass(String resName, String itemName, String price, String image, String availability, String schedule) {
+        this.resName = resName;
         this.itemName = itemName;
         this.price = price;
         this.image = image;
         this.availability = availability;
         this.schedule = schedule;
+    }
+
+    public String getResName() {
+        return resName;
+    }
+
+    public void setResName(String resName) {
+        this.resName = resName;
     }
 
     public String getItemName() {
