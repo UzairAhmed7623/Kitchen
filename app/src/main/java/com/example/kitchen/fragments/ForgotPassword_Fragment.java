@@ -51,8 +51,7 @@ public class ForgotPassword_Fragment extends Fragment implements
 		// Setting text selector over textviews
 		@SuppressLint("ResourceType") XmlResourceParser xrp = getResources().getXml(R.drawable.text_selector);
 		try {
-			ColorStateList csl = ColorStateList.createFromXml(getResources(),
-					xrp);
+			ColorStateList csl = ColorStateList.createFromXml(getResources(), xrp, getContext().getTheme().getResources().newTheme());
 
 			back.setTextColor(csl);
 			submit.setTextColor(csl);

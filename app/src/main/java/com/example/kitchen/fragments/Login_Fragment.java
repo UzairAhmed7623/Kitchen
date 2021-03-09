@@ -4,6 +4,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.content.res.XmlResourceParser;
@@ -73,7 +75,7 @@ public class Login_Fragment extends Fragment implements OnClickListener {
 		// Setting text selector over textviews
 		@SuppressLint("ResourceType") XmlResourceParser xrp = getResources().getXml(R.drawable.text_selector);
 		try {
-			ColorStateList csl = ColorStateList.createFromXml(getResources(), xrp);
+			ColorStateList csl = ColorStateList.createFromXml(getResources(), xrp, getContext().getTheme().getResources().newTheme());
 
 			forgotPassword.setTextColor(csl);
 			show_hide_password.setTextColor(csl);
@@ -101,16 +103,18 @@ public class Login_Fragment extends Fragment implements OnClickListener {
 						if (isChecked) {
 
 							show_hide_password.setText(R.string.hide_pwd);// change// checkbox // text
+
 							password.setInputType(InputType.TYPE_CLASS_TEXT);
-							password.setTransformationMethod(HideReturnsTransformationMethod
-									.getInstance());// show password
-						} else {
+
+
+							password.setTransformationMethod(HideReturnsTransformationMethod.getInstance());// show password
+						}
+						else {
 							show_hide_password.setText(R.string.show_pwd);// change// checkbox // text
 
-							password.setInputType(InputType.TYPE_CLASS_TEXT
-									| InputType.TYPE_TEXT_VARIATION_PASSWORD);
-							password.setTransformationMethod(PasswordTransformationMethod
-									.getInstance());// hide password
+							password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+
+							password.setTransformationMethod(PasswordTransformationMethod.getInstance());// hide password
 
 						}
 
@@ -128,21 +132,14 @@ public class Login_Fragment extends Fragment implements OnClickListener {
 		case R.id.forgot_password:
 
 			// Replace forgot password fragment with animation
-			fragmentManager
-					.beginTransaction()
-					.setCustomAnimations(R.anim.right_enter, R.anim.left_out)
-					.replace(R.id.frameContainer,
-							new ForgotPassword_Fragment(),
-							Utils.ForgotPassword_Fragment).commit();
+			fragmentManager.beginTransaction().setCustomAnimations(R.anim.right_enter, R.anim.left_out).replace(R.id.frameContainer,
+							new ForgotPassword_Fragment(), Utils.ForgotPassword_Fragment).commit();
 			break;
 		case R.id.createAccount:
 
 			// Replace signup frgament with animation
-			fragmentManager
-					.beginTransaction()
-					.setCustomAnimations(R.anim.right_enter, R.anim.left_out)
-					.replace(R.id.frameContainer, new SignUp_Fragment(),
-							Utils.SignUp_Fragment).commit();
+			fragmentManager.beginTransaction().setCustomAnimations(R.anim.right_enter, R.anim.left_out)
+					.replace(R.id.frameContainer, new SignUp_Fragment(), Utils.SignUp_Fragment).commit();
 			break;
 		}
 
@@ -162,19 +159,15 @@ public class Login_Fragment extends Fragment implements OnClickListener {
 		// Check for both field is empty or not
 		if (getEmailId.equals("") || getEmailId.length() == 0
 				|| getPassword.equals("") || getPassword.length() == 0) {
-			loginLayout.startAnimation(shakeAnimation);
-			new CustomToast().Show_Toast(getActivity(), view,
-					"Enter both credentials.");
+			loginLayout.startAnimation(shakeAnimation); new CustomToast().Show_Toast(getActivity(), view, "Enter both credentials.");
 
 		}
 		// Check if email id is valid or not
 		else if (!m.find())
-			new CustomToast().Show_Toast(getActivity(), view,
-					"Your Email Id is Invalid.");
+			new CustomToast().Show_Toast(getActivity(), view, "Your Email Id is Invalid.");
 		// Else do login and do your stuff
 		else
-			Toast.makeText(getActivity(), "Do Login.", Toast.LENGTH_SHORT)
-					.show();
+			Toast.makeText(getActivity(), "Do Login.", Toast.LENGTH_SHORT).show();
 
 	}
 }

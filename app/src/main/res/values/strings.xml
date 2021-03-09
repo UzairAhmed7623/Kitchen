@@ -29,4 +29,10 @@
     <string name="registered_emailid">Please enter your Registered Email Id below:</string>
     <string name="submit">SUBMIT</string>
     <string name="back">BACK</string>
+    <string name="done">DONE</string>
+    <string name="itemname">Item Name</string>
+    <string name="itemimage">Item Image</string>
+    <string name="scedule">Scedule</string>
+    <string name="available">Availability</string>
+
 </resources>

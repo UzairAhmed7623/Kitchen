@@ -5,7 +5,7 @@
     android:fillViewport="true"
     android:overScrollMode="never"
     android:scrollbars="none"
-    android:background="@drawable/back3">
+    android:background="@drawable/background">
 
     <RelativeLayout
         android:layout_width="fill_parent"
@@ -20,7 +20,7 @@
             android:layout_margin="4dp"
             android:contentDescription="@string/closebutton"
             android:padding="5dp"
-            android:src="@drawable/close" />
+            android:src="@drawable/close_icon" />
 
         <FrameLayout
             android:id="@+id/frameContainer"

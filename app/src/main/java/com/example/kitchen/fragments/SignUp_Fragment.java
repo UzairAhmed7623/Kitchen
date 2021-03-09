@@ -34,8 +34,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 public class SignUp_Fragment extends Fragment implements OnClickListener {
 	private static View view;
-	private static EditText fullName, emailId, mobileNumber, location,
-			password, confirmPassword;
+	private static EditText fullName, emailId, mobileNumber, location, password, confirmPassword;
 	private static TextView login;
 	private static Button signUpButton;
 	private static CheckBox terms_conditions;
@@ -71,8 +70,7 @@ public class SignUp_Fragment extends Fragment implements OnClickListener {
 		// Setting text selector over textviews
 		@SuppressLint("ResourceType") XmlResourceParser xrp = getResources().getXml(R.drawable.text_selector);
 		try {
-			ColorStateList csl = ColorStateList.createFromXml(getResources(),
-					xrp);
+			ColorStateList csl = ColorStateList.createFromXml(getResources(), xrp, getContext().getTheme().getResources().newTheme());
 
 			login.setTextColor(csl);
 			terms_conditions.setTextColor(csl);
@@ -122,7 +120,7 @@ public class SignUp_Fragment extends Fragment implements OnClickListener {
 		// Check if all strings are null or not
 		if (getFullName.equals("") || getFullName.length() == 0
 				|| getEmailId.equals("") || getEmailId.length() == 0
-				|| getMobileNumber.equals("") || getMobileNumber.length() == 0
+				|| getMobileNumber.equals("") || getMobileNumber.length() != 10
 				|| getLocation.equals("") || getLocation.length() == 0
 				|| getPassword.equals("") || getPassword.length() == 0
 				|| getConfirmPassword.equals("")
@@ -157,44 +155,33 @@ public class SignUp_Fragment extends Fragment implements OnClickListener {
 
 				String phone_number = "+92" + mobileNumber.getText().toString();
 
-				if (mobileNumber.getText().toString().length() < 10) {
-					new CustomToast().Show_Toast(getActivity(), view, "Please write a valid phone number!");
-				}
+				if (firebaseAuth.getUid() != null) {
 
-				else {
+					firebaseFirestore.collection("Users").whereEqualTo("Phone", phone_number).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+						@Override
+						public void onComplete(@NonNull Task<QuerySnapshot> task) {
 
-					if (firebaseAuth.getUid() != null) {
+							if (task.isSuccessful()) {
+								if (task.getResult().size() > 0) {
 
-						firebaseFirestore.collection("Users").whereEqualTo("Phone", phone_number).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-							@Override
-							public void onComplete(@NonNull Task<QuerySnapshot> task) {
-
-								if (task.isSuccessful()) {
-									if (task.getResult().size() > 0) {
-
-										new CustomToast().Show_Toast(getActivity(), view, "Phone number already registered!");
-									}
-								} else {
-
-									new CustomToast().Show_Toast(getActivity(), view, task.getException().getMessage());
+									new CustomToast().Show_Toast(getActivity(), view, "Phone number already registered!");
 								}
 							}
-						});
-					}
-					else {
+							else {
 
-//						Intent SignUpIntent = new Intent(SignUp_Fragment.this, VerifyPhoneNumber.class);
-//						SignUpIntent.putExtra("phone_number", phone_number);
-//						startActivity(SignUpIntent);
-//						getActivity().finish();
-						getActivity().overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+								new CustomToast().Show_Toast(getActivity(), view, task.getException().getMessage());
+							}
+						}
+					});
+				}
+				else {
 
-					}
+//					Intent SignUpIntent = new Intent(SignUp_Fragment.this, VerifyPhoneNumber.class);
+//					SignUpIntent.putExtra("phone_number", phone_number);
+//					startActivity(SignUpIntent);
 
 				}
-
 			}
 		});
-
 	}
 }

@@ -12,8 +12,9 @@
         android:padding="10dp"
         android:text="@string/signUp"
         android:textColor="@color/white_greyish"
-        android:textSize="25sp"
-        android:textStyle="bold" />
+        android:textSize="40sp"
+        android:textStyle="bold"
+        android:fontFamily="@font/poppins_medium" />
 
     <EditText
         android:id="@+id/fullName"
