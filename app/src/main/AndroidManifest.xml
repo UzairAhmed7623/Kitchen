@@ -9,9 +9,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Kitchen">
-        <activity android:name=".AddItem"></activity>
+        <activity android:name=".Orders"></activity>
+        <activity android:name=".AddItem" />
         <activity android:name=".itemProperties" />
-        <activity android:name=".Login"></activity>
+        <activity android:name=".Login" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
