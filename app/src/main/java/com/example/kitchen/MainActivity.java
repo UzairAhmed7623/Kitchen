@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseFirestore = FirebaseFirestore.getInstance();
 
-        String resName = getIntent().getStringExtra("resName");
+//        String resName = getIntent().getStringExtra("resName");
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -56,9 +56,9 @@ public class MainActivity extends AppCompatActivity {
         rvItems = (RecyclerView) findViewById(R.id.rvItems);
         rvItems.setLayoutManager(new LinearLayoutManager(MainActivity.this));
 
-        Toast.makeText(this, resName, Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Alfredo Pizza Pasta", Toast.LENGTH_SHORT).show();
 
-        firebaseFirestore.collection("Restaurants").document("Nabiha").collection("Items")
+        firebaseFirestore.collection("Restaurants").document("Alfredo Pizza Pasta").collection("Items")
                 .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -74,7 +74,7 @@ public class MainActivity extends AppCompatActivity {
                             Log.d("TAG", itemName+imageUri+price);
 
                             ItemsModelClass itemsModelClass = new ItemsModelClass();
-                            itemsModelClass.setResName("Nabiha");
+                            itemsModelClass.setResName("Alfredo Pizza Pasta");
                             itemsModelClass.setItemName(itemName);
                             itemsModelClass.setImage(imageUri);
                             itemsModelClass.setPrice(price);
@@ -103,6 +103,7 @@ public class MainActivity extends AppCompatActivity {
         if (item.getItemId() == R.id.addItem){
             Intent intent = new Intent(MainActivity.this, AddItem.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.putExtra("resName", "Alfredo Pizza Pasta");
             startActivity(intent);
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         }

@@ -19,8 +19,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 public class itemProperties extends AppCompatActivity {
 
     private FirebaseFirestore firebaseFirestore;
-    private EditText etPrice, etAvai;
-    private Button btnOk;
+    private EditText etItemPricep, etAvailablep, etScedulep;
+    private Button btnDonep;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,34 +29,49 @@ public class itemProperties extends AppCompatActivity {
 
         firebaseFirestore = FirebaseFirestore.getInstance();
 
-        etPrice = (EditText) findViewById(R.id.etPrice);
-        etAvai = (EditText) findViewById(R.id.etAvai);
+        etItemPricep = (EditText) findViewById(R.id.etItemPricep);
+        etAvailablep = (EditText) findViewById(R.id.etAvailablep);
+        etScedulep = (EditText) findViewById(R.id.etScedulep);
 
-        btnOk = (Button) findViewById(R.id.btnOk);
+        btnDonep = (Button) findViewById(R.id.btnDonep);
 
-        String resName = getIntent().getStringExtra("restaurant");
+//        String resName = getIntent().getStringExtra("restaurant");
+        String resName = "Alfredo Pizza Pasta";
         String itemName = getIntent().getStringExtra("itemName");
 
         Log.d("TAG", resName+" "+itemName);
 
-        btnOk.setOnClickListener(new View.OnClickListener() {
+        btnDonep.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                String price = etPrice.getText().toString().trim().replace("PKR", "");
-                String avail = etPrice.getText().toString();
+                String price = etItemPricep.getText().toString().trim().replace("PKR", "");
+                String avail = etAvailablep.getText().toString();
+                String schedule = etScedulep.getText().toString();
 
                 Log.d("TAG", resName+" "+itemName);
 
-                firebaseFirestore.collection("Restaurants").document(resName).collection("Items")
-                        .document(itemName).update("price", price);
-
-
+                if (etItemPricep.getText().toString() != null){
+                    firebaseFirestore.collection("Restaurants").document(resName).collection("Items")
+                            .document(itemName).update("price", price);
+                }
+                else if (etAvailablep.getText().toString() != null){
+                    firebaseFirestore.collection("Restaurants").document(resName).collection("Items")
+                            .document(itemName).update("available", avail);
+                }
+                else if (etScedulep.getText().toString() != null){
+                    firebaseFirestore.collection("Restaurants").document(resName).collection("Items")
+                            .document(itemName).update("schedule", schedule);
+                }
+                else {
+                    Log.d("TAG", "Empty");
+                }
 
                 Intent intent = new Intent(itemProperties.this, MainActivity.class);
                 intent.putExtra("resName", resName);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 startActivity(intent);
-                finish();
 
             }
         });

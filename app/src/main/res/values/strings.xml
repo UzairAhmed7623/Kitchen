@@ -34,5 +34,6 @@
     <string name="itemimage">Item Image</string>
     <string name="scedule">Scedule</string>
     <string name="available">Availability</string>
+    <string name="price">Price</string>
 
 </resources>

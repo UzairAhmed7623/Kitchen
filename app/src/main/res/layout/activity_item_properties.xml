@@ -19,14 +19,14 @@
         app:layout_constraintTop_toTopOf="parent">
 
     <EditText
-        android:id="@+id/etItemImagep"
+        android:id="@+id/etItemPricep"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
         android:background="@android:color/transparent"
         android:drawablePadding="8dp"
         android:gravity="center_vertical"
-        android:hint="@string/itemimage"
+        android:hint="@string/price"
         android:inputType="text"
         android:padding="10dp"
         android:singleLine="true"
