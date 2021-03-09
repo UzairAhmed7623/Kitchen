@@ -50,8 +50,9 @@ public class MainActivityAdapter extends RecyclerView.Adapter<MainActivityAdapte
         String schedule = itemsModelClass.getSchedule();
 
         holder.tvItem.setText(itemName);
-        Glide.with(context).load(imageUri).into(holder.ivItem);
+        Glide.with(context).load(imageUri).placeholder(R.drawable.placeholder).fitCenter().into(holder.ivItem);
         holder.tvItemPrice.setText("PKR"+price);
+        holder.tvItemSchedule.setText("Available from: "+ schedule);
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -71,13 +72,14 @@ public class MainActivityAdapter extends RecyclerView.Adapter<MainActivityAdapte
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        private TextView tvItem, tvItemPrice;
+        private TextView tvItem, tvItemPrice, tvItemSchedule;
         private ImageView ivItem;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
 
             tvItem = (TextView) itemView.findViewById(R.id.tvItem);
             tvItemPrice = (TextView) itemView.findViewById(R.id.tvItemPrice);
+            tvItemSchedule = (TextView) itemView.findViewById(R.id.tvItemSchedule);
 
             ivItem = (ImageView) itemView.findViewById(R.id.ivItem);
 

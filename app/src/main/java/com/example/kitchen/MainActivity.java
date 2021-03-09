@@ -70,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
                             String imageUri = documentSnapshot.getString("imageUri");
                             String price = documentSnapshot.getString("price");
                             String available = documentSnapshot.getString("available");
+                            String schedule = documentSnapshot.getString("schedule");
 
                             Log.d("TAG", itemName+imageUri+price);
 
@@ -79,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
                             itemsModelClass.setImage(imageUri);
                             itemsModelClass.setPrice(price);
                             itemsModelClass.setAvailability(available);
-                            itemsModelClass.setSchedule("11:00 am to 2:00 pm");
+                            itemsModelClass.setSchedule(schedule);
 
                             items.add(itemsModelClass);
                         }

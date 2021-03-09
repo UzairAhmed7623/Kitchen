@@ -44,28 +44,35 @@ public class itemProperties extends AppCompatActivity {
         btnDonep.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 String price = etItemPricep.getText().toString().trim().replace("PKR", "");
                 String avail = etAvailablep.getText().toString();
                 String schedule = etScedulep.getText().toString();
 
+
                 Log.d("TAG", resName+" "+itemName);
 
-                if (etItemPricep.getText().toString() != null){
+                if (etItemPricep.getText().toString().equals("") || etItemPricep.getText().toString().length() == 0 ){
+                    Log.d("TAG", "Empty");
+                }
+                else {
                     firebaseFirestore.collection("Restaurants").document(resName).collection("Items")
                             .document(itemName).update("price", price);
                 }
-                else if (etAvailablep.getText().toString() != null){
+                if (etAvailablep.getText().toString().equals("") || etAvailablep.getText().toString().length() == 0){
+                    Log.d("TAG", "Empty");
+                }
+                else {
                     firebaseFirestore.collection("Restaurants").document(resName).collection("Items")
                             .document(itemName).update("available", avail);
                 }
-                else if (etScedulep.getText().toString() != null){
+                if (etScedulep.getText().toString().equals("") || etScedulep.getText().toString().length() == 0){
+                    Log.d("TAG", "Empty");
+                }
+                else {
                     firebaseFirestore.collection("Restaurants").document(resName).collection("Items")
                             .document(itemName).update("schedule", schedule);
                 }
-                else {
-                    Log.d("TAG", "Empty");
-                }
+
 
                 Intent intent = new Intent(itemProperties.this, MainActivity.class);
                 intent.putExtra("resName", resName);
