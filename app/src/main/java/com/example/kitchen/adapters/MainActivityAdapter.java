@@ -75,12 +75,16 @@ public class MainActivityAdapter extends RecyclerView.Adapter<MainActivityAdapte
             public boolean onLongClick(View v) {
 
                 AlertDialog.Builder dialog = new AlertDialog.Builder(context);
+                dialog.setTitle("Confirm");
+                dialog.setMessage("Do you want to delete this item?");
                 dialog.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
 
                         firebaseFirestore.collection("Restaurants").document(resName).collection("Items").document(itemName)
                                 .delete();
+
+                        notifyDataSetChanged();
 
                         dialog.dismiss();
 

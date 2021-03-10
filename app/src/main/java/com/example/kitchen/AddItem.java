@@ -64,6 +64,7 @@ public class AddItem extends AppCompatActivity {
     private Uri fileUri;
     private FirebaseStorage firebaseStorage;
     private StorageReference storageReference;
+    private ProgressDialog dialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,14 +105,13 @@ public class AddItem extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                ProgressDialog dialog = new ProgressDialog(AddItem.this);
+                dialog = new ProgressDialog(AddItem.this);
                 dialog.setTitle("Please wait...");
                 dialog.setMessage("We working on your request");
                 dialog.show();
 
                 uploadImage(fileUri);
 
-                dialog.dismiss();
             }
         });
     }
@@ -184,6 +184,7 @@ public class AddItem extends AppCompatActivity {
                 .set(newItem, SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
+                dialog.dismiss();
 
                 Snackbar.make(findViewById(android.R.id.content), "You have added one item named "+name, Snackbar.LENGTH_SHORT).setBackgroundTint(Color.RED).setTextColor(Color.WHITE).show();
 
