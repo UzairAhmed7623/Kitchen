@@ -19,6 +19,8 @@ import com.bumptech.glide.Glide;
 import com.example.kitchen.R;
 import com.example.kitchen.itemProperties;
 import com.example.kitchen.modelclasses.ItemsModelClass;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
@@ -82,11 +84,17 @@ public class MainActivityAdapter extends RecyclerView.Adapter<MainActivityAdapte
                     public void onClick(DialogInterface dialog, int which) {
 
                         firebaseFirestore.collection("Restaurants").document(resName).collection("Items").document(itemName)
-                                .delete();
+                                .delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                Toast.makeText(context, "Deleted Successfully!", Toast.LENGTH_SHORT).show();
+                                notifyDataSetChanged();
+                                notifyItemChanged(position);
+                                dialog.dismiss();
+                            }
+                        });
 
-                        notifyDataSetChanged();
 
-                        dialog.dismiss();
 
                     }
                 }).setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
