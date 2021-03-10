@@ -1,7 +1,9 @@
 package com.example.kitchen.adapters;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +19,7 @@ import com.bumptech.glide.Glide;
 import com.example.kitchen.R;
 import com.example.kitchen.itemProperties;
 import com.example.kitchen.modelclasses.ItemsModelClass;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 
@@ -24,6 +27,8 @@ public class MainActivityAdapter extends RecyclerView.Adapter<MainActivityAdapte
 
     private Context context;
     private ArrayList<ItemsModelClass> items = new ArrayList<>();
+    private FirebaseFirestore firebaseFirestore;
+
 
     public MainActivityAdapter(Context context, ArrayList<ItemsModelClass> items) {
         this.context = context;
@@ -64,6 +69,34 @@ public class MainActivityAdapter extends RecyclerView.Adapter<MainActivityAdapte
                 context.startActivity(intent);
             }
         });
+
+        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+
+                AlertDialog.Builder dialog = new AlertDialog.Builder(context);
+                dialog.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        firebaseFirestore.collection("Restaurants").document(resName).collection("Items").document(itemName)
+                                .delete();
+
+                        dialog.dismiss();
+
+                    }
+                }).setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                }).show();
+
+
+
+                return true;
+            }
+        });
     }
 
     @Override
@@ -82,6 +115,8 @@ public class MainActivityAdapter extends RecyclerView.Adapter<MainActivityAdapte
             tvItemSchedule = (TextView) itemView.findViewById(R.id.tvItemSchedule);
 
             ivItem = (ImageView) itemView.findViewById(R.id.ivItem);
+
+            firebaseFirestore = FirebaseFirestore.getInstance();
 
         }
     }
