@@ -1,6 +1,5 @@
 package com.example.kitchen.adapters;
 
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -41,7 +40,7 @@ public class MainActivityAdapter extends RecyclerView.Adapter<MainActivityAdapte
     @Override
     public MainActivityAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-        View view = inflater.inflate(R.layout.main_activity_adapter, parent, false);
+        View view = inflater.inflate(R.layout.main_activity_adapter_layout, parent, false);
         return new MainActivityAdapter.ViewHolder(view);
     }
 
@@ -55,11 +54,6 @@ public class MainActivityAdapter extends RecyclerView.Adapter<MainActivityAdapte
         String price = itemsModelClass.getPrice();
         String available = itemsModelClass.getAvailability();
         String schedule = itemsModelClass.getSchedule();
-
-        holder.tvItem.setText(itemName);
-        Glide.with(context).load(imageUri).placeholder(R.drawable.placeholder).fitCenter().into(holder.ivItem);
-        holder.tvItemPrice.setText("PKR"+price);
-        holder.tvItemSchedule.setText("Available from: "+ schedule);
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -88,13 +82,15 @@ public class MainActivityAdapter extends RecyclerView.Adapter<MainActivityAdapte
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
                                 Toast.makeText(context, "Deleted Successfully!", Toast.LENGTH_SHORT).show();
+
+                                items.remove(position);
+//                                notifyItemRemoved(position);
                                 notifyDataSetChanged();
-                                notifyItemChanged(position);
+//                                notifyItemChanged(position);
                                 dialog.dismiss();
+
                             }
                         });
-
-
 
                     }
                 }).setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
@@ -104,11 +100,14 @@ public class MainActivityAdapter extends RecyclerView.Adapter<MainActivityAdapte
                     }
                 }).show();
 
-
-
                 return true;
             }
         });
+
+        holder.tvItem.setText(itemName);
+        Glide.with(context).load(imageUri).placeholder(R.drawable.placeholder).fitCenter().into(holder.ivItem);
+        holder.tvItemPrice.setText("PKR"+price);
+        holder.tvItemSchedule.setText("Available from: "+ schedule);
     }
 
     @Override

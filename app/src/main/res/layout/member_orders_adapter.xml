@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center"
+    android:padding="4dp"
+    android:background="#FADED4">
+
+    <View
+        android:layout_width="10dp"
+        android:layout_height="10dp"
+        android:layout_marginStart="10dp"
+        android:background="@color/myColor"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tvItemNameOrders"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:layout_marginStart="10dp"
+            android:layout_gravity="left|center_vertical"
+            android:text="Item name"
+            android:textAllCaps="true"
+            android:textColor="#F64C15"
+            android:textSize="15sp"
+            android:fontFamily="@font/poppins_medium" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="start|center_vertical"
+            android:layout_gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/tvItemPriceOrders"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:gravity="end"
+                android:layout_gravity="center_vertical"
+                android:text="200"
+                android:textAllCaps="true"
+                android:textColor="#F64C15"
+                android:textSize="12sp"
+                android:fontFamily="@font/poppins_medium"
+                android:paddingEnd="5dp" />
+
+            <TextView
+                android:id="@+id/tvMultiplyLabelOrders"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="start"
+                android:layout_gravity="center_vertical"
+                android:text="x"
+                android:textAllCaps="true"
+                android:textColor="#F64C15"
+                android:textSize="12sp"
+                android:fontFamily="@font/poppins_medium"
+                android:paddingEnd="5dp" />
+
+            <TextView
+                android:id="@+id/tvItemCountOrders"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="start"
+                android:layout_gravity="center_vertical"
+                android:text="3"
+                android:textAllCaps="true"
+                android:textColor="#F64C15"
+                android:textSize="12sp"
+                android:fontFamily="@font/poppins_medium"
+                android:paddingEnd="5dp" />
+
+            <TextView
+                android:id="@+id/tvEqualToLabelOrders"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="start"
+                android:layout_gravity="center_vertical"
+                android:text="="
+                android:textAllCaps="true"
+                android:textColor="#F64C15"
+                android:textSize="12sp"
+                android:fontFamily="@font/poppins_medium"
+                android:paddingEnd="5dp" />
+
+            <TextView
+                android:id="@+id/tvTotalOrders"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="start"
+                android:layout_gravity="center_vertical"
+                android:text="600"
+                android:textAllCaps="true"
+                android:textColor="#F64C15"
+                android:textSize="12sp"
+                android:fontFamily="@font/poppins_medium"
+                android:layout_marginEnd="5dp" />
+
+            <TextView
+                android:id="@+id/tvOrderDateOrders"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_gravity="end|center_vertical"
+                android:gravity="end"
+                android:text="date: 12-02-2021"
+                android:textAllCaps="true"
+                android:textColor="#F64C15"
+                android:textSize="12sp"
+                android:fontFamily="@font/poppins_medium" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+
+
+</LinearLayout>

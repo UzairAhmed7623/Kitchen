@@ -107,7 +107,7 @@ public class AddItem extends AppCompatActivity {
 
                 dialog = new ProgressDialog(AddItem.this);
                 dialog.setTitle("Please wait...");
-                dialog.setMessage("We working on your request");
+                dialog.setMessage("We are working on your request");
                 dialog.setCancelable(false);
                 dialog.show();
 
