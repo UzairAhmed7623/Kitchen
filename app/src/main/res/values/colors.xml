@@ -18,4 +18,7 @@
     <color name="ucrop_color_statusbar">@color/teal_700</color>
     <color name="ucrop_color_widget_active">@color/teal_200</color>
 
+    <color name="textColor">#F64C15</color>
+    <color name="textBackColor">#FBC9B8</color>
+
 </resources>
