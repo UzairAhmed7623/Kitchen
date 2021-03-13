@@ -21,6 +21,10 @@ import com.akexorcist.googledirection.DirectionCallback;
 import com.akexorcist.googledirection.GoogleDirection;
 import com.akexorcist.googledirection.constant.TransportMode;
 import com.akexorcist.googledirection.model.Direction;
+import com.akexorcist.googledirection.model.Leg;
+import com.akexorcist.googledirection.model.Route;
+import com.akexorcist.googledirection.model.Step;
+import com.akexorcist.googledirection.util.DirectionConverter;
 import com.bumptech.glide.Glide;
 import com.firebase.geofire.GeoFire;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -54,6 +58,8 @@ import org.imperiumlabs.geofirestore.listeners.GeoQueryEventListener;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -183,7 +189,7 @@ public class FindDriver extends FragmentActivity implements OnMapReadyCallback {
 
                                     mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(latlngBuilder.build(), 100));
 
-                                    GoogleDirection.withServerKey("AIzaSyBa4XZ09JsXD8KYZr5wdle--0TQFpfyGew")
+                                    GoogleDirection.withServerKey("AIzaSyDl7YXtTZQNBkthV3PjFS0fQOKvL8SIR7k")
                                             .from(latLng)
                                             .to(latLng1)
                                             .execute(new DirectionCallback() {
@@ -193,16 +199,23 @@ public class FindDriver extends FragmentActivity implements OnMapReadyCallback {
 //                                                polylineOptions.add()
 //                                                polylineOptions.color(R.color.purple_700);
 //                                                polylineOptions.width(2);
+                                                    List<Step> stepList = direction.getRouteList().get(0).getLegList().get(0).getStepList();
+                                                    ArrayList<PolylineOptions> polylineOptionList = DirectionConverter.createTransitPolyline(FindDriver.this, stepList, 5, Color.RED, 3, Color.BLUE);
+                                                    for (PolylineOptions polylineOption : polylineOptionList) {
+                                                        mMap.addPolyline(polylineOption);
+                                                    }
+
                                                     Log.d("TAG222", ""+direction.getStatus());
                                                     Log.d("TAG222", ""+direction.describeContents());
                                                     Log.d("TAG222", ""+direction.getGeocodedWaypointList());
-                                                    Log.d("TAG222", ""+direction.getRouteList());
+                                                    Log.d("TAG222", ""+direction.getRouteList().get(0).getLegList().get(0).getDuration().getText());
 
                                                 }
 
                                                 @Override
                                                 public void onDirectionFailure(Throwable t) {
-                                                    // Do something here
+                                                    Log.d("TAG222", ""+t.getMessage());
+
                                                 }
                                             });
 
