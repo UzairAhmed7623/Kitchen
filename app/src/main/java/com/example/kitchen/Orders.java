@@ -53,11 +53,14 @@ public class Orders extends AppCompatActivity {
         rvOrders = (RecyclerView) findViewById(R.id.rvOrders);
         rvOrders.setLayoutManager(new LinearLayoutManager(this));
 
+
         firebaseFirestore.collection("Users").addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
 
-                    for (QueryDocumentSnapshot documentSnapshot : value){
+                Orders.clear();
+
+                for (QueryDocumentSnapshot documentSnapshot : value){
                         if (documentSnapshot.exists()){
                             String id = documentSnapshot.getId();
 
@@ -86,12 +89,13 @@ public class Orders extends AppCompatActivity {
 
                                             Orders.add(ordersModelClass);
 
-                                            rvOrders.setAdapter(new OrdersAdapter(Orders.this, Orders));
+
                                         }
                                         else {
                                             Toast.makeText(Orders.this, "Data not found!", Toast.LENGTH_SHORT).show();
                                         }
                                     }
+                                    rvOrders.setAdapter(new OrdersAdapter(Orders.this, Orders));
                                 }
                             });
 

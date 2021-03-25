@@ -4,15 +4,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
-import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
 import com.example.kitchen.fragments.Login_Fragment;
-import com.example.kitchen.fragments.Utils;
+import com.example.kitchen.Utils.UserUtils;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -51,7 +49,7 @@ public class Login extends AppCompatActivity {
 
         // If savedinstnacestate is null then replace login fragment
         if (savedInstanceState == null) {
-            fragmentManager.beginTransaction().replace(R.id.frameContainer, new Login_Fragment(), Utils.Login_Fragment).commit();
+            fragmentManager.beginTransaction().replace(R.id.frameContainer, new Login_Fragment(), UserUtils.Login_Fragment).commit();
         }
 
         // On close icon click finish activity
@@ -66,15 +64,15 @@ public class Login extends AppCompatActivity {
     // Replace Login Fragment with animation
     public void replaceLoginFragment() {
         fragmentManager.beginTransaction().setCustomAnimations(R.anim.left_enter, R.anim.right_out)
-                .replace(R.id.frameContainer, new Login_Fragment(), Utils.Login_Fragment).commit();
+                .replace(R.id.frameContainer, new Login_Fragment(), UserUtils.Login_Fragment).commit();
     }
 
     @Override
     public void onBackPressed() {
         // Find the tag of signup and forgot password fragment
-        Fragment SignUp_Fragment = fragmentManager.findFragmentByTag(Utils.SignUp_Fragment);
+        Fragment SignUp_Fragment = fragmentManager.findFragmentByTag(UserUtils.SignUp_Fragment);
 
-        Fragment ForgotPassword_Fragment = fragmentManager.findFragmentByTag(Utils.ForgotPassword_Fragment);
+        Fragment ForgotPassword_Fragment = fragmentManager.findFragmentByTag(UserUtils.ForgotPassword_Fragment);
 
         // Check if both are null or not
         // If both are not null then replace login fragment else do backpressed

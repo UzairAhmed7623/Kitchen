@@ -4,10 +4,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
-import android.content.Context;
 import android.content.res.ColorStateList;
-import android.content.res.Resources;
 import android.content.res.XmlResourceParser;
 import android.os.Bundle;
 import android.text.InputType;
@@ -32,6 +29,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
 import com.example.kitchen.R;
+import com.example.kitchen.Utils.UserUtils;
 
 public class Login_Fragment extends Fragment implements OnClickListener {
 	private static View view;
@@ -133,13 +131,13 @@ public class Login_Fragment extends Fragment implements OnClickListener {
 
 			// Replace forgot password fragment with animation
 			fragmentManager.beginTransaction().setCustomAnimations(R.anim.right_enter, R.anim.left_out).replace(R.id.frameContainer,
-							new ForgotPassword_Fragment(), Utils.ForgotPassword_Fragment).commit();
+							new ForgotPassword_Fragment(), UserUtils.ForgotPassword_Fragment).commit();
 			break;
 		case R.id.createAccount:
 
 			// Replace signup frgament with animation
 			fragmentManager.beginTransaction().setCustomAnimations(R.anim.right_enter, R.anim.left_out)
-					.replace(R.id.frameContainer, new SignUp_Fragment(), Utils.SignUp_Fragment).commit();
+					.replace(R.id.frameContainer, new SignUp_Fragment(), UserUtils.SignUp_Fragment).commit();
 			break;
 		}
 
@@ -152,7 +150,7 @@ public class Login_Fragment extends Fragment implements OnClickListener {
 		String getPassword = password.getText().toString();
 
 		// Check patter for email id
-		Pattern p = Pattern.compile(Utils.regEx);
+		Pattern p = Pattern.compile(UserUtils.regEx);
 
 		Matcher m = p.matcher(getEmailId);
 

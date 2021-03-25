@@ -4,11 +4,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import android.annotation.SuppressLint;
-import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.content.res.XmlResourceParser;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -23,11 +21,10 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import com.example.kitchen.Login;
-import com.example.kitchen.MainActivity;
 import com.example.kitchen.R;
+import com.example.kitchen.Utils.UserUtils;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -114,7 +111,7 @@ public class SignUp_Fragment extends Fragment implements OnClickListener {
 		String getConfirmPassword = confirmPassword.getText().toString();
 
 		// Pattern match for email id
-		Pattern p = Pattern.compile(Utils.regEx);
+		Pattern p = Pattern.compile(UserUtils.regEx);
 		Matcher m = p.matcher(getEmailId);
 
 		// Check if all strings are null or not

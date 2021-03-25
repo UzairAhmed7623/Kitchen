@@ -18,8 +18,8 @@ import android.widget.Toast;
 import androidx.fragment.app.Fragment;
 
 import com.example.kitchen.Login;
-import com.example.kitchen.MainActivity;
 import com.example.kitchen.R;
+import com.example.kitchen.Utils.UserUtils;
 
 public class ForgotPassword_Fragment extends Fragment implements
 		OnClickListener {
@@ -90,7 +90,7 @@ public class ForgotPassword_Fragment extends Fragment implements
 		String getEmailId = emailId.getText().toString();
 
 		// Pattern for email id validation
-		Pattern p = Pattern.compile(Utils.regEx);
+		Pattern p = Pattern.compile(UserUtils.regEx);
 
 		// Match the pattern
 		Matcher m = p.matcher(getEmailId);

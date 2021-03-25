@@ -41,7 +41,15 @@
 
         <activity
             android:name=".FindDriver"
-            android:label="@string/title_activity_find_driver"></activity>
+            android:label="@string/title_activity_find_driver" >
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+        </activity>
         <activity android:name=".CompletedOrders" />
 
         <provider
@@ -55,16 +63,20 @@
                 android:resource="@xml/picker_provider_paths" />
         </provider>
 
+        <service
+            android:name=".Service.MyFirebaseService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
         <activity android:name=".Orders" />
         <activity android:name=".AddItem" />
         <activity android:name=".itemProperties" />
         <activity android:name=".Login" />
         <activity android:name=".MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
     </application>
 
