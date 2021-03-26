@@ -39,6 +39,7 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="title_activity_find_driver">Map</string>
+    <string name="not_found_key">Not found driver with key</string>
 
 
 </resources>
