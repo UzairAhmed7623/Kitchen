@@ -6,15 +6,19 @@ import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.FragmentActivity;
 
 import android.Manifest;
+import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
+import android.view.animation.LinearInterpolator;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -22,11 +26,18 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.akexorcist.googledirection.DirectionCallback;
+import com.akexorcist.googledirection.GoogleDirection;
+import com.akexorcist.googledirection.model.Direction;
+import com.akexorcist.googledirection.model.Leg;
+import com.akexorcist.googledirection.model.Route;
 import com.example.kitchen.Callback.IFirebaseDriverInfoListener;
 import com.example.kitchen.Callback.IFirebaseFailedListener;
 import com.example.kitchen.Common.Common;
+import com.example.kitchen.Remote.IGoogleAPI;
 import com.example.kitchen.Utils.UserUtils;
 import com.example.kitchen.fragments.BottomSheetRiderFragment;
+import com.example.kitchen.modelclasses.AnimationModel;
 import com.example.kitchen.modelclasses.DriverGeoModel;
 import com.example.kitchen.modelclasses.DriverInfoModel;
 import com.example.kitchen.modelclasses.GeoQueryModel;
@@ -47,7 +58,6 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnCanceledListener;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -72,14 +82,15 @@ import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.single.PermissionListener;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 import de.hdodenhof.circleimageview.CircleImageView;
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.core.Observable;
-import io.reactivex.rxjava3.core.Scheduler;
-import io.reactivex.rxjava3.schedulers.Schedulers;
+import io.reactivex.schedulers.Schedulers;
 
 
 public class FindDriver extends FragmentActivity implements OnMapReadyCallback, IFirebaseFailedListener, IFirebaseDriverInfoListener {
@@ -122,8 +133,18 @@ public class FindDriver extends FragmentActivity implements OnMapReadyCallback, 
     IFirebaseDriverInfoListener iFirebaseDriverInfoListener;
     IFirebaseFailedListener iFirebaseFailedListener;
     private String cityName;
-    DriverGeoModel driverGeoModel = new DriverGeoModel();
 
+    private CompositeDisposable compositeDisposable = new CompositeDisposable();
+    private IGoogleAPI iGoogleAPI;
+
+
+
+
+    @Override
+    protected void onStop() {
+        compositeDisposable.clear();
+        super.onStop();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -361,8 +382,8 @@ public class FindDriver extends FragmentActivity implements OnMapReadyCallback, 
         if (Common.driverFound.size() > 0){
 
             Observable.fromIterable(Common.driverFound)
-                    .subscribeOn(Schedulers.newThread())
-                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeOn(io.reactivex.rxjava3.schedulers.Schedulers.newThread())
+                    .observeOn(io.reactivex.rxjava3.android.schedulers.AndroidSchedulers.mainThread())
                     .subscribe(driverGeoModel ->  {
                         findDriverByKey(driverGeoModel);
                     },throwable -> {},()->{});
@@ -495,7 +516,38 @@ public class FindDriver extends FragmentActivity implements OnMapReadyCallback, 
                                 Common.markerList.get(driverGeoModel.getKey()).remove();
                             }
                             Common.markerList.remove(driverGeoModel.getKey());
+                            Common.driverLocationSubscribe.remove(driverGeoModel.getKey());
                             driverLocation.removeEventListener(this);
+                        }
+                        else {
+                            if (Common.markerList.get(driverGeoModel.getKey()) != null){
+                                GeoQueryModel geoQueryModel = snapshot.getValue(GeoQueryModel.class);
+                                AnimationModel animationModel = new AnimationModel(false, geoQueryModel);
+                                if (Common.driverLocationSubscribe.get(driverGeoModel.getKey()) != null){
+                                    Marker currentMarker = Common.markerList.get(driverGeoModel.getKey());
+                                    AnimationModel oldPosition = Common.driverLocationSubscribe.get(driverGeoModel.getKey());
+
+                                    LatLng fromLatLng = new LatLng(oldPosition.getGeoQueryModel().getL().get(0), oldPosition.getGeoQueryModel().getL().get(1));
+                                    LatLng toLatLng = new LatLng(animationModel.getGeoQueryModel().getL().get(0), animationModel.getGeoQueryModel().getL().get(1));
+
+                                    String from = new StringBuilder()
+                                            .append(oldPosition.getGeoQueryModel().getL().get(0))
+                                            .append(",")
+                                            .append(oldPosition.getGeoQueryModel().getL().get(1))
+                                            .toString();
+
+                                    String to = new StringBuilder()
+                                            .append(animationModel.getGeoQueryModel().getL().get(0))
+                                            .append(",")
+                                            .append(animationModel.getGeoQueryModel().getL().get(1))
+                                            .toString();
+
+                                    moveMarkerAnimation(driverGeoModel.getKey(), animationModel, currentMarker, from, to, fromLatLng, toLatLng);
+                                }
+                                else {
+                                    Common.driverLocationSubscribe.put(driverGeoModel.getKey(), animationModel);
+                                }
+                            }
                         }
                     }
 
@@ -505,6 +557,100 @@ public class FindDriver extends FragmentActivity implements OnMapReadyCallback, 
                     }
                 });
             }
+
+        }
+    }
+
+    private void moveMarkerAnimation(String key, AnimationModel animationModel, Marker currentMarker, String from, String to, LatLng fromLatLng, LatLng toLatLng) {
+        if (!animationModel.isRunning()){
+
+
+                try {
+
+                    GoogleDirection.withServerKey("AIzaSyDl7YXtTZQNBkthV3PjFS0fQOKvL8SIR7k")
+                            .from(fromLatLng)
+                            .to(toLatLng)
+                            .execute(new DirectionCallback() {
+                                @Override
+                                public void onDirectionSuccess(@Nullable Direction direction) {
+                                    Route route = direction.getRouteList().get(0);
+                                    Leg leg = route.getLegList().get(0);
+//                                    polylineList = leg.getDirectionPoint();
+                                    animationModel.setPolylineList(leg.getDirectionPoint());
+
+                                }
+
+                                @Override
+                                public void onDirectionFailure(@NonNull Throwable t) {
+                                    Snackbar.make(mapFragment.getView(), t.getMessage(), Snackbar.LENGTH_LONG).show();
+
+                                }
+                            });
+
+//                    index = -1;
+//                    next = 1;
+                    animationModel.setIndex(-1);
+                    animationModel.setNext(1);
+
+                    Runnable runnable = new Runnable() {
+                        @Override
+                        public void run() {
+                            if (animationModel.getPolylineList() != null && animationModel.getPolylineList().size() > 1){
+                                if (animationModel.getIndex() < animationModel.getPolylineList().size() - 2){
+//                                    index++;
+                                    animationModel.setIndex(animationModel.getIndex() + 1);
+                                    //next = index+1;
+                                    animationModel.setNext(animationModel.getNext() + 1);
+
+                                    //start = polylineList.get(index);
+                                    animationModel.setStart(animationModel.getPolylineList().get(animationModel.getIndex()));
+
+                                    //end = polylineList.get(next);
+                                    animationModel.setEnd(animationModel.getPolylineList().get(animationModel.getNext()));
+
+                                }
+
+                                ValueAnimator valueAnimator = ValueAnimator.ofInt(0, 1);
+                                valueAnimator.setDuration(3000);
+                                valueAnimator.setInterpolator(new LinearInterpolator());
+                                valueAnimator.addUpdateListener(animation -> {
+                                    //v = animation.getAnimatedFraction();
+                                    animationModel.setV(animation.getAnimatedFraction());
+                                    //lat = v * end.latitude + (1 - v) * start.latitude;
+                                    animationModel.setLat(animationModel.getV() * animationModel.getEnd().latitude + (1 - animationModel.getV()) * animationModel.getStart().latitude);
+                                    //lng = v * end.longitude + (1 - v) * start.longitude;
+                                    animationModel.setLng(animationModel.getV() * animationModel.getEnd().longitude + (1 - animationModel.getV()) * animationModel.getStart().longitude);
+                                    LatLng newPos = new LatLng(animationModel.getLat(), animationModel.getLng());
+                                    currentMarker.setPosition(newPos);
+                                    currentMarker.setAnchor(0.5f, 0.5f);
+                                    currentMarker.setRotation(Common.getBearing(animationModel.getStart(), newPos));
+                                });
+
+                                valueAnimator.start();
+                                if (animationModel.getIndex() < animationModel.getPolylineList().size() - 2){ //Reach destination
+                                    animationModel.getHandler().postDelayed(this, 1500);
+                                }
+                                else if (animationModel.getIndex() < animationModel.getPolylineList().size() - 1){//Done
+                                    animationModel.setRunning(false);
+                                    Common.driverLocationSubscribe.put(key, animationModel); //Update Data
+                                }
+                            }
+                        }
+                    };
+
+                    //Run handler
+                    animationModel.getHandler().postDelayed(runnable, 1500);
+
+
+
+
+
+
+
+                }
+                catch (Exception e){
+                    Snackbar.make(mapFragment.getView(), e.getMessage(), Snackbar.LENGTH_LONG).show();
+                }
 
         }
     }
