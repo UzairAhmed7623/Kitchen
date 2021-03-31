@@ -29,7 +29,7 @@ public class UserUtils {
 			tokens.child(id).setValue(tokenModel)
 					.addOnSuccessListener(aVoid -> {
 
-						Toast.makeText(context, "Token successfully submitted to database!", Toast.LENGTH_SHORT).show();
+//						Toast.makeText(context, "Token successfully submitted to database!", Toast.LENGTH_SHORT).show();
 
 
 					}).addOnFailureListener(e -> Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show());

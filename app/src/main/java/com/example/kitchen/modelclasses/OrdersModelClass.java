@@ -2,6 +2,7 @@ package com.example.kitchen.modelclasses;
 
 public class OrdersModelClass {
     private String resId, id, pId, itemName, finalPrice, price,  Items_Count, status, resName, totalPrice, date;
+    private Double lat, lng;
     private boolean expanded;
 
     public boolean isExpanded() {
@@ -28,6 +29,27 @@ public class OrdersModelClass {
         this.totalPrice = totalPrice;
         this.date = date;
         this.expanded = false;
+    }
+
+    public OrdersModelClass(Double lat, Double lng) {
+        this.lat = lat;
+        this.lng = lng;
+    }
+
+    public Double getLat() {
+        return lat;
+    }
+
+    public void setLat(Double lat) {
+        this.lat = lat;
+    }
+
+    public Double getLng() {
+        return lng;
+    }
+
+    public void setLng(Double lng) {
+        this.lng = lng;
     }
 
     public String getId() {

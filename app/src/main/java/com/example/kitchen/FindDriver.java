@@ -8,6 +8,7 @@ import androidx.fragment.app.FragmentActivity;
 import android.Manifest;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
@@ -34,6 +35,7 @@ import com.akexorcist.googledirection.model.Route;
 import com.example.kitchen.Callback.IFirebaseDriverInfoListener;
 import com.example.kitchen.Callback.IFirebaseFailedListener;
 import com.example.kitchen.Common.Common;
+import com.example.kitchen.EventBus.SelectPlaceEvent;
 import com.example.kitchen.Remote.IGoogleAPI;
 import com.example.kitchen.Utils.UserUtils;
 import com.example.kitchen.fragments.BottomSheetRiderFragment;
@@ -81,6 +83,8 @@ import com.karumi.dexter.listener.PermissionGrantedResponse;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.single.PermissionListener;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -106,7 +110,6 @@ public class FindDriver extends FragmentActivity implements OnMapReadyCallback, 
     private DocumentReference documentReference;
     private CollectionReference ref;
     //    private GeoFire geoFire;
-    private String keyFound = "";
     String id = "P5397d1k8cYDoW8dtEIOQClO8OI2";
     private Marker marker, driMarker;
 
@@ -137,7 +140,8 @@ public class FindDriver extends FragmentActivity implements OnMapReadyCallback, 
     private CompositeDisposable compositeDisposable = new CompositeDisposable();
     private IGoogleAPI iGoogleAPI;
 
-
+    private double lat, lng;
+    private Button btnPickupRequest;
 
 
     @Override
@@ -153,14 +157,10 @@ public class FindDriver extends FragmentActivity implements OnMapReadyCallback, 
 
         firebaseFirestore = FirebaseFirestore.getInstance();
 
-        //        driverImage = (CircleImageView) findViewById(R.id.driverImage);
-//        driverName = (TextView) findViewById(R.id.driverName);
-//        driverPhone = (TextView) findViewById(R.id.driverPhone);
         layout = (LinearLayout) findViewById(R.id.layout);
 
-//        ivArrow = (ImageView) findViewById(R.id.ivArrow);
-//        btnPickup = (Button) findViewById(R.id.btnPickup);
-
+        lat = getIntent().getDoubleExtra("lat", 1);
+        lng = getIntent().getDoubleExtra("lng", 2);
 
         mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -168,16 +168,9 @@ public class FindDriver extends FragmentActivity implements OnMapReadyCallback, 
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(FindDriver.this);
 
+        btnPickupRequest = (Button) findViewById(R.id.btnPickupRequest);
 
         riderFragment = BottomSheetRiderFragment.newInstance("Rider bottom sheet");
-
-//        ivArrow.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                riderFragment.show(getSupportFragmentManager(), riderFragment.getTag());
-//            }
-//        });
-
 
         init();
 
@@ -206,6 +199,25 @@ public class FindDriver extends FragmentActivity implements OnMapReadyCallback, 
     }
 
     private void init() {
+
+        btnPickupRequest.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (ActivityCompat.checkSelfPermission(FindDriver.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(FindDriver.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    return;
+                }
+                fusedLocationProviderClient.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
+                    @Override
+                    public void onSuccess(Location location) {
+                        LatLng origin = new LatLng(location.getLatitude(), location.getLongitude());
+                        LatLng destination = new LatLng(lat, lng);
+                        Intent intent = new Intent(FindDriver.this, RequestDriverActivity.class);
+                        startActivity(intent);
+                        EventBus.getDefault().postSticky(new SelectPlaceEvent(origin, destination));
+                    }
+                });
+            }
+        });
 
         iFirebaseDriverInfoListener = this;
         iFirebaseFailedListener = this;
@@ -293,7 +305,6 @@ public class FindDriver extends FragmentActivity implements OnMapReadyCallback, 
                         @Override
                         public void onKeyEntered(String key, GeoLocation location) {
                             Common.driverFound.add(new DriverGeoModel(key, location));
-                            keyFound = key;
 //                            Toast.makeText(FindDriver.this, "geoQuery"+keyFound, Toast.LENGTH_SHORT).show();
                         }
 
@@ -427,7 +438,6 @@ public class FindDriver extends FragmentActivity implements OnMapReadyCallback, 
     public void onMapReady(GoogleMap googleMap) {
         mgoogleMap = googleMap;
 
-
         Dexter.withContext(this).withPermission(Manifest.permission.ACCESS_FINE_LOCATION).withListener(new PermissionListener() {
             @Override
             public void onPermissionGranted(PermissionGrantedResponse permissionGrantedResponse) {
@@ -460,12 +470,12 @@ public class FindDriver extends FragmentActivity implements OnMapReadyCallback, 
                     }
                 });
 
-                View locationbutton = ((View)mapFragment.getView().findViewById(Integer.parseInt("1")).getParent())
+                View locationbutton = ((View)findViewById(Integer.parseInt("1")).getParent())
                         .findViewById(Integer.parseInt("2"));
                 RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) locationbutton.getLayoutParams();
                 params.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
-                params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
-                params.setMargins(0,0,0,50);
+                params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, LinearLayout.VERTICAL);
+                params.setMargins(0,0,0,300);
             }
 
             @Override
@@ -480,7 +490,7 @@ public class FindDriver extends FragmentActivity implements OnMapReadyCallback, 
             }
         }).check();
 
-
+        mgoogleMap.getUiSettings().setZoomControlsEnabled(true);
 
     }
 
@@ -500,7 +510,7 @@ public class FindDriver extends FragmentActivity implements OnMapReadyCallback, 
                     .title(Common.buildName(driverGeoModel.getDriverInfoModel().getFirstName(),
                             driverGeoModel.getDriverInfoModel().getLastName()))
                     .snippet(driverGeoModel.getDriverInfoModel().getPhoneNumber())
-                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.car))));
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.bike))));
 
 //            Toast.makeText(this, "onDriverInfoLoadSuccess"+driverGeoModel.getKey(), Toast.LENGTH_SHORT).show();
 
@@ -564,7 +574,6 @@ public class FindDriver extends FragmentActivity implements OnMapReadyCallback, 
     private void moveMarkerAnimation(String key, AnimationModel animationModel, Marker currentMarker, String from, String to, LatLng fromLatLng, LatLng toLatLng) {
         if (!animationModel.isRunning()){
 
-
                 try {
 
                     GoogleDirection.withServerKey("AIzaSyDl7YXtTZQNBkthV3PjFS0fQOKvL8SIR7k")
@@ -577,6 +586,70 @@ public class FindDriver extends FragmentActivity implements OnMapReadyCallback, 
                                     Leg leg = route.getLegList().get(0);
 //                                    polylineList = leg.getDirectionPoint();
                                     animationModel.setPolylineList(leg.getDirectionPoint());
+//                                    index = -1;
+//                                    next = 1;
+                                    animationModel.setIndex(-1);
+                                    animationModel.setNext(1);
+
+                                    Runnable runnable = new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            if (animationModel.getPolylineList() != null && animationModel.getPolylineList().size() > 1 ){
+                                                if (animationModel.getIndex() < animationModel.getPolylineList().size() - 2){
+//                                                  index++;
+                                                    animationModel.setIndex(animationModel.getIndex()+1);
+                                                    //next = index+1;
+                                                    animationModel.setNext(animationModel.getNext()+1);
+
+                                                    //start = polylineList.get(index);
+                                                    animationModel.setStart(animationModel.getPolylineList().get(animationModel.getIndex()));
+
+                                                    //end = polylineList.get(next);
+                                                    if (animationModel.getPolylineList().size() > animationModel.getNext()) {
+                                                        animationModel.setEnd(animationModel.getPolylineList().get(animationModel.getNext()));
+                                                    } else {
+                                                        System.out.println("polyline length " + animationModel.getPolylineList().size());
+                                                        System.out.println("next index call " + animationModel.getNext());
+                                                    }
+
+                                                }
+
+                                                ValueAnimator valueAnimator = ValueAnimator.ofInt(0, 1);
+                                                valueAnimator.setDuration(3000);
+                                                valueAnimator.setInterpolator(new LinearInterpolator());
+                                                valueAnimator.addUpdateListener(animation -> {
+                                                    //v = animation.getAnimatedFraction();
+                                                    animationModel.setV(animation.getAnimatedFraction());
+                                                    //lat = v * end.latitude + (1 - v) * start.latitude;
+                                                    animationModel.setLat(animationModel.getV() * animationModel.getEnd().latitude +
+                                                            (1 - animationModel.getV()) * animationModel.getStart().latitude);
+                                                    //lng = v * end.longitude + (1 - v) * start.longitude;
+                                                    animationModel.setLng(animationModel.getV() * animationModel.getEnd().longitude +
+                                                            (1 - animationModel.getV()) * animationModel.getStart().longitude);
+                                                    LatLng newPos = new LatLng(animationModel.getLat(), animationModel.getLng());
+                                                    currentMarker.setPosition(newPos);
+                                                    currentMarker.setAnchor(0.5f, 0.5f);
+                                                    currentMarker.setRotation(Common.getBearing(animationModel.getStart(), newPos));
+                                                });
+
+                                                valueAnimator.start();
+                                                if (animationModel.getIndex() < animationModel.getPolylineList().size() - 2){ //Reach destination
+                                                    animationModel.getHandler().postDelayed(this, 1500);
+                                                }
+                                                else if (animationModel.getIndex() < animationModel.getPolylineList().size() - 1){//Done
+                                                    animationModel.setRunning(false);
+                                                    Common.driverLocationSubscribe.put(key, animationModel); //Update Data
+                                                }
+                                            }
+                                            else {
+                                                Toast.makeText(FindDriver.this, "pagal ka bacha", Toast.LENGTH_SHORT).show();
+                                            }
+
+                                        }
+                                    };
+
+                                    //Run handler
+                                    animationModel.getHandler().postDelayed(runnable, 1500);
 
                                 }
 
@@ -587,66 +660,6 @@ public class FindDriver extends FragmentActivity implements OnMapReadyCallback, 
                                 }
                             });
 
-//                    index = -1;
-//                    next = 1;
-                    animationModel.setIndex(-1);
-                    animationModel.setNext(1);
-
-                    Runnable runnable = new Runnable() {
-                        @Override
-                        public void run() {
-                            if (animationModel.getPolylineList() != null && animationModel.getPolylineList().size() > 1){
-                                if (animationModel.getIndex() < animationModel.getPolylineList().size() - 2){
-//                                    index++;
-                                    animationModel.setIndex(animationModel.getIndex() + 1);
-                                    //next = index+1;
-                                    animationModel.setNext(animationModel.getNext() + 1);
-
-                                    //start = polylineList.get(index);
-                                    animationModel.setStart(animationModel.getPolylineList().get(animationModel.getIndex()));
-
-                                    //end = polylineList.get(next);
-                                    animationModel.setEnd(animationModel.getPolylineList().get(animationModel.getNext()));
-
-                                }
-
-                                ValueAnimator valueAnimator = ValueAnimator.ofInt(0, 1);
-                                valueAnimator.setDuration(3000);
-                                valueAnimator.setInterpolator(new LinearInterpolator());
-                                valueAnimator.addUpdateListener(animation -> {
-                                    //v = animation.getAnimatedFraction();
-                                    animationModel.setV(animation.getAnimatedFraction());
-                                    //lat = v * end.latitude + (1 - v) * start.latitude;
-                                    animationModel.setLat(animationModel.getV() * animationModel.getEnd().latitude + (1 - animationModel.getV()) * animationModel.getStart().latitude);
-                                    //lng = v * end.longitude + (1 - v) * start.longitude;
-                                    animationModel.setLng(animationModel.getV() * animationModel.getEnd().longitude + (1 - animationModel.getV()) * animationModel.getStart().longitude);
-                                    LatLng newPos = new LatLng(animationModel.getLat(), animationModel.getLng());
-                                    currentMarker.setPosition(newPos);
-                                    currentMarker.setAnchor(0.5f, 0.5f);
-                                    currentMarker.setRotation(Common.getBearing(animationModel.getStart(), newPos));
-                                });
-
-                                valueAnimator.start();
-                                if (animationModel.getIndex() < animationModel.getPolylineList().size() - 2){ //Reach destination
-                                    animationModel.getHandler().postDelayed(this, 1500);
-                                }
-                                else if (animationModel.getIndex() < animationModel.getPolylineList().size() - 1){//Done
-                                    animationModel.setRunning(false);
-                                    Common.driverLocationSubscribe.put(key, animationModel); //Update Data
-                                }
-                            }
-                        }
-                    };
-
-                    //Run handler
-                    animationModel.getHandler().postDelayed(runnable, 1500);
-
-
-
-
-
-
-
                 }
                 catch (Exception e){
                     Snackbar.make(mapFragment.getView(), e.getMessage(), Snackbar.LENGTH_LONG).show();
@@ -654,76 +667,4 @@ public class FindDriver extends FragmentActivity implements OnMapReadyCallback, 
 
         }
     }
-
-//    private void getDriverData(String key, GeoLocation location) {
-//
-//        ref.document(key).addSnapshotListener(new EventListener<DocumentSnapshot>() {
-//            @Override
-//            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException error) {
-//
-//                if (documentSnapshot.exists()){
-//                    String requestID = documentSnapshot.getString("requestID");
-//
-//                    if (requestID != null){
-//
-//                        String fName = documentSnapshot.getString("First Name");
-//                        String lName = documentSnapshot.getString("Last Name");
-//                        String phone = documentSnapshot.getString("Phone");
-//                        String imageUri = documentSnapshot.getString("imageProfile");
-//
-//                        driverName.setText(fName + " " + lName);
-//                        driverPhone.setText(phone);
-//                        Glide.with(getApplicationContext()).load(imageUri).placeholder(R.drawable.driver_placeholder).fitCenter().into(driverImage);
-//
-//                        LatLng latLng1 = new LatLng(location.latitude,location.longitude);
-//
-//                        if (driMarker != null){
-//                            driMarker.remove();
-//                        }
-//                        driMarker = mMap.addMarker(new MarkerOptions().position(latLng1).title(fName + " " + lName));
-////                                    mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng1));
-//                        LatLngBounds.Builder latlngBuilder = new LatLngBounds.Builder();
-//
-//                        latlngBuilder.include(latLng);
-//                        latlngBuilder.include(latLng1);
-//
-//                        mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(latlngBuilder.build(), 100));
-//
-//                        GoogleDirection.withServerKey("AIzaSyDl7YXtTZQNBkthV3PjFS0fQOKvL8SIR7k")
-//                                .from(latLng)
-//                                .to(latLng1)
-//                                .execute(new DirectionCallback() {
-//                                    @Override
-//                                    public void onDirectionSuccess(@Nullable Direction direction) {
-//
-//                                        List<Step> stepList = direction.getRouteList().get(0).getLegList().get(0).getStepList();
-//                                        ArrayList<PolylineOptions> polylineOptionList = DirectionConverter.createTransitPolyline(FindDriver.this, stepList, 5, Color.RED, 3, Color.BLUE);
-//                                        for (PolylineOptions polylineOption : polylineOptionList) {
-//                                            mMap.addPolyline(polylineOption);
-//                                        }
-//                                    }
-//
-//                                    @Override
-//                                    public void onDirectionFailure(Throwable t) {
-//                                        Log.d("TAG222", ""+t.getMessage());
-//
-//                                    }
-//                                });
-//
-//                        layout.setVisibility(View.VISIBLE);
-//
-//                    }
-//                    else {
-//                        Toast.makeText(FindDriver.this, "Driver canceled!", Toast.LENGTH_SHORT).show();
-////                        geoFire.removeLocation(id);
-//                        fusedLocationProviderClient.removeLocationUpdates(locationCallback);
-//
-//                    }
-//
-//                }
-//            }
-//        });
-//    }
-
-
 }

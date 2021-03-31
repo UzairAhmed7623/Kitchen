@@ -5,6 +5,7 @@ import android.os.Looper;
 
 import com.google.android.gms.maps.model.LatLng;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class AnimationModel {
@@ -12,7 +13,7 @@ public class AnimationModel {
     private GeoQueryModel geoQueryModel;
 
     //Moving marker
-    private List<LatLng> polylineList;
+    private List<LatLng> polylineList = new ArrayList<>();
     private Handler handler;
     private int index, next;
     private LatLng start, end;

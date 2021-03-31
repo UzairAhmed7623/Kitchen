@@ -7,8 +7,8 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="myColor">#FF5721</color>
-    <color name="myColorSecond">#CBFF5721</color>
+    <color name="myColor">#0084d1</color>
+    <color name="myColorSecond">#37B4FD</color>
 
     <color name="background_color">#009688</color>
     <color name="white_greyish">#EEEEEE</color>
@@ -20,5 +20,6 @@
 
     <color name="textColor">#F64C15</color>
     <color name="textBackColor">#FBC9B8</color>
+    <color name="Shehri_ka_bataya_huwa_color">#0084d1</color>
 
 </resources>

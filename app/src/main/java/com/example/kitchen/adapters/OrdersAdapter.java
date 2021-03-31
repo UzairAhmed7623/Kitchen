@@ -13,6 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -20,8 +21,12 @@ import com.example.kitchen.FindDriver;
 import com.example.kitchen.R;
 import com.example.kitchen.modelclasses.OrdersModelClass;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -56,6 +61,8 @@ public class OrdersAdapter extends RecyclerView.Adapter<OrdersAdapter.ViewHolder
         String totalPrice = ordersModelClass.getTotalPrice();
         String status = ordersModelClass.getStatus();
         String date = ordersModelClass.getDate();
+        Double lat = ordersModelClass.getLat();
+        Double lng = ordersModelClass.getLng();
 
         holder.tvResNameOrders.setText(resName);
         holder.tvGradTotalOrders.setText("Price: " + totalPrice);
@@ -76,52 +83,51 @@ public class OrdersAdapter extends RecyclerView.Adapter<OrdersAdapter.ViewHolder
 
         ArrayList<OrdersModelClass> arrayListMember = new ArrayList<>();
 
-        firebaseFirestore.collection("Users").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+        firebaseFirestore.collection("Users").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
             @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    for (QueryDocumentSnapshot documentSnapshot : task.getResult()) {
-                        if (documentSnapshot.exists()) {
-                            String id = documentSnapshot.getId();
+            public void onSuccess(QuerySnapshot value) {
 
-                            firebaseFirestore.collection("Users").document(id).collection("Cart").document(resId)
-                                    .collection("Orders").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                            if (task.isSuccessful()){
-                                                for (QueryDocumentSnapshot documentSnapshot1 : task.getResult()){
+                for (DocumentSnapshot documentSnapshot : value){
+                    if (documentSnapshot.exists()) {
+                        String id = documentSnapshot.getId();
 
-                                                    String id = documentSnapshot1.getId();
-                                                    String itemName = documentSnapshot1.getString("title");
-                                                    String price = documentSnapshot1.getString("price");
-                                                    String itemCount = documentSnapshot1.getString("items_count");
-                                                    String finalPrice = documentSnapshot1.getString("final_price");
-                                                    String pId = documentSnapshot1.getString("pId");
+                        firebaseFirestore.collection("Users").document(id).collection("Cart").document(resId)
+                                .collection("Orders").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                if (task.isSuccessful()){
+                                    for (QueryDocumentSnapshot documentSnapshot1 : task.getResult()){
 
-                                                    OrdersModelClass ordersModelClass1 = new OrdersModelClass();
+                                        String id = documentSnapshot1.getId();
+                                        String itemName = documentSnapshot1.getString("title");
+                                        String price = documentSnapshot1.getString("price");
+                                        String itemCount = documentSnapshot1.getString("items_count");
+                                        String finalPrice = documentSnapshot1.getString("final_price");
+                                        String pId = documentSnapshot1.getString("pId");
 
-                                                    ordersModelClass1.setId(id);
-                                                    ordersModelClass1.setItemName(itemName);
-                                                    ordersModelClass1.setPrice(price);
-                                                    ordersModelClass1.setItems_Count(itemCount);
-                                                    ordersModelClass1.setFinalPrice(finalPrice);
-                                                    ordersModelClass1.setpId(pId);
+                                        OrdersModelClass ordersModelClass1 = new OrdersModelClass();
 
-                                                    Log.d("asdfgh2", ""+id+itemName+price+itemCount+finalPrice+pId);
+                                        ordersModelClass1.setId(id);
+                                        ordersModelClass1.setItemName(itemName);
+                                        ordersModelClass1.setPrice(price);
+                                        ordersModelClass1.setItems_Count(itemCount);
+                                        ordersModelClass1.setFinalPrice(finalPrice);
+                                        ordersModelClass1.setpId(pId);
 
-                                                    arrayListMember.add(ordersModelClass1);
-                                                    holder.rvMember.setAdapter(new MemberOrdersAdapter(arrayListMember));
+                                        Log.d("asdfgh2", ""+id+itemName+price+itemCount+finalPrice+pId);
 
-                                                }
-                                            }
-                                        }
-                                    });
+                                        arrayListMember.add(ordersModelClass1);
+                                    }
+                                    holder.rvMember.setAdapter(new MemberOrdersAdapter(arrayListMember));
+                                }
+                            }
+                        });
 
-                        }
                     }
                 }
             }
         });
+
 
         if (status.equals("In progress"))
         {
@@ -198,6 +204,8 @@ public class OrdersAdapter extends RecyclerView.Adapter<OrdersAdapter.ViewHolder
             public void onClick(View v) {
                 Intent intent = new Intent(context, FindDriver.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                intent.putExtra("lat", lat);
+                intent.putExtra("lng", lng);
                 context.startActivity(intent);
             }
         });
