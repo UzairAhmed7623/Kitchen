@@ -32,11 +32,16 @@ import com.akexorcist.googledirection.model.Leg;
 import com.akexorcist.googledirection.model.Route;
 import com.example.kitchen.Common.Common;
 import com.example.kitchen.EventBus.SelectPlaceEvent;
+import com.example.kitchen.Utils.UserUtils;
+import com.example.kitchen.modelclasses.DriverGeoModel;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.JointType;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -54,6 +59,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import io.reactivex.disposables.CompositeDisposable;
@@ -73,10 +79,22 @@ public class RequestDriverActivity extends FragmentActivity implements OnMapRead
     private Marker originMarker, destinationMarker;
     private SupportMapFragment mapFragment;
 
-    private CardView layout_confirm_uber,layout_confirm_pickup;
+    private CardView layout_confirm_uber,layout_confirm_pickup, finding_your_ride_layout;
     private Button btnConfirmPickup, btnConfirmRider;
     private TextView tvPickupAddress;
+    private View fillMaps;
 
+    //Effect
+    private Circle lastUserCircle;
+    private long duration = 1000;
+    private ValueAnimator lastPulseAnimator;
+
+    //Slowly camera spinning
+    private ValueAnimator animator;
+    private static final int DESIRED_NUMBER_OF_SPINS = 5;
+    private static final int DESIRED_SECONDS_PER_ONE_360_SPIN = 40;
+
+    private RelativeLayout main_layout;
 
     @Override
     protected void onStart() {
@@ -94,6 +112,12 @@ public class RequestDriverActivity extends FragmentActivity implements OnMapRead
         EventBus.getDefault().unregister(this);
     }
 
+    @Override
+    protected void onDestroy() {
+        if (animator != null) animator.end();
+        super.onDestroy();
+    }
+
     @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
     public void onSelectPlaceEvent(SelectPlaceEvent event){
         selectPlaceEvent = event;
@@ -106,9 +130,20 @@ public class RequestDriverActivity extends FragmentActivity implements OnMapRead
 
         layout_confirm_pickup = (CardView) findViewById(R.id.layout_confirm_Pickup);
         layout_confirm_uber = (CardView) findViewById(R.id.layout_confirm_uber);
+        finding_your_ride_layout = (CardView) findViewById(R.id.finding_your_ride_layout);
+
         btnConfirmPickup = (Button) findViewById(R.id.btnConfirmPickup);
         btnConfirmRider = (Button) findViewById(R.id.btnConfirmRider);
+
         tvPickupAddress = (TextView) findViewById(R.id.tvPickupAddress);
+
+        main_layout = (RelativeLayout) findViewById(R.id.main_layout);
+
+        fillMaps = (View) findViewById(R.id.fillMaps);
+
+        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+        mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
 
         btnConfirmRider.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -120,11 +155,106 @@ public class RequestDriverActivity extends FragmentActivity implements OnMapRead
             }
         });
 
-        init();
+        btnConfirmPickup.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mMap == null) return;
+                if (selectPlaceEvent == null) return;
+                mMap.clear();
+                CameraPosition cameraPosition = new CameraPosition.Builder().target(selectPlaceEvent.getOrigin())
+                        .tilt(45f)
+                        .zoom(16f)
+                        .build();
+                mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
+                addMarkerWithPulseAnimation();
+            }
+        });
+
+        init();
+    }
+
+    private void addMarkerWithPulseAnimation() {
+        layout_confirm_pickup.setVisibility(View.GONE);
+        fillMaps.setVisibility(View.VISIBLE);
+        finding_your_ride_layout.setVisibility(View.VISIBLE);
+        originMarker = mMap.addMarker(new MarkerOptions()
+        .icon(BitmapDescriptorFactory.defaultMarker())
+        .position(selectPlaceEvent.getOrigin()));
+
+        addPulseEffect(selectPlaceEvent.getOrigin());
+    }
+
+    private void addPulseEffect(LatLng origin) {
+        if (lastPulseAnimator != null) lastPulseAnimator.cancel();
+        if (lastUserCircle != null) lastUserCircle.setCenter(origin);
+
+        lastPulseAnimator = Common.valueAnimator(duration, animation ->{
+            if (lastUserCircle != null) lastUserCircle.setRadius((Float)animation.getAnimatedValue());
+            else {
+                lastUserCircle = mMap.addCircle(new CircleOptions()
+                .center(origin)
+                .radius((Float)animation.getAnimatedValue())
+                .strokeColor(Color.WHITE)
+                .fillColor(Color.parseColor("#33333333")));
+            }
+        });
+
+        startMapCameraSpinningAnimation(origin);
+    }
+
+    private void startMapCameraSpinningAnimation(LatLng target) {
+        if (animator != null) animator.cancel();
+        animator = ValueAnimator.ofFloat(0, DESIRED_NUMBER_OF_SPINS * 360);
+        animator.setDuration(DESIRED_NUMBER_OF_SPINS * DESIRED_SECONDS_PER_ONE_360_SPIN * 1000);
+        animator.setInterpolator(new LinearInterpolator());
+        animator.setStartDelay(100);
+        animator.addUpdateListener(valueAnimator -> {
+            Float newBearingValue = (Float) valueAnimator.getAnimatedValue();
+            mMap.moveCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder()
+            .target(target)
+            .zoom(16f)
+            .tilt(45f)
+            .bearing(newBearingValue)
+            .build()));
+        });
+        animator.start();
+        
+        findNearByDriver(target);
+    }
+
+    private void findNearByDriver(LatLng target) {
+        if (Common.driverFound.size() > 0){
+
+            float min_distace = 0;
+            DriverGeoModel foundDriver = Common.driverFound.get(Common.driverFound.keySet().iterator().next());
+            Location currentRiderLocation = new Location("");
+            currentRiderLocation.setLatitude(target.latitude);
+            currentRiderLocation.setLongitude(target.longitude);
+            for (String key : Common.driverFound.keySet()){
+                Location driverLocation = new Location("");
+                driverLocation.setLatitude(Common.driverFound.get(key).getGeoLocation().latitude);
+                driverLocation.setLongitude(Common.driverFound.get(key).getGeoLocation().longitude);
+
+                //Compare 2 locations
+                if (min_distace == 0){
+                    min_distace = driverLocation.distanceTo(currentRiderLocation);
+                    foundDriver = Common.driverFound.get(key);
+                }
+                else if (driverLocation.distanceTo(currentRiderLocation) < min_distace){
+                    min_distace = driverLocation.distanceTo(currentRiderLocation);
+                    foundDriver = Common.driverFound.get(key);
+                }
+//                Snackbar.make(main_layout, new StringBuilder("Found driver: ")
+//                        .append(foundDriver.getDriverInfoModel().getPhoneNumber()),Snackbar.LENGTH_LONG).show();
+
+                UserUtils.sendRequestToDriver(this, main_layout, foundDriver, target);
+
+            }
+        }
+        else {
+            Snackbar.make(main_layout, "Driver not found!",Snackbar.LENGTH_LONG).show();
+        }
     }
 
     private void setDataPickup() {

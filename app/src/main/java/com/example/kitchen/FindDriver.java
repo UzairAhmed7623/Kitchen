@@ -304,8 +304,11 @@ public class FindDriver extends FragmentActivity implements OnMapReadyCallback, 
                     geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
                         @Override
                         public void onKeyEntered(String key, GeoLocation location) {
-                            Common.driverFound.add(new DriverGeoModel(key, location));
-//                            Toast.makeText(FindDriver.this, "geoQuery"+keyFound, Toast.LENGTH_SHORT).show();
+//                            Common.driverFound.add(new DriverGeoModel(key, location));
+                            if (!Common.driverFound.containsKey(key)){
+                                Common.driverFound.put(key, new DriverGeoModel(key, location));
+                            }
+
                         }
 
                         @Override
@@ -392,11 +395,11 @@ public class FindDriver extends FragmentActivity implements OnMapReadyCallback, 
     private void addDriverMarker() {
         if (Common.driverFound.size() > 0){
 
-            Observable.fromIterable(Common.driverFound)
+            Observable.fromIterable(Common.driverFound.keySet())
                     .subscribeOn(io.reactivex.rxjava3.schedulers.Schedulers.newThread())
                     .observeOn(io.reactivex.rxjava3.android.schedulers.AndroidSchedulers.mainThread())
-                    .subscribe(driverGeoModel ->  {
-                        findDriverByKey(driverGeoModel);
+                    .subscribe(key ->  {
+                        findDriverByKey(Common.driverFound.get(key));
                     },throwable -> {},()->{});
 
 
@@ -416,6 +419,7 @@ public class FindDriver extends FragmentActivity implements OnMapReadyCallback, 
                 if (documentSnapshot.exists()){
 
                     driverGeoModel.setDriverInfoModel(documentSnapshot.toObject(DriverInfoModel.class));
+                    Common.driverFound.get(driverGeoModel.getKey()).setDriverInfoModel(documentSnapshot.toObject(DriverInfoModel.class));
                     iFirebaseDriverInfoListener.onDriverInfoLoadSuccess(driverGeoModel);
 
                 }

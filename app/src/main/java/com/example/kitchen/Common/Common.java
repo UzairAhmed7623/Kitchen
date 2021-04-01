@@ -1,5 +1,6 @@
 package com.example.kitchen.Common;
 
+import android.animation.ValueAnimator;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -24,11 +25,12 @@ import com.google.android.gms.maps.model.Marker;
 import java.net.CookieHandler;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 public class Common {
 
-    public static Set<DriverGeoModel> driverFound = new HashSet<DriverGeoModel>();
+    public static Map<String,DriverGeoModel> driverFound = new HashMap<>();
     public static HashMap<String, Marker> markerList = new HashMap<>();
     public static HashMap<String, AnimationModel> driverLocationSubscribe = new HashMap<String, AnimationModel>();
 
@@ -88,5 +90,16 @@ public class Common {
         else if (begin.latitude < end.latitude && begin.longitude >= end.longitude)
             return (float) ((90 - Math.toDegrees(Math.atan(lng / lat))) + 270);
         return -1;
+    }
+
+    public static ValueAnimator valueAnimator(long duration, ValueAnimator.AnimatorUpdateListener listener){
+
+        ValueAnimator valueAnimator = ValueAnimator.ofFloat(0, 100);
+        valueAnimator.setDuration(duration);
+        valueAnimator.addUpdateListener(listener);
+        valueAnimator.setRepeatCount(ValueAnimator.INFINITE);
+        valueAnimator.setRepeatMode(ValueAnimator.RESTART);
+        valueAnimator.start();
+        return valueAnimator;
     }
 }
