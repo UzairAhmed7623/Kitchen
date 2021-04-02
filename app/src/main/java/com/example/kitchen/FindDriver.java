@@ -137,6 +137,8 @@ public class FindDriver extends FragmentActivity implements OnMapReadyCallback, 
     IFirebaseFailedListener iFirebaseFailedListener;
     private String cityName;
 
+    private static final String DIRECTION_API_KEY = "AIzaSyDl7YXtTZQNBkthV3PjFS0fQOKvL8SIR7k";
+
     private CompositeDisposable compositeDisposable = new CompositeDisposable();
     private IGoogleAPI iGoogleAPI;
 
@@ -580,7 +582,7 @@ public class FindDriver extends FragmentActivity implements OnMapReadyCallback, 
 
                 try {
 
-                    GoogleDirection.withServerKey("AIzaSyDl7YXtTZQNBkthV3PjFS0fQOKvL8SIR7k")
+                    GoogleDirection.withServerKey(DIRECTION_API_KEY)
                             .from(fromLatLng)
                             .to(toLatLng)
                             .execute(new DirectionCallback() {

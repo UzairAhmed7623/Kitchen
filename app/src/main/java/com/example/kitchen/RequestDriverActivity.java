@@ -84,6 +84,8 @@ public class RequestDriverActivity extends FragmentActivity implements OnMapRead
     private TextView tvPickupAddress;
     private View fillMaps;
 
+    private static final String DIRECTION_API_KEY = "AIzaSyDl7YXtTZQNBkthV3PjFS0fQOKvL8SIR7k";
+
     //Effect
     private Circle lastUserCircle;
     private long duration = 1000;
@@ -287,7 +289,7 @@ public class RequestDriverActivity extends FragmentActivity implements OnMapRead
 
         try {
 
-            GoogleDirection.withServerKey("AIzaSyDl7YXtTZQNBkthV3PjFS0fQOKvL8SIR7k")
+            GoogleDirection.withServerKey(DIRECTION_API_KEY)
                     .from(selectPlaceEvent.getOrigin())
                     .to(selectPlaceEvent.getDestination())
                     .execute(new DirectionCallback() {
