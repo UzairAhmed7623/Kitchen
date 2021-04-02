@@ -31,6 +31,7 @@ import com.akexorcist.googledirection.model.Info;
 import com.akexorcist.googledirection.model.Leg;
 import com.akexorcist.googledirection.model.Route;
 import com.example.kitchen.Common.Common;
+import com.example.kitchen.EventBus.DeclineRequestFromDriver;
 import com.example.kitchen.EventBus.SelectPlaceEvent;
 import com.example.kitchen.Utils.UserUtils;
 import com.example.kitchen.modelclasses.DriverGeoModel;
@@ -83,6 +84,7 @@ public class RequestDriverActivity extends FragmentActivity implements OnMapRead
     private Button btnConfirmPickup, btnConfirmRider;
     private TextView tvPickupAddress;
     private View fillMaps;
+    private DriverGeoModel lastDriverCall;
 
     private static final String DIRECTION_API_KEY = "AIzaSyDl7YXtTZQNBkthV3PjFS0fQOKvL8SIR7k";
 
@@ -101,7 +103,9 @@ public class RequestDriverActivity extends FragmentActivity implements OnMapRead
     @Override
     protected void onStart() {
         super.onStart();
-        EventBus.getDefault().register(this);
+        if (!EventBus.getDefault().isRegistered(this)){
+            EventBus.getDefault().register(this);
+        }
     }
 
     @Override
@@ -110,6 +114,9 @@ public class RequestDriverActivity extends FragmentActivity implements OnMapRead
         super.onStop();
         if (EventBus.getDefault().hasSubscriberForEvent(SelectPlaceEvent.class)){
             EventBus.getDefault().removeStickyEvent(SelectPlaceEvent.class);
+        }
+        if (EventBus.getDefault().hasSubscriberForEvent(DeclineRequestFromDriver.class)){
+            EventBus.getDefault().removeStickyEvent(DeclineRequestFromDriver.class);
         }
         EventBus.getDefault().unregister(this);
     }
@@ -123,6 +130,15 @@ public class RequestDriverActivity extends FragmentActivity implements OnMapRead
     @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
     public void onSelectPlaceEvent(SelectPlaceEvent event){
         selectPlaceEvent = event;
+    }
+
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
+    public void onDeclineRequestEvent(DeclineRequestFromDriver event){
+
+        if (lastDriverCall != null){
+            Common.driverFound.get(lastDriverCall.getKey()).setDecline(true);
+            findNearByDriver(selectPlaceEvent.getOrigin());
+        }
     }
 
     @Override
@@ -229,7 +245,7 @@ public class RequestDriverActivity extends FragmentActivity implements OnMapRead
         if (Common.driverFound.size() > 0){
 
             float min_distace = 0;
-            DriverGeoModel foundDriver = Common.driverFound.get(Common.driverFound.keySet().iterator().next());
+            DriverGeoModel foundDriver = null;
             Location currentRiderLocation = new Location("");
             currentRiderLocation.setLatitude(target.latitude);
             currentRiderLocation.setLongitude(target.longitude);
@@ -241,21 +257,47 @@ public class RequestDriverActivity extends FragmentActivity implements OnMapRead
                 //Compare 2 locations
                 if (min_distace == 0){
                     min_distace = driverLocation.distanceTo(currentRiderLocation);
-                    foundDriver = Common.driverFound.get(key);
+
+                    if (!Common.driverFound.get(key).isDecline()){
+
+                        foundDriver = Common.driverFound.get(key);
+                        break;
+                    }
+                    else {
+                        continue;
+                    }
                 }
                 else if (driverLocation.distanceTo(currentRiderLocation) < min_distace){
                     min_distace = driverLocation.distanceTo(currentRiderLocation);
-                    foundDriver = Common.driverFound.get(key);
+
+                    if (!Common.driverFound.get(key).isDecline()){
+
+                        foundDriver = Common.driverFound.get(key);
+                        break;
+                    }
+                    else {
+                        continue;
+                    }
                 }
 //                Snackbar.make(main_layout, new StringBuilder("Found driver: ")
 //                        .append(foundDriver.getDriverInfoModel().getPhoneNumber()),Snackbar.LENGTH_LONG).show();
 
-                UserUtils.sendRequestToDriver(this, main_layout, foundDriver, target);
+            }
 
+            if (foundDriver != null){
+                UserUtils.sendRequestToDriver(this, main_layout, foundDriver, target);
+                lastDriverCall = foundDriver;
+            }
+            else {
+                Toast.makeText(this, "Driver not found!",Toast.LENGTH_LONG).show();
+                lastDriverCall = null;
+                finish();
             }
         }
         else {
             Snackbar.make(main_layout, "Driver not found!",Snackbar.LENGTH_LONG).show();
+            lastDriverCall = null;
+            finish();
         }
     }
 

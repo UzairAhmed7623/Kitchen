@@ -76,7 +76,7 @@ public class UserUtils {
 		CompositeDisposable compositeDisposable = new CompositeDisposable();
 		IFCMService ifcmService = RetrofitFCMClient.getInstance().create(IFCMService.class);
 
-		FirebaseDatabase .getInstance().getReference("Tokens").child(foundDriver.getKey()).addListenerForSingleValueEvent(new ValueEventListener() {
+		FirebaseDatabase.getInstance().getReference("Tokens").child(foundDriver.getKey()).addListenerForSingleValueEvent(new ValueEventListener() {
 			@Override
 			public void onDataChange(@NonNull DataSnapshot snapshot) {
 				if (snapshot.exists()){

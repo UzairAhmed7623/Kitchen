@@ -6,12 +6,15 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.example.kitchen.Common.Common;
+import com.example.kitchen.EventBus.DeclineRequestFromDriver;
 import com.example.kitchen.Utils.UserUtils;
 import com.example.kitchen.modelclasses.TokenModel;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.Random;
 
@@ -38,11 +41,20 @@ public class MyFirebaseService extends FirebaseMessagingService {
             String title = remoteMessage.getData().get("title");
             String body = remoteMessage.getData().get("body");
 
-            Log.d("TAG", "Message recieved from: " + title + " " + body);
+            if (title != null){
 
-            Intent intent = new Intent(this, MyFirebaseService.class);
+                if (title.equals("Decline")){
+                    EventBus.getDefault().postSticky(new DeclineRequestFromDriver());
+                }
+                else {
 
-            Common.showNotification(this, new Random().nextInt(), title, body, intent);
+                    Log.d("TAG", "Message recieved from: " + title + " " + body);
+
+                    Intent intent = new Intent(this, MyFirebaseService.class);
+
+                    Common.showNotification(this, new Random().nextInt(), title, body, intent);
+                }
+            }
 
         }
     }

@@ -224,33 +224,43 @@ public class FindDriver extends FragmentActivity implements OnMapReadyCallback, 
         iFirebaseDriverInfoListener = this;
         iFirebaseFailedListener = this;
 
-        locationRequest = LocationRequest.create();
-        locationRequest.setSmallestDisplacement(10f);
-        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        locationRequest.setInterval(10000);
-        locationRequest.setFastestInterval(9000);
+        buildLocationRequest();
+        buildLocationCallBack();
+        updateLocation();
 
-        locationCallback = new LocationCallback() {
-            @Override
-            public void onLocationResult(@NonNull LocationResult locationResult) {
-                super.onLocationResult(locationResult);
+        loadAllAvailableDrivers();
+    }
 
-                LatLng newPosition = new LatLng(locationResult.getLastLocation().getLatitude(), locationResult.getLastLocation().getLongitude());
-                mgoogleMap.moveCamera(CameraUpdateFactory.newLatLng(newPosition));
+    private void updateLocation() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper());
+    }
 
-                if (firstTime) {
-                    previousLocation = currentLocation = locationResult.getLastLocation();
-                    firstTime = false;
-                } else {
-                    previousLocation = currentLocation;
-                    currentLocation = locationResult.getLastLocation();
-                }
+    private void buildLocationCallBack() {
+        if (locationCallback == null){
+            locationCallback = new LocationCallback() {
+                @Override
+                public void onLocationResult(@NonNull LocationResult locationResult) {
+                    super.onLocationResult(locationResult);
 
-                if (previousLocation.distanceTo(currentLocation) / 1000 <= LIMIT_RANGE) {
-                    loadAllAvailableDrivers();
-                } else {
-                    //DoNothing
-                }
+                    LatLng newPosition = new LatLng(locationResult.getLastLocation().getLatitude(), locationResult.getLastLocation().getLongitude());
+                    mgoogleMap.moveCamera(CameraUpdateFactory.newLatLng(newPosition));
+
+                    if (firstTime) {
+                        previousLocation = currentLocation = locationResult.getLastLocation();
+                        firstTime = false;
+                    } else {
+                        previousLocation = currentLocation;
+                        currentLocation = locationResult.getLastLocation();
+                    }
+
+                    if (previousLocation.distanceTo(currentLocation) / 1000 <= LIMIT_RANGE) {
+                        loadAllAvailableDrivers();
+                    } else {
+                        //DoNothing
+                    }
 //                geoFire.setLocation(FirebaseAuth.getInstance().getCurrentUser().getUid(),
 //                        new GeoLocation(locationResult.getLastLocation().getLatitude(),
 //                                locationResult.getLastLocation().getLongitude()),
@@ -265,15 +275,19 @@ public class FindDriver extends FragmentActivity implements OnMapReadyCallback, 
 //                            }
 //                        });
 
-            }
-        };
-
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return;
+                }
+            };
         }
-        fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper());
+    }
 
-        loadAllAvailableDrivers();
+    private void buildLocationRequest() {
+        if (locationRequest == null){
+            locationRequest = LocationRequest.create();
+            locationRequest.setSmallestDisplacement(10f);
+            locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+            locationRequest.setInterval(10000);
+            locationRequest.setFastestInterval(9000);
+        }
     }
 
     private void loadAllAvailableDrivers() {
@@ -482,6 +496,10 @@ public class FindDriver extends FragmentActivity implements OnMapReadyCallback, 
                 params.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
                 params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, LinearLayout.VERTICAL);
                 params.setMargins(0,0,0,300);
+
+                buildLocationRequest();
+                buildLocationCallBack();
+                updateLocation();
             }
 
             @Override
@@ -533,6 +551,9 @@ public class FindDriver extends FragmentActivity implements OnMapReadyCallback, 
                             }
                             Common.markerList.remove(driverGeoModel.getKey());
                             Common.driverLocationSubscribe.remove(driverGeoModel.getKey());
+                            if (Common.driverFound != null && Common.driverFound.size() > 0){
+                                Common.driverFound.remove(driverGeoModel.getKey());
+                            }
                             driverLocation.removeEventListener(this);
                         }
                         else {
