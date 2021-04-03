@@ -14,10 +14,8 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
 import android.widget.Button;
@@ -86,15 +84,12 @@ import com.karumi.dexter.listener.single.PermissionListener;
 import org.greenrobot.eventbus.EventBus;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 import de.hdodenhof.circleimageview.CircleImageView;
-import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.core.Observable;
-import io.reactivex.schedulers.Schedulers;
 
 
 public class FindDriver extends FragmentActivity implements OnMapReadyCallback, IFirebaseFailedListener, IFirebaseDriverInfoListener {
@@ -164,8 +159,7 @@ public class FindDriver extends FragmentActivity implements OnMapReadyCallback, 
         lat = getIntent().getDoubleExtra("lat", 1);
         lng = getIntent().getDoubleExtra("lng", 2);
 
-        mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
+        mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(FindDriver.this);
@@ -213,9 +207,16 @@ public class FindDriver extends FragmentActivity implements OnMapReadyCallback, 
                     public void onSuccess(Location location) {
                         LatLng origin = new LatLng(location.getLatitude(), location.getLongitude());
                         LatLng destination = new LatLng(lat, lng);
+
+                        String originString = new StringBuilder("").append(origin.latitude).append(",")
+                                .append(origin.longitude).toString();
+
+                        String destinationString = new StringBuilder("").append(destination.latitude).append(",")
+                                .append(destination.longitude).toString();
+
                         Intent intent = new Intent(FindDriver.this, RequestDriverActivity.class);
                         startActivity(intent);
-                        EventBus.getDefault().postSticky(new SelectPlaceEvent(origin, destination));
+                        EventBus.getDefault().postSticky(new SelectPlaceEvent(origin, destination, originString, destinationString));
                     }
                 });
             }

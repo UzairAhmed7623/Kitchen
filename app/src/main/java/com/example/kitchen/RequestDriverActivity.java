@@ -18,6 +18,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -30,11 +31,14 @@ import com.akexorcist.googledirection.model.Direction;
 import com.akexorcist.googledirection.model.Info;
 import com.akexorcist.googledirection.model.Leg;
 import com.akexorcist.googledirection.model.Route;
+import com.bumptech.glide.Glide;
 import com.example.kitchen.Common.Common;
 import com.example.kitchen.EventBus.DeclineRequestFromDriver;
+import com.example.kitchen.EventBus.DriverAcceptTripEvent;
 import com.example.kitchen.EventBus.SelectPlaceEvent;
 import com.example.kitchen.Utils.UserUtils;
 import com.example.kitchen.modelclasses.DriverGeoModel;
+import com.example.kitchen.modelclasses.TripPlanModel;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -54,6 +58,10 @@ import com.google.android.gms.maps.model.SquareCap;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.maps.android.ui.IconGenerator;
 
 import org.greenrobot.eventbus.EventBus;
@@ -85,6 +93,11 @@ public class RequestDriverActivity extends FragmentActivity implements OnMapRead
     private TextView tvPickupAddress;
     private View fillMaps;
     private DriverGeoModel lastDriverCall;
+
+    private CardView driverInfoLayout;
+    private ImageView ivDriver, ivCallDriver;
+    private TextView tvBikeType, tvCarNumber, tvDriverName, tvRating, tvForeigLanguage;
+    private  EditText etNote;
 
     private static final String DIRECTION_API_KEY = "AIzaSyDl7YXtTZQNBkthV3PjFS0fQOKvL8SIR7k";
 
@@ -118,6 +131,9 @@ public class RequestDriverActivity extends FragmentActivity implements OnMapRead
         if (EventBus.getDefault().hasSubscriberForEvent(DeclineRequestFromDriver.class)){
             EventBus.getDefault().removeStickyEvent(DeclineRequestFromDriver.class);
         }
+        if (EventBus.getDefault().hasSubscriberForEvent(DriverAcceptTripEvent.class)){
+            EventBus.getDefault().removeStickyEvent(DriverAcceptTripEvent.class);
+        }
         EventBus.getDefault().unregister(this);
     }
 
@@ -125,6 +141,48 @@ public class RequestDriverActivity extends FragmentActivity implements OnMapRead
     protected void onDestroy() {
         if (animator != null) animator.end();
         super.onDestroy();
+    }
+
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
+    public void onDriverAcceptEvent(DriverAcceptTripEvent event){
+        //Get trip informations
+        FirebaseDatabase.getInstance().getReference("Trips").child(event.getTripId())
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        if (snapshot.exists()){
+                            TripPlanModel tripPlanModel = snapshot.getValue(TripPlanModel.class);
+                            mMap.clear();
+                            fillMaps.setVisibility(View.GONE);
+                            if (animator != null){
+                                animator.end();
+                            }
+                            CameraPosition cameraPosition = new CameraPosition.Builder()
+                                    .target(mMap.getCameraPosition().target)
+                                    .tilt(0f)
+                                    .zoom(mMap.getCameraPosition().zoom)
+                                    .build();
+                            mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+
+                            Glide.with(RequestDriverActivity.this).load(tripPlanModel.getDriverInfoModel().getImage()).into(ivDriver);
+                            tvDriverName.setText(tripPlanModel.getDriverInfoModel().getFirstName()+" "+tripPlanModel.getDriverInfoModel().getLastName());
+
+
+                            layout_confirm_pickup.setVisibility(View.GONE);
+                            layout_confirm_uber.setVisibility(View.GONE);
+                            driverInfoLayout.setVisibility(View.VISIBLE);
+                            Toast.makeText(RequestDriverActivity.this, "Driver accept: "+tripPlanModel.getDriverInfoModel().getFirstName(), Toast.LENGTH_SHORT).show();
+                        }
+                        else {
+                            Snackbar.make(main_layout, "Trip not found with key"+event.getTripId(), Snackbar.LENGTH_LONG).show();
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        Snackbar.make(main_layout, error.getMessage(), Snackbar.LENGTH_LONG).show();
+                    }
+                });
     }
 
     @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
@@ -137,7 +195,7 @@ public class RequestDriverActivity extends FragmentActivity implements OnMapRead
 
         if (lastDriverCall != null){
             Common.driverFound.get(lastDriverCall.getKey()).setDecline(true);
-            findNearByDriver(selectPlaceEvent.getOrigin());
+            findNearByDriver(selectPlaceEvent);
         }
     }
 
@@ -158,6 +216,17 @@ public class RequestDriverActivity extends FragmentActivity implements OnMapRead
         main_layout = (RelativeLayout) findViewById(R.id.main_layout);
 
         fillMaps = (View) findViewById(R.id.fillMaps);
+
+        driverInfoLayout = (CardView) findViewById(R.id.driverInfoLayout);
+        ivDriver = (ImageView) findViewById(R.id.ivDriver);
+        ivCallDriver = (ImageView) findViewById(R.id.ivCallDriver);
+        tvBikeType = (TextView) findViewById(R.id.tvBikeType);
+        tvCarNumber = (TextView) findViewById(R.id.tvCarNumber);
+        tvRating = (TextView) findViewById(R.id.tvRating);
+        tvDriverName = (TextView) findViewById(R.id.tvDriverName);
+        tvForeigLanguage = (TextView) findViewById(R.id.tvForeigLanguage);
+        etNote = (EditText) findViewById(R.id.etNote);
+
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
@@ -200,28 +269,28 @@ public class RequestDriverActivity extends FragmentActivity implements OnMapRead
         .icon(BitmapDescriptorFactory.defaultMarker())
         .position(selectPlaceEvent.getOrigin()));
 
-        addPulseEffect(selectPlaceEvent.getOrigin());
+        addPulseEffect(selectPlaceEvent);
     }
 
-    private void addPulseEffect(LatLng origin) {
+    private void addPulseEffect(SelectPlaceEvent selectPlaceEvent) {
         if (lastPulseAnimator != null) lastPulseAnimator.cancel();
-        if (lastUserCircle != null) lastUserCircle.setCenter(origin);
+        if (lastUserCircle != null) lastUserCircle.setCenter(selectPlaceEvent.getOrigin());
 
         lastPulseAnimator = Common.valueAnimator(duration, animation ->{
             if (lastUserCircle != null) lastUserCircle.setRadius((Float)animation.getAnimatedValue());
             else {
                 lastUserCircle = mMap.addCircle(new CircleOptions()
-                .center(origin)
+                .center(selectPlaceEvent.getOrigin())
                 .radius((Float)animation.getAnimatedValue())
                 .strokeColor(Color.WHITE)
                 .fillColor(Color.parseColor("#33333333")));
             }
         });
 
-        startMapCameraSpinningAnimation(origin);
+        startMapCameraSpinningAnimation(selectPlaceEvent);
     }
 
-    private void startMapCameraSpinningAnimation(LatLng target) {
+    private void startMapCameraSpinningAnimation(SelectPlaceEvent selectPlaceEvent) {
         if (animator != null) animator.cancel();
         animator = ValueAnimator.ofFloat(0, DESIRED_NUMBER_OF_SPINS * 360);
         animator.setDuration(DESIRED_NUMBER_OF_SPINS * DESIRED_SECONDS_PER_ONE_360_SPIN * 1000);
@@ -230,7 +299,7 @@ public class RequestDriverActivity extends FragmentActivity implements OnMapRead
         animator.addUpdateListener(valueAnimator -> {
             Float newBearingValue = (Float) valueAnimator.getAnimatedValue();
             mMap.moveCamera(CameraUpdateFactory.newCameraPosition(new CameraPosition.Builder()
-            .target(target)
+            .target(selectPlaceEvent.getOrigin())
             .zoom(16f)
             .tilt(45f)
             .bearing(newBearingValue)
@@ -238,17 +307,17 @@ public class RequestDriverActivity extends FragmentActivity implements OnMapRead
         });
         animator.start();
         
-        findNearByDriver(target);
+        findNearByDriver(selectPlaceEvent);
     }
 
-    private void findNearByDriver(LatLng target) {
+    private void findNearByDriver(SelectPlaceEvent selectPlaceEvent) {
         if (Common.driverFound.size() > 0){
 
             float min_distace = 0;
             DriverGeoModel foundDriver = null;
             Location currentRiderLocation = new Location("");
-            currentRiderLocation.setLatitude(target.latitude);
-            currentRiderLocation.setLongitude(target.longitude);
+            currentRiderLocation.setLatitude(selectPlaceEvent.getOrigin().latitude);
+            currentRiderLocation.setLongitude(selectPlaceEvent.getOrigin().longitude);
             for (String key : Common.driverFound.keySet()){
                 Location driverLocation = new Location("");
                 driverLocation.setLatitude(Common.driverFound.get(key).getGeoLocation().latitude);
@@ -285,7 +354,7 @@ public class RequestDriverActivity extends FragmentActivity implements OnMapRead
             }
 
             if (foundDriver != null){
-                UserUtils.sendRequestToDriver(this, main_layout, foundDriver, target);
+                UserUtils.sendRequestToDriver(this, main_layout, foundDriver, selectPlaceEvent);
                 lastDriverCall = foundDriver;
             }
             else {

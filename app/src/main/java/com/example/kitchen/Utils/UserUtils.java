@@ -7,6 +7,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 
 import com.example.kitchen.Common.Common;
+import com.example.kitchen.EventBus.SelectPlaceEvent;
 import com.example.kitchen.R;
 import com.example.kitchen.Remote.IFCMService;
 import com.example.kitchen.Remote.RetrofitFCMClient;
@@ -34,7 +35,7 @@ import io.reactivex.schedulers.Schedulers;
 
 public class UserUtils {
 
-	private static String id = "Gfae0PqBpqfi3eyf2JFmtBQtazZ2";
+	private static String id = "P5397d1k8cYDoW8dtEIOQClO8OI2";
 
 	//Email Validation pattern
 	public static final String regEx = "\\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,4}\\b";
@@ -70,8 +71,7 @@ public class UserUtils {
 //		}
 	}
 
-    public static void sendRequestToDriver(Context context,
-										   RelativeLayout main_layout, DriverGeoModel foundDriver, LatLng target) {
+    public static void sendRequestToDriver(Context context, RelativeLayout main_layout, DriverGeoModel foundDriver, SelectPlaceEvent selectPlaceEvent) {
 
 		CompositeDisposable compositeDisposable = new CompositeDisposable();
 		IFCMService ifcmService = RetrofitFCMClient.getInstance().create(IFCMService.class);
@@ -86,11 +86,20 @@ public class UserUtils {
 					notificationdata.put("title", "RequestDriver");
 					notificationdata.put("body", "This message represent for request driver action");
 					notificationdata.put("RiderKey", id);
+
+					notificationdata.put("PickupLocationString", selectPlaceEvent.getOriginString());
 					notificationdata.put("PickupLocation", new StringBuilder("")
-					.append(target.latitude)
+					.append(selectPlaceEvent.getOrigin().latitude)
 					.append(",")
-					.append(target.longitude)
+					.append(selectPlaceEvent.getOrigin().longitude)
 					.toString());
+
+					notificationdata.put("DestinationLocationString", selectPlaceEvent.getDestinationString());
+					notificationdata.put("DestinationLocation", new StringBuilder("")
+							.append(selectPlaceEvent.getDestination().latitude)
+							.append(",")
+							.append(selectPlaceEvent.getDestination().longitude)
+							.toString());
 
 					FCMSendData fcmSendData = new FCMSendData(tokenModel.getToken(), notificationdata);
 					compositeDisposable.add(ifcmService.sendNotification(fcmSendData)

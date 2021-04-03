@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 
 import com.example.kitchen.Common.Common;
 import com.example.kitchen.EventBus.DeclineRequestFromDriver;
+import com.example.kitchen.EventBus.DriverAcceptTripEvent;
 import com.example.kitchen.Utils.UserUtils;
 import com.example.kitchen.modelclasses.TokenModel;
 import com.google.firebase.database.DatabaseReference;
@@ -40,15 +41,22 @@ public class MyFirebaseService extends FirebaseMessagingService {
 
             String title = remoteMessage.getData().get("title");
             String body = remoteMessage.getData().get("body");
+            String tripKey = remoteMessage.getData().get("TripKey");
+
+            Log.d("TAG", "title: " + title + " body: " + body+" tripKey: "+tripKey);
 
             if (title != null){
 
                 if (title.equals("Decline")){
                     EventBus.getDefault().postSticky(new DeclineRequestFromDriver());
                 }
+                else if (title.equals("Accept")){
+
+                    EventBus.getDefault().postSticky(new DriverAcceptTripEvent(tripKey));
+
+                }
                 else {
 
-                    Log.d("TAG", "Message recieved from: " + title + " " + body);
 
                     Intent intent = new Intent(this, MyFirebaseService.class);
 
