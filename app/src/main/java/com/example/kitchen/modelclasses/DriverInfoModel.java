@@ -1,7 +1,7 @@
 package com.example.kitchen.modelclasses;
 
 public class DriverInfoModel {
-    private String firstName, lastName, phoneNumber, image;
+    private String firstName, lastName, phoneNumber, imageProfile;
     private double rating;
 
     public DriverInfoModel() {
@@ -31,12 +31,12 @@ public class DriverInfoModel {
         this.phoneNumber = phoneNumber;
     }
 
-    public String getImage() {
-        return image;
+    public String getImageProfile() {
+        return imageProfile;
     }
 
-    public void setImage(String image) {
-        this.image = image;
+    public void setImageProfile(String imageProfile) {
+        this.imageProfile = imageProfile;
     }
 
     public double getRating() {

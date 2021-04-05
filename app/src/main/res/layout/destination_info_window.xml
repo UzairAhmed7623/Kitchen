@@ -20,17 +20,17 @@
 
             <LinearLayout
                 android:layout_width="0dp"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:background="@android:color/black"
                 android:padding="4dp"
                 android:orientation="vertical"
-                android:layout_weight="1">
+                android:layout_weight="1.5">
 
                 <TextView
                     android:id="@+id/tvDistance"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="5\nMIN"
+                    android:text="5\nkm"
                     android:fontFamily="@font/uber_move"
                     android:textSize="13sp"
                     android:layout_gravity="center"

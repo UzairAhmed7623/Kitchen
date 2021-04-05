@@ -7,20 +7,27 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.view.animation.Animation;
+import android.widget.TextView;
 
 import androidx.collection.ArraySet;
 import androidx.core.app.NotificationCompat;
 
 import com.example.kitchen.R;
+import com.example.kitchen.RequestDriverActivity;
 import com.example.kitchen.modelclasses.AnimationModel;
 import com.example.kitchen.modelclasses.DriverGeoModel;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
+import com.google.maps.android.ui.IconGenerator;
 
 import java.net.CookieHandler;
 import java.util.HashMap;
@@ -101,5 +108,20 @@ public class Common {
         valueAnimator.setRepeatMode(ValueAnimator.RESTART);
         valueAnimator.start();
         return valueAnimator;
+    }
+
+    public static Bitmap createIconWithDuration(Context context, String duration) {
+        View view = LayoutInflater.from(context).inflate(R.layout.pickup_info_with_duration_windows, null);
+        TextView tvDuration = (TextView) view.findViewById(R.id.tvDuration);
+        tvDuration.setText(Common.getNumberFromText(duration));
+
+        IconGenerator generator = new IconGenerator(context);
+        generator.setContentView(view);
+        generator.setBackground(new ColorDrawable(Color.TRANSPARENT));
+        return  generator.makeIcon();
+    }
+
+    private static String getNumberFromText(String duration) {
+        return duration.substring(0,duration.indexOf(" "));
     }
 }
