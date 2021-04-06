@@ -34,7 +34,7 @@ import com.example.kitchen.Callback.IFirebaseDriverInfoListener;
 import com.example.kitchen.Callback.IFirebaseFailedListener;
 import com.example.kitchen.Common.Common;
 import com.example.kitchen.EventBus.SelectPlaceEvent;
-import com.example.kitchen.Remote.IGoogleAPI;
+import com.example.kitchen.EventBus.ShowNotificationFinishTrip;
 import com.example.kitchen.Utils.UserUtils;
 import com.example.kitchen.fragments.BottomSheetRiderFragment;
 import com.example.kitchen.modelclasses.AnimationModel;
@@ -82,10 +82,13 @@ import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.single.PermissionListener;
 
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
+import java.util.Random;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.reactivex.disposables.CompositeDisposable;
@@ -135,16 +138,34 @@ public class FindDriver extends FragmentActivity implements OnMapReadyCallback, 
     private static final String DIRECTION_API_KEY = "AIzaSyDl7YXtTZQNBkthV3PjFS0fQOKvL8SIR7k";
 
     private CompositeDisposable compositeDisposable = new CompositeDisposable();
-    private IGoogleAPI iGoogleAPI;
+
+    private boolean isNextLaunch = false;
 
     private double lat, lng;
     private Button btnPickupRequest;
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+    }
 
     @Override
     protected void onStop() {
         compositeDisposable.clear();
+
         super.onStop();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (isNextLaunch){
+            loadAllAvailableDrivers();
+        }
+        else {
+            isNextLaunch = true;
+        }
     }
 
     @Override
@@ -202,21 +223,30 @@ public class FindDriver extends FragmentActivity implements OnMapReadyCallback, 
                 if (ActivityCompat.checkSelfPermission(FindDriver.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(FindDriver.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     return;
                 }
-                fusedLocationProviderClient.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
-                    @Override
-                    public void onSuccess(Location location) {
-                        LatLng origin = new LatLng(location.getLatitude(), location.getLongitude());
-                        LatLng destination = new LatLng(lat, lng);
+                fusedLocationProviderClient.getLastLocation().addOnSuccessListener(location -> {
 
-                        String originString = new StringBuilder("").append(origin.latitude).append(",")
-                                .append(origin.longitude).toString();
+                    LatLng origin = new LatLng(location.getLatitude(), location.getLongitude());
+                    LatLng destination = new LatLng(lat, lng);
 
-                        String destinationString = new StringBuilder("").append(destination.latitude).append(",")
-                                .append(destination.longitude).toString();
+                    String originString = new StringBuilder("").append(origin.latitude).append(",")
+                            .append(origin.longitude).toString();
+
+                    String destinationString = new StringBuilder("").append(destination.latitude).append(",")
+                            .append(destination.longitude).toString();
+
+                    Geocoder geocoder = new Geocoder(FindDriver.this, Locale.getDefault());
+                    List<Address> addressList;
+                    try {
+
+                        addressList = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+                        String address = addressList.get(0).getAddressLine(0);
 
                         Intent intent = new Intent(FindDriver.this, RequestDriverActivity.class);
                         startActivity(intent);
-                        EventBus.getDefault().postSticky(new SelectPlaceEvent(origin, destination, originString, destinationString));
+                        EventBus.getDefault().postSticky(new SelectPlaceEvent(origin, destination, originString, destinationString, address));
+                    }
+                    catch (Exception e){
+                        Snackbar.make(mapFragment.getView(), e.getMessage(), Snackbar.LENGTH_LONG).show();
                     }
                 });
             }
@@ -301,102 +331,103 @@ public class FindDriver extends FragmentActivity implements OnMapReadyCallback, 
             @Override
             public void onSuccess(Location location) {
 
-                LatLng userLatLng = new LatLng(location.getLatitude(), location.getLongitude());
-                mgoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(userLatLng, 18f));
+                if (location != null) {
 
-                Geocoder geocoder = new Geocoder(FindDriver.this, Locale.getDefault());
-                List<Address> addressList;
-                try {
-                    addressList = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
-                    cityName = addressList.get(0).getLocality();
+                    LatLng userLatLng = new LatLng(location.getLatitude(), location.getLongitude());
+                    mgoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(userLatLng, 18f));
 
-                    DatabaseReference driver_location_ref = FirebaseDatabase.getInstance()
-                            .getReference("driversLocation").
-                            child(cityName);
+                    Geocoder geocoder = new Geocoder(FindDriver.this, Locale.getDefault());
+                    List<Address> addressList;
+                    try {
+                        addressList = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+                        cityName = addressList.get(0).getLocality();
 
-                    GeoFire geoFire = new GeoFire(driver_location_ref);
-                    GeoQuery geoQuery = geoFire.queryAtLocation(new GeoLocation(location.getLatitude(), location.getLongitude()), distance);
-                    geoQuery.removeAllListeners();
+                        DatabaseReference driver_location_ref = FirebaseDatabase.getInstance()
+                                .getReference("driversLocation").
+                                        child(cityName);
 
-                    geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
-                        @Override
-                        public void onKeyEntered(String key, GeoLocation location) {
+                        GeoFire geoFire = new GeoFire(driver_location_ref);
+                        GeoQuery geoQuery = geoFire.queryAtLocation(new GeoLocation(location.getLatitude(), location.getLongitude()), distance);
+                        geoQuery.removeAllListeners();
+
+                        geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
+                            @Override
+                            public void onKeyEntered(String key, GeoLocation location) {
 //                            Common.driverFound.add(new DriverGeoModel(key, location));
-                            if (!Common.driverFound.containsKey(key)){
-                                Common.driverFound.put(key, new DriverGeoModel(key, location));
+                                if (!Common.driverFound.containsKey(key)) {
+                                    Common.driverFound.put(key, new DriverGeoModel(key, location));
+                                }
+
                             }
 
-                        }
+                            @Override
+                            public void onKeyExited(String key) {
 
-                        @Override
-                        public void onKeyExited(String key) {
-
-                        }
-
-                        @Override
-                        public void onKeyMoved(String key, GeoLocation location) {
-
-                        }
-
-                        @Override
-                        public void onGeoQueryReady() {
-                            if (distance <= LIMIT_RANGE){
-                                distance++;
-                                loadAllAvailableDrivers();
                             }
-                            else {
-                                distance = 1.0;
-                                addDriverMarker();
+
+                            @Override
+                            public void onKeyMoved(String key, GeoLocation location) {
+
                             }
-                        }
 
-                        @Override
-                        public void onGeoQueryError(DatabaseError error) {
-                            Snackbar.make(mapFragment.getView(), error.getMessage(), Snackbar.LENGTH_LONG).show();
+                            @Override
+                            public void onGeoQueryReady() {
+                                if (distance <= LIMIT_RANGE) {
+                                    distance++;
+                                    loadAllAvailableDrivers();
+                                } else {
+                                    distance = 1.0;
+                                    addDriverMarker();
+                                }
+                            }
 
-                        }
-                    });
+                            @Override
+                            public void onGeoQueryError(DatabaseError error) {
+                                Snackbar.make(mapFragment.getView(), error.getMessage(), Snackbar.LENGTH_LONG).show();
 
-                    driver_location_ref.addChildEventListener(new ChildEventListener() {
-                        @Override
-                        public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-                            GeoQueryModel geoQueryModel = snapshot.getValue(GeoQueryModel.class);
-                            GeoLocation geoLocation = new GeoLocation(geoQueryModel.getL().get(0),
-                                    geoQueryModel.getL().get(1));
-                            DriverGeoModel driverGeoModel = new DriverGeoModel(snapshot.getKey(), geoLocation);
-                            Location newDriverLocation = new Location("");
-                            newDriverLocation.setLatitude(geoLocation.latitude);
-                            newDriverLocation.setLongitude(geoLocation.longitude);
-                            float newDistance = location.distanceTo(newDriverLocation) / 1000;
-                            if (newDistance <= LIMIT_RANGE)
-                                findDriverByKey(driverGeoModel);
-                        }
+                            }
+                        });
 
-                        @Override
-                        public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                        driver_location_ref.addChildEventListener(new ChildEventListener() {
+                            @Override
+                            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                                GeoQueryModel geoQueryModel = snapshot.getValue(GeoQueryModel.class);
+                                GeoLocation geoLocation = new GeoLocation(geoQueryModel.getL().get(0),
+                                        geoQueryModel.getL().get(1));
+                                DriverGeoModel driverGeoModel = new DriverGeoModel(snapshot.getKey(), geoLocation);
+                                Location newDriverLocation = new Location("");
+                                newDriverLocation.setLatitude(geoLocation.latitude);
+                                newDriverLocation.setLongitude(geoLocation.longitude);
+                                float newDistance = location.distanceTo(newDriverLocation) / 1000;
+                                if (newDistance <= LIMIT_RANGE)
+                                    findDriverByKey(driverGeoModel);
+                            }
 
-                        }
+                            @Override
+                            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
 
-                        @Override
-                        public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+                            }
 
-                        }
+                            @Override
+                            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
 
-                        @Override
-                        public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                            }
 
-                        }
+                            @Override
+                            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
 
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError error) {
+                            }
 
-                        }
-                    });
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
 
-                }
-                catch (IOException e){
-                    e.printStackTrace();
-                    Snackbar.make(mapFragment.getView(), e.getMessage(), Snackbar.LENGTH_LONG).show();
+                            }
+                        });
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        Snackbar.make(mapFragment.getView(), e.getMessage(), Snackbar.LENGTH_LONG).show();
+                    }
                 }
             }
         }).addOnFailureListener(new OnFailureListener() {
@@ -695,4 +726,12 @@ public class FindDriver extends FragmentActivity implements OnMapReadyCallback, 
 
         }
     }
+
+    @Override
+    protected void onDestroy() {
+        fusedLocationProviderClient.removeLocationUpdates(locationCallback);
+        super.onDestroy();
+    }
+
 }
+

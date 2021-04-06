@@ -35,7 +35,7 @@ import io.reactivex.schedulers.Schedulers;
 
 public class UserUtils {
 
-	private static String id = "P5397d1k8cYDoW8dtEIOQClO8OI2";
+	private static String id = "iq9RklLCslYOlVr60tVpyyRB8GJ2";
 
 	//Email Validation pattern
 	public static final String regEx = "\\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,4}\\b";
@@ -89,12 +89,12 @@ public class UserUtils {
 
 					notificationdata.put("PickupLocationString", selectPlaceEvent.getOriginString());
 					notificationdata.put("PickupLocation", new StringBuilder("")
-					.append(selectPlaceEvent.getOrigin().latitude)
-					.append(",")
-					.append(selectPlaceEvent.getOrigin().longitude)
-					.toString());
+							.append(selectPlaceEvent.getOrigin().latitude)
+							.append(",")
+							.append(selectPlaceEvent.getOrigin().longitude)
+							.toString());
 
-					notificationdata.put("DestinationLocationString", selectPlaceEvent.getDestinationString());
+					notificationdata.put("DestinationLocationString", selectPlaceEvent.getAddress());
 					notificationdata.put("DestinationLocation", new StringBuilder("")
 							.append(selectPlaceEvent.getDestination().latitude)
 							.append(",")

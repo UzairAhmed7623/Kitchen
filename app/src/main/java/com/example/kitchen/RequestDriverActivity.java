@@ -3,13 +3,10 @@ package com.example.kitchen;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
-import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.FragmentActivity;
 
-import android.Manifest;
 import android.animation.ValueAnimator;
-import android.content.Context;
-import android.content.pm.PackageManager;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -22,7 +19,6 @@ import android.view.animation.LinearInterpolator;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -35,9 +31,12 @@ import com.akexorcist.googledirection.model.Leg;
 import com.akexorcist.googledirection.model.Route;
 import com.bumptech.glide.Glide;
 import com.example.kitchen.Common.Common;
+import com.example.kitchen.EventBus.DeclineRequestAndRemoveTripFromDriver;
 import com.example.kitchen.EventBus.DeclineRequestFromDriver;
 import com.example.kitchen.EventBus.DriverAcceptTripEvent;
+import com.example.kitchen.EventBus.DriverCompleteTripEvent;
 import com.example.kitchen.EventBus.SelectPlaceEvent;
+import com.example.kitchen.EventBus.ShowNotificationFinishTrip;
 import com.example.kitchen.Utils.UserUtils;
 import com.example.kitchen.modelclasses.DriverGeoModel;
 import com.example.kitchen.modelclasses.TripPlanModel;
@@ -57,8 +56,6 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.model.SquareCap;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -70,9 +67,8 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.reactivex.disposables.CompositeDisposable;
@@ -144,6 +140,12 @@ public class RequestDriverActivity extends FragmentActivity implements OnMapRead
         }
         if (EventBus.getDefault().hasSubscriberForEvent(DriverAcceptTripEvent.class)){
             EventBus.getDefault().removeStickyEvent(DriverAcceptTripEvent.class);
+        }
+        if (EventBus.getDefault().hasSubscriberForEvent(DeclineRequestAndRemoveTripFromDriver.class)){
+            EventBus.getDefault().removeStickyEvent(DeclineRequestAndRemoveTripFromDriver.class);
+        }
+        if (EventBus.getDefault().hasSubscriberForEvent(DriverCompleteTripEvent.class)){
+            EventBus.getDefault().removeStickyEvent(DriverCompleteTripEvent.class);
         }
         EventBus.getDefault().unregister(this);
     }
@@ -272,14 +274,16 @@ public class RequestDriverActivity extends FragmentActivity implements OnMapRead
         FirebaseDatabase.getInstance().getReference("Trips").child(tripId).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                TripPlanModel newData = snapshot.getValue(TripPlanModel.class);
+                if (snapshot.exists()){
 
-                assert newData != null;
-                LatLng driverNewLocation = new LatLng(newData.getCurrentLat(), newData.getCurrentLng());
+                    TripPlanModel newData = snapshot.getValue(TripPlanModel.class);
 
-                Toast.makeText(RequestDriverActivity.this, "old"+driverOldPositionLatLng+"new"+driverNewLocation, Toast.LENGTH_LONG).show();
+                    LatLng driverNewLocation = new LatLng(newData.getCurrentLat(), newData.getCurrentLng());
 
-                moveMarkerAnimation(destinationMarker, driverOldPositionLatLng, driverNewLocation);
+                    Toast.makeText(RequestDriverActivity.this, "old"+driverOldPositionLatLng+"new"+driverNewLocation, Toast.LENGTH_LONG).show();
+
+                    moveMarkerAnimation(destinationMarker, driverOldPositionLatLng, driverNewLocation);
+                }
 
             }
 
@@ -396,6 +400,28 @@ public class RequestDriverActivity extends FragmentActivity implements OnMapRead
             Common.driverFound.get(lastDriverCall.getKey()).setDecline(true);
             findNearByDriver(selectPlaceEvent);
         }
+    }
+
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
+    public void onDeclineRequestAndRemoveTripEvent(DeclineRequestAndRemoveTripFromDriver event){
+
+        if (lastDriverCall != null){
+            Common.driverFound.get(lastDriverCall.getKey()).setDecline(true);
+            finish();
+        }
+    }
+
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
+    public void onDriverCompleteTrip(DriverCompleteTripEvent event){
+
+        Intent intent = new Intent(RequestDriverActivity.this, Orders.class);
+
+        Common.showNotification(this, new Random().nextInt(),
+                "Complete trip",
+                "Your trip: "+event.getTripKey()+"has been completed.",
+                intent);
+
+        finish();
     }
 
     @Override
