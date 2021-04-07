@@ -44,10 +44,10 @@
                 android:id="@+id/tvOrigin"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="5"
+                android:layout_weight="4.5"
                 android:text="1234 sN fdfdfdfdfdfdfdfdfdfhgfhd"
                 android:layout_gravity="center_vertical"
-                android:layout_marginLeft="20dp"/>
+                android:layout_marginStart="10dp"/>
 
             <ImageView
                 android:id="@+id/ivNext"
@@ -59,11 +59,24 @@
         </LinearLayout>
 
     </androidx.cardview.widget.CardView>
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal">
 
-    <ImageView
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:layout_gravity="center_horizontal"
-        android:src="@drawable/restaurat_marker"/>
+        <View
+            android:layout_width="1dp"
+            android:layout_height="10dp"
+            android:layout_gravity="center_horizontal"
+            android:background="@android:color/black"/>
+
+        <ImageView
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/kitchen_marker_background"
+            android:src="@drawable/restaurat_marker" />
+
+    </FrameLayout>
 
 </LinearLayout>

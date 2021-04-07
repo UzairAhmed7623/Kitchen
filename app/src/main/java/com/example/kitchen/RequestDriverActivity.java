@@ -37,6 +37,7 @@ import com.example.kitchen.EventBus.DriverAcceptTripEvent;
 import com.example.kitchen.EventBus.DriverCompleteTripEvent;
 import com.example.kitchen.EventBus.SelectPlaceEvent;
 import com.example.kitchen.EventBus.ShowNotificationFinishTrip;
+import com.example.kitchen.EventBus.TimeUp;
 import com.example.kitchen.Utils.UserUtils;
 import com.example.kitchen.modelclasses.DriverGeoModel;
 import com.example.kitchen.modelclasses.TripPlanModel;
@@ -67,6 +68,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.sql.Time;
 import java.util.List;
 import java.util.Random;
 
@@ -119,42 +121,6 @@ public class RequestDriverActivity extends FragmentActivity implements OnMapRead
     private static final int DESIRED_SECONDS_PER_ONE_360_SPIN = 40;
 
     private RelativeLayout main_layout;
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        if (!EventBus.getDefault().isRegistered(this)){
-            EventBus.getDefault().register(this);
-        }
-    }
-
-    @Override
-    protected void onStop() {
-        compositeDisposable.clear();
-        super.onStop();
-        if (EventBus.getDefault().hasSubscriberForEvent(SelectPlaceEvent.class)){
-            EventBus.getDefault().removeStickyEvent(SelectPlaceEvent.class);
-        }
-        if (EventBus.getDefault().hasSubscriberForEvent(DeclineRequestFromDriver.class)){
-            EventBus.getDefault().removeStickyEvent(DeclineRequestFromDriver.class);
-        }
-        if (EventBus.getDefault().hasSubscriberForEvent(DriverAcceptTripEvent.class)){
-            EventBus.getDefault().removeStickyEvent(DriverAcceptTripEvent.class);
-        }
-        if (EventBus.getDefault().hasSubscriberForEvent(DeclineRequestAndRemoveTripFromDriver.class)){
-            EventBus.getDefault().removeStickyEvent(DeclineRequestAndRemoveTripFromDriver.class);
-        }
-        if (EventBus.getDefault().hasSubscriberForEvent(DriverCompleteTripEvent.class)){
-            EventBus.getDefault().removeStickyEvent(DriverCompleteTripEvent.class);
-        }
-        EventBus.getDefault().unregister(this);
-    }
-
-    @Override
-    protected void onDestroy() {
-        if (animator != null) animator.end();
-        super.onDestroy();
-    }
 
     @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
     public void onDriverAcceptEvent(DriverAcceptTripEvent event){
@@ -280,11 +246,15 @@ public class RequestDriverActivity extends FragmentActivity implements OnMapRead
 
                     LatLng driverNewLocation = new LatLng(newData.getCurrentLat(), newData.getCurrentLng());
 
-                    Toast.makeText(RequestDriverActivity.this, "old"+driverOldPositionLatLng+"new"+driverNewLocation, Toast.LENGTH_LONG).show();
+                    if (driverOldPositionLatLng == driverNewLocation){
 
-                    moveMarkerAnimation(destinationMarker, driverOldPositionLatLng, driverNewLocation);
+                        Toast.makeText(RequestDriverActivity.this, "old"+driverOldPositionLatLng+"new"+driverNewLocation, Toast.LENGTH_LONG).show();
+                        moveMarkerAnimation(destinationMarker, driverOldPositionLatLng, driverNewLocation);
+                    }
+                    else {
+                        Toast.makeText(RequestDriverActivity.this, "not Matching", Toast.LENGTH_SHORT).show();
+                    }
                 }
-
             }
 
             @Override
@@ -421,7 +391,20 @@ public class RequestDriverActivity extends FragmentActivity implements OnMapRead
                 "Your trip: "+event.getTripKey()+"has been completed.",
                 intent);
 
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+
         finish();
+    }
+
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
+    public void onTimeUp(TimeUp event){
+
+
+        Common.showNotification(this, new Random().nextInt(),
+                "TimeUp",
+                "Please HarryUp",
+                getIntent());
     }
 
     @Override
@@ -734,5 +717,41 @@ public class RequestDriverActivity extends FragmentActivity implements OnMapRead
         generator.setBackground(new ColorDrawable(Color.TRANSPARENT));
         Bitmap icon = generator.makeIcon();
         destinationMarker = mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromBitmap(icon)).position(selectPlaceEvent.getDestination()));
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (!EventBus.getDefault().isRegistered(this)){
+            EventBus.getDefault().register(this);
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        compositeDisposable.clear();
+        super.onStop();
+        if (EventBus.getDefault().hasSubscriberForEvent(SelectPlaceEvent.class)){
+            EventBus.getDefault().removeStickyEvent(SelectPlaceEvent.class);
+        }
+        if (EventBus.getDefault().hasSubscriberForEvent(DeclineRequestFromDriver.class)){
+            EventBus.getDefault().removeStickyEvent(DeclineRequestFromDriver.class);
+        }
+        if (EventBus.getDefault().hasSubscriberForEvent(DriverAcceptTripEvent.class)){
+            EventBus.getDefault().removeStickyEvent(DriverAcceptTripEvent.class);
+        }
+        if (EventBus.getDefault().hasSubscriberForEvent(DeclineRequestAndRemoveTripFromDriver.class)){
+            EventBus.getDefault().removeStickyEvent(DeclineRequestAndRemoveTripFromDriver.class);
+        }
+        if (EventBus.getDefault().hasSubscriberForEvent(DriverCompleteTripEvent.class)){
+            EventBus.getDefault().removeStickyEvent(DriverCompleteTripEvent.class);
+        }
+        EventBus.getDefault().unregister(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (animator != null) animator.end();
+        super.onDestroy();
     }
 }

@@ -44,7 +44,7 @@
                 android:id="@+id/tvDestination"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="5"
+                android:layout_weight="4.5"
                 android:text="CentralPark CentralPark Central"
                 android:layout_gravity="center_vertical"
                 android:layout_marginLeft="20dp"/>
@@ -59,10 +59,23 @@
 
     </androidx.cardview.widget.CardView>
 
-    <ImageView
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:layout_gravity="center_horizontal"
-        android:src="@drawable/destination"/>
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal">
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="10dp"
+            android:layout_gravity="center_horizontal"
+            android:background="@android:color/black"/>
+
+        <ImageView
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="8dp"
+            android:src="@drawable/destination" />
+
+    </FrameLayout>
 
 </LinearLayout>

@@ -141,32 +141,9 @@ public class FindDriver extends FragmentActivity implements OnMapReadyCallback, 
 
     private boolean isNextLaunch = false;
 
-    private double lat, lng;
+    private double orderLat, orderLng;
+    private String orderId="";
     private Button btnPickupRequest;
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-
-    }
-
-    @Override
-    protected void onStop() {
-        compositeDisposable.clear();
-
-        super.onStop();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (isNextLaunch){
-            loadAllAvailableDrivers();
-        }
-        else {
-            isNextLaunch = true;
-        }
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -177,8 +154,9 @@ public class FindDriver extends FragmentActivity implements OnMapReadyCallback, 
 
         layout = (LinearLayout) findViewById(R.id.layout);
 
-        lat = getIntent().getDoubleExtra("lat", 1);
-        lng = getIntent().getDoubleExtra("lng", 2);
+        orderLat = getIntent().getDoubleExtra("lat", 1);
+        orderLng = getIntent().getDoubleExtra("lng", 2);
+        orderId = getIntent().getStringExtra("orderId");
 
         mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
@@ -226,7 +204,7 @@ public class FindDriver extends FragmentActivity implements OnMapReadyCallback, 
                 fusedLocationProviderClient.getLastLocation().addOnSuccessListener(location -> {
 
                     LatLng origin = new LatLng(location.getLatitude(), location.getLongitude());
-                    LatLng destination = new LatLng(lat, lng);
+                    LatLng destination = new LatLng(orderLat, orderLng);
 
                     String originString = new StringBuilder("").append(origin.latitude).append(",")
                             .append(origin.longitude).toString();
@@ -392,8 +370,8 @@ public class FindDriver extends FragmentActivity implements OnMapReadyCallback, 
                             @Override
                             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                                 GeoQueryModel geoQueryModel = snapshot.getValue(GeoQueryModel.class);
-                                GeoLocation geoLocation = new GeoLocation(geoQueryModel.getL().get(0),
-                                        geoQueryModel.getL().get(1));
+                                GeoLocation geoLocation = new GeoLocation(geoQueryModel.getL().get(0), geoQueryModel.getL().get(1));
+
                                 DriverGeoModel driverGeoModel = new DriverGeoModel(snapshot.getKey(), geoLocation);
                                 Location newDriverLocation = new Location("");
                                 newDriverLocation.setLatitude(geoLocation.latitude);
@@ -526,8 +504,8 @@ public class FindDriver extends FragmentActivity implements OnMapReadyCallback, 
                         .findViewById(Integer.parseInt("2"));
                 RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) locationbutton.getLayoutParams();
                 params.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
-                params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, LinearLayout.VERTICAL);
-                params.setMargins(0,0,0,300);
+                params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.CENTER_IN_PARENT);
+                params.setMargins(0,0,0,400);
 
                 buildLocationRequest();
                 buildLocationCallBack();
@@ -563,9 +541,9 @@ public class FindDriver extends FragmentActivity implements OnMapReadyCallback, 
                     .position(new LatLng(driverGeoModel.getGeoLocation().latitude,
                             driverGeoModel.getGeoLocation().longitude))
                     .flat(true)
-                    .title(Common.buildName(driverGeoModel.getDriverInfoModel().getFirstName(),
-                            driverGeoModel.getDriverInfoModel().getLastName()))
-                    .snippet(driverGeoModel.getDriverInfoModel().getPhoneNumber())
+//                    .title(Common.buildName(driverGeoModel.getDriverInfoModel().getFirstName(),
+//                            driverGeoModel.getDriverInfoModel().getLastName()))
+//                    .snippet(driverGeoModel.getDriverInfoModel().getPhoneNumber())
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.bike))));
 
 //            Toast.makeText(this, "onDriverInfoLoadSuccess"+driverGeoModel.getKey(), Toast.LENGTH_SHORT).show();
@@ -731,6 +709,24 @@ public class FindDriver extends FragmentActivity implements OnMapReadyCallback, 
     protected void onDestroy() {
         fusedLocationProviderClient.removeLocationUpdates(locationCallback);
         super.onDestroy();
+    }
+
+    @Override
+    protected void onStop() {
+        compositeDisposable.clear();
+
+        super.onStop();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (isNextLaunch){
+            loadAllAvailableDrivers();
+        }
+        else {
+            isNextLaunch = true;
+        }
     }
 
 }

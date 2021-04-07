@@ -1,7 +1,7 @@
 package com.example.kitchen.modelclasses;
 
 public class OrdersModelClass {
-    private String resId, id, pId, itemName, finalPrice, price,  Items_Count, status, resName, totalPrice, date;
+    private String resId, id, pId, itemName, finalPrice, price,  Items_Count, status, resName, totalPrice, date, orderId;
     private Double lat, lng;
     private boolean expanded;
 
@@ -16,7 +16,7 @@ public class OrdersModelClass {
     public OrdersModelClass() {
     }
 
-    public OrdersModelClass(String resId, String id, String pId, String itemName, String finalPrice, String price, String items_Count, String status, String resName, String totalPrice, String date) {
+    public OrdersModelClass(String resId, String id, String pId, String itemName, String finalPrice, String price, String items_Count, String status, String resName, String totalPrice, String date, String orderId) {
         this.resId = resId;
         this.id = id;
         this.pId = pId;
@@ -28,6 +28,7 @@ public class OrdersModelClass {
         this.resName = resName;
         this.totalPrice = totalPrice;
         this.date = date;
+        this.orderId = orderId;
         this.expanded = false;
     }
 
@@ -138,5 +139,13 @@ public class OrdersModelClass {
 
     public void setResId(String resId) {
         this.resId = resId;
+    }
+
+    public String getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(String orderId) {
+        this.orderId = orderId;
     }
 }

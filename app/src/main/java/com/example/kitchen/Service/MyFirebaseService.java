@@ -10,6 +10,7 @@ import com.example.kitchen.EventBus.DeclineRequestAndRemoveTripFromDriver;
 import com.example.kitchen.EventBus.DeclineRequestFromDriver;
 import com.example.kitchen.EventBus.DriverAcceptTripEvent;
 import com.example.kitchen.EventBus.DriverCompleteTripEvent;
+import com.example.kitchen.EventBus.TimeUp;
 import com.example.kitchen.Utils.UserUtils;
 import com.example.kitchen.modelclasses.TokenModel;
 import com.google.firebase.database.DatabaseReference;
@@ -52,15 +53,20 @@ public class MyFirebaseService extends FirebaseMessagingService {
                 if (title.equals("Decline")){
                     EventBus.getDefault().postSticky(new DeclineRequestFromDriver());
                 }
-                if (title.equals("DeclineAndRemoveTrip")){
+                else if (title.equals("DeclineAndRemoveTrip")){
                     EventBus.getDefault().postSticky(new DeclineRequestAndRemoveTripFromDriver());
                 }
-                if (title.equals("DriverCompleteTrip")){
+                else if (title.equals("DriverCompleteTrip")){
                     EventBus.getDefault().postSticky(new DriverCompleteTripEvent(tripKey));
                 }
                 else if (title.equals("Accept")){
 
                     EventBus.getDefault().postSticky(new DriverAcceptTripEvent(tripKey));
+
+                }
+                else if (title.equals("TimeOver")){
+
+                    EventBus.getDefault().postSticky(new TimeUp(tripKey));
 
                 }
                 else {

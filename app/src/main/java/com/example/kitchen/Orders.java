@@ -17,6 +17,7 @@ import com.example.kitchen.modelclasses.OrdersModelClass;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -98,6 +99,7 @@ public class Orders extends AppCompatActivity {
                                     if (documentSnapshot.exists()){
 
                                         String resId = documentSnapshot.getId();
+                                        String orderId = documentSnapshot.getString("ID");
                                         String time = documentSnapshot.getString("Time");
                                         String resName = documentSnapshot.getString("restaurant name");
                                         String status = documentSnapshot.getString("status");
@@ -114,13 +116,14 @@ public class Orders extends AppCompatActivity {
                                         ordersModelClass.setTotalPrice(total);
                                         ordersModelClass.setLat(lat);
                                         ordersModelClass.setLng(lng);
+                                        ordersModelClass.setOrderId(orderId);
 
                                         Orders.add(ordersModelClass);
 
 
                                     }
                                     else {
-                                        Toast.makeText(Orders.this, "Data not found!", Toast.LENGTH_SHORT).show();
+                                        Snackbar.make(getParent().findViewById(android.R.id.content), "Data not found!", Snackbar.LENGTH_LONG).show();
                                     }
                                 }
 
@@ -134,18 +137,4 @@ public class Orders extends AppCompatActivity {
 
         });
     }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-
-    }
-
-
 }

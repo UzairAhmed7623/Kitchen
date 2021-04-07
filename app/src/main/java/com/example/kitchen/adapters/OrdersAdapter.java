@@ -63,6 +63,7 @@ public class OrdersAdapter extends RecyclerView.Adapter<OrdersAdapter.ViewHolder
         String date = ordersModelClass.getDate();
         Double lat = ordersModelClass.getLat();
         Double lng = ordersModelClass.getLng();
+        String orderId = ordersModelClass.getOrderId();
 
         holder.tvResNameOrders.setText(resName);
         holder.tvGradTotalOrders.setText("Price: " + totalPrice);
@@ -206,6 +207,8 @@ public class OrdersAdapter extends RecyclerView.Adapter<OrdersAdapter.ViewHolder
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 intent.putExtra("lat", lat);
                 intent.putExtra("lng", lng);
+                intent.putExtra("orderId", orderId);
+
                 context.startActivity(intent);
             }
         });
