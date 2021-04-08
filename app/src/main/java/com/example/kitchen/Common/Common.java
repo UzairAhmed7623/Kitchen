@@ -5,6 +5,7 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -21,6 +22,7 @@ import android.widget.TextView;
 import androidx.collection.ArraySet;
 import androidx.core.app.NotificationCompat;
 
+import com.example.kitchen.Login;
 import com.example.kitchen.R;
 import com.example.kitchen.RequestDriverActivity;
 import com.example.kitchen.modelclasses.AnimationModel;
@@ -123,4 +125,5 @@ public class Common {
     private static String getNumberFromText(String duration) {
         return duration.substring(0,duration.indexOf(" "));
     }
+
 }

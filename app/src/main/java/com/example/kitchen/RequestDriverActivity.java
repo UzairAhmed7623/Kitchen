@@ -389,9 +389,8 @@ public class RequestDriverActivity extends FragmentActivity implements OnMapRead
         Common.showNotification(this, new Random().nextInt(),
                 "Complete trip",
                 "Your trip: "+event.getTripKey()+"has been completed.",
-                intent);
+                getIntent());
 
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
 
         finish();

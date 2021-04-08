@@ -36,7 +36,6 @@ import com.example.kitchen.Common.Common;
 import com.example.kitchen.EventBus.SelectPlaceEvent;
 import com.example.kitchen.EventBus.ShowNotificationFinishTrip;
 import com.example.kitchen.Utils.UserUtils;
-import com.example.kitchen.fragments.BottomSheetRiderFragment;
 import com.example.kitchen.modelclasses.AnimationModel;
 import com.example.kitchen.modelclasses.DriverGeoModel;
 import com.example.kitchen.modelclasses.DriverInfoModel;
@@ -97,32 +96,13 @@ import io.reactivex.rxjava3.core.Observable;
 
 public class FindDriver extends FragmentActivity implements OnMapReadyCallback, IFirebaseFailedListener, IFirebaseDriverInfoListener {
 
-    private CircleImageView driverImage;
-    private TextView driverName, driverPhone;
-    private LinearLayout layout;
     private GoogleMap mgoogleMap;
     private FirebaseFirestore firebaseFirestore;
 
-    private LatLng latLng;
     private FusedLocationProviderClient fusedLocationProviderClient;
-    private DocumentReference documentReference;
-    private CollectionReference ref;
-    //    private GeoFire geoFire;
+
     String id = "P5397d1k8cYDoW8dtEIOQClO8OI2";
-    private Marker marker, driMarker;
 
-    private ImageView ivArrow;
-    private Button btnPickup;
-    private BottomSheetRiderFragment riderFragment;
-    private Location location;
-    private Marker userMarker;
-    private boolean isDriverFound = false;
-    private String driverId = "";
-    private int radius = 1; //Km
-    private static final int LIMIT = 3;
-    private Marker driverMarker;
-
-    //new wale
     private SupportMapFragment mapFragment;
     private LocationRequest locationRequest;
     private LocationCallback locationCallback;
@@ -152,8 +132,6 @@ public class FindDriver extends FragmentActivity implements OnMapReadyCallback, 
 
         firebaseFirestore = FirebaseFirestore.getInstance();
 
-        layout = (LinearLayout) findViewById(R.id.layout);
-
         orderLat = getIntent().getDoubleExtra("lat", 1);
         orderLng = getIntent().getDoubleExtra("lng", 2);
         orderId = getIntent().getStringExtra("orderId");
@@ -164,8 +142,6 @@ public class FindDriver extends FragmentActivity implements OnMapReadyCallback, 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(FindDriver.this);
 
         btnPickupRequest = (Button) findViewById(R.id.btnPickupRequest);
-
-        riderFragment = BottomSheetRiderFragment.newInstance("Rider bottom sheet");
 
         init();
 
