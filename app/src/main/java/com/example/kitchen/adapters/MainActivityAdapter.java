@@ -105,7 +105,7 @@ public class MainActivityAdapter extends RecyclerView.Adapter<MainActivityAdapte
         });
 
         holder.tvItem.setText(itemName);
-        Glide.with(context).load(imageUri).placeholder(R.drawable.placeholder).fitCenter().into(holder.ivItem);
+        Glide.with(context).load(imageUri).placeholder(R.drawable.food_placeholder).fitCenter().into(holder.ivItem);
         holder.tvItemPrice.setText("PKR"+price);
         holder.tvItemSchedule.setText("Available from: "+ schedule);
     }

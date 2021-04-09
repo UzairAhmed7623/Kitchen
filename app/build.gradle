@@ -86,4 +86,5 @@ dependencies {
 
     implementation 'com.github.recruit-lifestyle:WaveSwipeRefreshLayout:1.6'
 
+
 }

@@ -34,7 +34,7 @@
                     android:layout_height="200dp"
                     android:adjustViewBounds="true"
                     android:scaleType="fitXY"
-                    android:src="@drawable/placeholder"
+                    android:src="@drawable/food_placeholder"
                     android:focusable="true"/>
 
                 <LinearLayout
