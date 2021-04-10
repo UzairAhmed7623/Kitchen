@@ -185,6 +185,7 @@ public class Profile extends AppCompatActivity {
                 editText2.setHint("Write your Last Name");
 
                 editText.setInputType(InputType.TYPE_CLASS_TEXT);
+                editText2.setInputType(InputType.TYPE_CLASS_TEXT);
 
                 editText.setText(tvFirstName.getText().toString());
                 editText2.setText(tvLastName.getText().toString());
@@ -193,7 +194,7 @@ public class Profile extends AppCompatActivity {
                     @Override
                     public void onClick(View v) {
                         String firstName = editText.getText().toString();
-                        String lastName = editText.getText().toString();
+                        String lastName = editText2.getText().toString();
 
                         if (TextUtils.isEmpty(firstName) && TextUtils.isEmpty(lastName)){
                             editText.setError("Please write your first name");
@@ -428,8 +429,6 @@ public class Profile extends AppCompatActivity {
         });
 
     }
-
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {

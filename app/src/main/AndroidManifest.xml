@@ -24,6 +24,7 @@
         android:theme="@style/Theme.Kitchen">
         <activity
             android:name=".Profile"
+            android:parentActivityName=".MainActivity"
             android:requestLegacyExternalStorage="true" />
 
         <meta-data
@@ -33,9 +34,11 @@
         <activity
             android:name=".RequestDriverActivity"
             android:label="@string/title_activity_request_driver" />
+
         <activity
             android:name=".FindDriver"
             android:label="@string/title_activity_find_driver" />
+
         <activity android:name=".CompletedOrders" />
 
         <provider
@@ -67,7 +70,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MainActivity" />
+
+        <activity android:name=".MainActivity"/>
 
 
     </application>

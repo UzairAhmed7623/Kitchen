@@ -138,6 +138,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             startActivity(intent);
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         }
+        else if (item.getItemId() == R.id.Profile){
+            Intent intent = new Intent(MainActivity.this, Profile.class);
+            startActivity(intent);
+            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+        }
 
         drawerLayout.closeDrawer(GravityCompat.START);
 
