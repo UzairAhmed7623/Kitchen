@@ -1,48 +1,73 @@
 package com.example.kitchen;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.core.content.ContextCompat;
 
+import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
+import android.app.DatePickerDialog;
+import android.app.ProgressDialog;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.text.InputType;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.load.resource.bitmap.CircleCrop;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
+import com.github.dhaval2404.imagepicker.ImagePicker;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.karumi.dexter.Dexter;
+import com.karumi.dexter.MultiplePermissionsReport;
+import com.karumi.dexter.PermissionToken;
+import com.karumi.dexter.listener.PermissionRequest;
+import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
+import com.shivtechs.maplocationpicker.LocationPickerActivity;
+import com.shivtechs.maplocationpicker.MapUtility;
 
+import java.io.IOException;
+import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import jp.wasabeef.glide.transformations.BlurTransformation;
 
 public class Profile extends AppCompatActivity {
 
+    private static final int ADDRESS_PICKER_REQUEST = 1001;
+    public static final int REQUEST_IMAGE = 1002;
     private TextView tvFirstName, tvLastName, tvEmailAddress;
     private TextView tvName, tvMobile, tvEmail, tvAddress, tvDateOfBirth;
     private Button btnSave;
@@ -55,6 +80,8 @@ public class Profile extends AppCompatActivity {
     private StorageReference storageReference;
     private Toolbar toolbar;
     private CoordinatorLayout rootLayout;
+    private DatePickerDialog datePickerDialog;
+    private ProgressDialog dialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,6 +109,11 @@ public class Profile extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        dialog = new ProgressDialog(this);
+        dialog.setMessage("Please wait...");
+        dialog.setCancelable(false);
+        dialog.show();
 
         firebaseFirestore.collection("Users").document(firebaseAuth.getCurrentUser().getUid()).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
@@ -112,14 +144,19 @@ public class Profile extends AppCompatActivity {
                         String dob = documentSnapshot.getString("DOB");
                         tvDateOfBirth.setText(dob);
                     }
+                    if (documentSnapshot.getString("imageProfile") != null){
+                        String dob = documentSnapshot.getString("imageProfile");
+                        Glide.with(Profile.this).load(dob).into(ivProfile);
+                    }
 
                 }
-
+                dialog.dismiss();
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
                 Snackbar.make(rootLayout, e.getMessage(), Snackbar.LENGTH_LONG).show();
+                dialog.dismiss();
             }
         });
 
@@ -140,11 +177,17 @@ public class Profile extends AppCompatActivity {
             public void onClick(View v) {
 
                 alertDialog.show();
+
                 TextInputLayout2.setVisibility(View.VISIBLE);
                 editText2.setVisibility(View.VISIBLE);
+
                 editText.setHint("Write your First Name");
                 editText2.setHint("Write your Last Name");
+
                 editText.setInputType(InputType.TYPE_CLASS_TEXT);
+
+                editText.setText(tvFirstName.getText().toString());
+                editText2.setText(tvLastName.getText().toString());
 
                 btnAdd.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -171,6 +214,8 @@ public class Profile extends AppCompatActivity {
                                         @Override
                                         public void onSuccess(Void aVoid) {
                                             Snackbar.make(rootLayout, "Your name is updated successfully!", Snackbar.LENGTH_LONG).show();
+                                            editText.clearComposingText();
+                                            editText2.clearComposingText();
                                         }
                                     }).addOnFailureListener(new OnFailureListener() {
                                 @Override
@@ -186,14 +231,20 @@ public class Profile extends AppCompatActivity {
                 });
             }
         });
+
         tvEmail.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
                 alertDialog.show();
+
                 editText.setHint("Write your email");
+
                 editText.setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
+
                 TextInputLayout2.setVisibility(View.GONE);
+
+                editText.setText(tvEmailAddress.getText().toString());
 
                 btnAdd.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -216,6 +267,7 @@ public class Profile extends AppCompatActivity {
                                         @Override
                                         public void onSuccess(Void aVoid) {
                                             Snackbar.make(rootLayout, "Your email is updated successfully!", Snackbar.LENGTH_LONG).show();
+                                            editText.clearComposingText();
                                         }
                                     }).addOnFailureListener(new OnFailureListener() {
                                 @Override
@@ -230,14 +282,20 @@ public class Profile extends AppCompatActivity {
                 });
             }
         });
+
         tvMobile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
                 alertDialog.show();
+
                 editText.setHint("Write your phone with +92");
+
                 editText.setInputType(InputType.TYPE_CLASS_PHONE);
+
                 TextInputLayout2.setVisibility(View.GONE);
+
+                editText.setText(tvMobile.getText().toString());
 
                 btnAdd.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -257,6 +315,7 @@ public class Profile extends AppCompatActivity {
                                         @Override
                                         public void onSuccess(Void aVoid) {
                                             Snackbar.make(rootLayout, "Your phone number is updated successfully!", Snackbar.LENGTH_LONG).show();
+                                            editText.clearComposingText();
                                         }
                                     }).addOnFailureListener(new OnFailureListener() {
                                 @Override
@@ -271,94 +330,161 @@ public class Profile extends AppCompatActivity {
                 });
             }
         });
+
         tvAddress.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                alertDialog.show();
-                editText.setHint("Write your address");
-                editText.setInputType(InputType.TYPE_TEXT_VARIATION_POSTAL_ADDRESS);
-                TextInputLayout2.setVisibility(View.GONE);
+                MapUtility.apiKey = getResources().getString(R.string.google_api_key);
+                Intent i = new Intent(Profile.this, LocationPickerActivity.class);
+                startActivityForResult(i, ADDRESS_PICKER_REQUEST);
 
-                btnAdd.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        String address = editText.getText().toString();
+                String address = tvAddress.getText().toString();
 
-                        if (TextUtils.isEmpty(address)){
-                            editText.setError("Please write your address");
-                        }
-                        else {
+                Map<String, Object> addData = new HashMap<>();
+                addData.put("address", address);
 
-                            tvAddress.setText(address);
+                firebaseFirestore.collection("Users").document(firebaseAuth.getCurrentUser().getUid()).set(addData, SetOptions.merge())
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Snackbar.make(rootLayout, "Your address is updated successfully!", Snackbar.LENGTH_LONG).show();
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Snackbar.make(rootLayout, e.getMessage(), Snackbar.LENGTH_LONG).show();
+                            }
+                        });
 
-                            Map<String, Object> addData = new HashMap<>();
-                            addData.put("address", address);
+        }
+    });
 
-                            firebaseFirestore.collection("Users").document(firebaseAuth.getCurrentUser().getUid()).set(addData, SetOptions.merge())
-                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void aVoid) {
-                                            Snackbar.make(rootLayout, "Your address is updated successfully!", Snackbar.LENGTH_LONG).show();
-                                        }
-                                    }).addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    Snackbar.make(rootLayout, e.getMessage(), Snackbar.LENGTH_LONG).show();
-                                }
-                            });
-
-                            alertDialog.dismiss();
-                        }
-                    }
-                });
-            }
-        });
         tvDateOfBirth.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                alertDialog.show();
-                editText.setHint("Write your date of birth");
-                editText.setInputType(InputType.TYPE_CLASS_NUMBER);
-                TextInputLayout2.setVisibility(View.GONE);
+                Calendar calendar = Calendar.getInstance();
+                int day = calendar.get(Calendar.DAY_OF_MONTH);
+                int month = calendar.get(Calendar.MONTH);
+                int year = calendar.get(Calendar.YEAR);
 
-                btnAdd.setOnClickListener(new View.OnClickListener() {
+                datePickerDialog = new DatePickerDialog(Profile.this, new DatePickerDialog.OnDateSetListener() {
                     @Override
-                    public void onClick(View v) {
-                        String DOB = editText.getText().toString();
+                    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                        tvDateOfBirth.setText(dayOfMonth + "/" + (month + 1) + "/" + year);
 
-                        if (TextUtils.isEmpty(DOB)){
-                            editText.setError("Please write your DOB");
-                        }
-                        else {
+                        String DOB = tvDateOfBirth.getText().toString();
 
-                            tvDateOfBirth.setText(DOB);
+                        Map<String, Object> addData = new HashMap<>();
+                        addData.put("DOB", DOB);
 
-                            Map<String, Object> addData = new HashMap<>();
-                            addData.put("DOB", DOB);
-
-                            firebaseFirestore.collection("Users").document(firebaseAuth.getCurrentUser().getUid()).set(addData, SetOptions.merge())
-                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void aVoid) {
-                                            Snackbar.make(rootLayout, "Your DOB is updated successfully!", Snackbar.LENGTH_LONG).show();
-                                        }
-                                    }).addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    Snackbar.make(rootLayout, e.getMessage(), Snackbar.LENGTH_LONG).show();
-                                }
-                            });
-
-                            alertDialog.dismiss();
-                        }
+                        firebaseFirestore.collection("Users").document(firebaseAuth.getCurrentUser().getUid()).set(addData, SetOptions.merge())
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        Snackbar.make(rootLayout, "Your DOB is updated successfully!", Snackbar.LENGTH_LONG).show();
+                                    }
+                                }).addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Snackbar.make(rootLayout, e.getMessage(), Snackbar.LENGTH_LONG).show();
+                                    }
+                                });
                     }
-                });
+                },year, month, day);
+
+                datePickerDialog.show();
+
             }
         });
 
+        ivProfile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Dexter.withContext(Profile.this)
+                        .withPermissions(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                        .withListener(new MultiplePermissionsListener() {
+                            @Override
+                            public void onPermissionsChecked(MultiplePermissionsReport report) {
+                                if (report.areAllPermissionsGranted()) {
+                                    ImagePicker.Companion.with(Profile.this)
+                                            .cropSquare()
+                                            .compress(1024)			//Final image size will be less than 1 MB(Optional)
+                                            .start(REQUEST_IMAGE);
+                                }
+                                else {
+                                    Snackbar.make(rootLayout, report.getDeniedPermissionResponses().toString(), Snackbar.LENGTH_LONG).show();
+                                }
+                            }
+
+                            @Override
+                            public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
+                                token.continuePermissionRequest();
+                            }
+                        }).check();
+            }
+        });
+
+    }
 
 
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == ADDRESS_PICKER_REQUEST) {
+            try {
+                if (data != null && data.getStringExtra(MapUtility.ADDRESS) != null) {
+
+                    Bundle completeAddress =data.getBundleExtra("fullAddress");
+
+                    String address = new StringBuilder().append(completeAddress.getString("addressline2").replace(", Punjab,","").replace("Pakistan","")).toString();
+                    tvAddress.setText(address);
+
+                }
+            }
+            catch (Exception ex) {
+                Snackbar.make(rootLayout, ex.getMessage(), Snackbar.LENGTH_LONG).show();
+            }
+        }
+        else if (requestCode == REQUEST_IMAGE ) {
+
+            if (data!= null && data.getData() != null){
+
+                //Image Uri will not be null for RESULT_OK
+                Uri uri = data.getData();
+
+                dialog.show();
+
+                Glide.with(this)
+                        .load(uri)
+                        .placeholder(ContextCompat.getDrawable(getApplicationContext(),R.drawable.user))
+                        .transform(new CircleCrop())
+                        .listener(new RequestListener<Drawable>() {
+                            @Override
+                            public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                                dialog.dismiss();
+                                return false; // important to return false so the error placeholder can be placed
+                            }
+
+                            @Override
+                            public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                                dialog.dismiss();
+                                return false;
+                            }
+                        })
+                        .into(ivProfile);
+            }
+            else if (resultCode == ImagePicker.RESULT_ERROR) {
+                Toast.makeText(this, ""+ImagePicker.RESULT_ERROR, Toast.LENGTH_SHORT).show();
+            }
+            else {
+                Toast.makeText(this, "Task Cancelled", Toast.LENGTH_SHORT).show();
+            }
+
+        }
     }
 }

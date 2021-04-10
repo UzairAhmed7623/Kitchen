@@ -80,11 +80,15 @@ dependencies {
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
 
     implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
-    implementation 'io.reactivex.rxjava3:rxjava:3.0.0'
+    implementation 'io.reactivex.rxjava3:rxjava:3.0.5'
 
     implementation 'org.greenrobot:eventbus:3.2.0'
 
     implementation 'com.github.recruit-lifestyle:WaveSwipeRefreshLayout:1.6'
 
+    implementation 'com.github.shivpujan12:LocationPicker:2.0'
 
+    implementation 'jp.wasabeef:glide-transformations:4.1.0'
+    // If you want to use the GPU Filters
+    implementation 'jp.co.cyberagent.android:gpuimage:2.0.4'
 }

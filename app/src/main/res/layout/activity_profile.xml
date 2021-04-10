@@ -41,7 +41,7 @@
                     android:layout_width="120dp"
                     android:layout_height="120dp"
                     android:layout_marginTop="10dp"
-                    android:src="@drawable/food_placeholder" />
+                    android:src="@drawable/user" />
 
                 <RelativeLayout
                     android:layout_width="wrap_content"
@@ -52,7 +52,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Hafiz Muhammad"
-                        android:textSize="25dp"
+                        android:textSize="24dp"
+                        android:fontFamily="@font/poppins_medium"
                         android:textColor="@color/white"
                         android:textStyle="bold"/>
 
@@ -61,7 +62,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Uzair"
-                        android:textSize="25dp"
+                        android:textSize="24dp"
+                        android:fontFamily="@font/poppins_medium"
                         android:layout_marginStart="4dp"
                         android:layout_toEndOf="@id/tvFirstName"
                         android:textColor="@color/white"
@@ -74,8 +76,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="developer@gmail.com"
+                    android:fontFamily="@font/poppins_medium"
                     android:layout_marginBottom="10dp"
-                    android:textSize="14dp"
+                    android:textSize="16dp"
                     android:textStyle="bold"/>
 
             </LinearLayout>
@@ -110,7 +113,8 @@
             <TextView
                 style="@style/headerText"
                 android:text="Account Info"
-                android:layout_marginBottom="20dp"/>
+                android:fontFamily="@font/uber_move_bold"
+                android:layout_marginBottom="10dp"/>
 
             <RelativeLayout style="@style/profileDetailsLayout">
                 <ImageView
@@ -122,12 +126,14 @@
                 <TextView
                     android:id="@+id/nameTextView"
                     android:text="Name"
+                    android:fontFamily="@font/uber_move_bold"
                     android:layout_toRightOf="@id/nameImageView"
                     style="@style/profileDetailsTextMain" />
 
                 <TextView
                     android:id="@+id/tvName"
-                    android:text="developer"
+                    android:text="Your name"
+                    android:fontFamily="@font/uber_move"
                     android:layout_toRightOf="@id/nameImageView"
                     style="@style/profileDetailsMiniText" />
 
@@ -144,12 +150,14 @@
 
                 <TextView
                     android:text="Mobile"
+                    android:fontFamily="@font/uber_move_bold"
                     android:layout_toRightOf="@id/mobileImageView"
                     style="@style/profileDetailsTextMain"/>
 
                 <TextView
                     android:id="@+id/tvMobile"
-                    android:text="+91-8129999999"
+                    android:text="+923012345678"
+                    android:fontFamily="@font/uber_move"
                     android:layout_toRightOf="@id/mobileImageView"
                     style="@style/profileDetailsMiniText" />
 
@@ -166,12 +174,14 @@
 
                 <TextView
                     android:text="Email"
+                    android:fontFamily="@font/uber_move_bold"
                     android:layout_toRightOf="@id/emailImageView"
                     style="@style/profileDetailsTextMain" />
 
                 <TextView
                     android:id="@+id/tvEmail"
-                    android:text="developer@appsnipp.com"
+                    android:text="developer@gmail.com"
+                    android:fontFamily="@font/uber_move"
                     android:layout_toRightOf="@id/emailImageView"
                     style="@style/profileDetailsMiniText" />
 
@@ -187,6 +197,8 @@
                     style="@style/profileDetailsImage" />
 
                 <TextView
+                    android:fontFamily="@font/uber_move_bold"
+                    android:id="@+id/addressLabel"
                     android:text="Address"
                     android:layout_toRightOf="@id/addressImageView"
                     style="@style/profileDetailsTextMain" />
@@ -194,6 +206,8 @@
                 <TextView
                     android:id="@+id/tvAddress"
                     android:text="Avenue 2nd Street NW SY."
+                    android:fontFamily="@font/uber_move"
+                    android:layout_below="@+id/addressLabel"
                     android:layout_toRightOf="@id/addressImageView"
                     style="@style/profileDetailsMiniText" />
 
@@ -210,12 +224,14 @@
 
                 <TextView
                     android:text="D.O.B"
+                    android:fontFamily="@font/uber_move_bold"
                     android:layout_toRightOf="@id/dobImageView"
                     style="@style/profileDetailsTextMain" />
 
                 <TextView
                     android:id="@+id/tvDateOfBirth"
-                    android:text="12-05-1990"
+                    android:text="12/05/1990"
+                    android:fontFamily="@font/uber_move"
                     android:layout_toRightOf="@id/dobImageView"
                     style="@style/profileDetailsMiniText" />
 
