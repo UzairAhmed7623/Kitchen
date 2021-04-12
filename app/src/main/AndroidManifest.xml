@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.example.kitchen">
+    package="com.inkhornsolutions.kitchen">
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -23,8 +23,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Kitchen">
         <activity
-            android:name=".Profile"
-            android:parentActivityName=".MainActivity"
+            android:name="com.inkhornsolutions.kitchen.Profile"
+            android:parentActivityName="com.inkhornsolutions.kitchen.MainActivity"
             android:requestLegacyExternalStorage="true" />
 
         <meta-data
@@ -32,14 +32,14 @@
             android:value="@string/google_maps_key" />
 
         <activity
-            android:name=".RequestDriverActivity"
+            android:name="com.inkhornsolutions.kitchen.RequestDriverActivity"
             android:label="@string/title_activity_request_driver" />
 
         <activity
-            android:name=".FindDriver"
+            android:name="com.inkhornsolutions.kitchen.FindDriver"
             android:label="@string/title_activity_find_driver" />
 
-        <activity android:name=".CompletedOrders" />
+        <activity android:name="com.inkhornsolutions.kitchen.CompletedOrders" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -53,17 +53,17 @@
         </provider>
 
         <service
-            android:name=".Service.MyFirebaseService"
+            android:name="com.inkhornsolutions.kitchen.Service.MyFirebaseService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
 
-        <activity android:name=".Orders" />
-        <activity android:name=".AddItem" />
-        <activity android:name=".itemProperties" />
-        <activity android:name=".Login">
+        <activity android:name="com.inkhornsolutions.kitchen.Orders" />
+        <activity android:name="com.inkhornsolutions.kitchen.AddItem" />
+        <activity android:name="com.inkhornsolutions.kitchen.itemProperties" />
+        <activity android:name="com.inkhornsolutions.kitchen.Login">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -71,7 +71,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".MainActivity"/>
+        <activity android:name="com.inkhornsolutions.kitchen.MainActivity"/>
 
 
     </application>
