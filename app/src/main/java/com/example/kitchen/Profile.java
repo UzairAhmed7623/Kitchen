@@ -12,10 +12,12 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.InputType;
@@ -23,6 +25,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -39,6 +42,7 @@ import com.bumptech.glide.request.target.Target;
 import com.github.dhaval2404.imagepicker.ImagePicker;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
@@ -47,6 +51,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.MultiplePermissionsReport;
 import com.karumi.dexter.PermissionToken;
@@ -144,9 +149,9 @@ public class Profile extends AppCompatActivity {
                         String dob = documentSnapshot.getString("DOB");
                         tvDateOfBirth.setText(dob);
                     }
-                    if (documentSnapshot.getString("imageProfile") != null){
-                        String dob = documentSnapshot.getString("imageProfile");
-                        Glide.with(Profile.this).load(dob).into(ivProfile);
+                    if (documentSnapshot.getString("ResImageProfile") != null){
+                        String dob = documentSnapshot.getString("ResImageProfile");
+                        Glide.with(Profile.this).load(dob).placeholder(ContextCompat.getDrawable(getApplicationContext(), R.drawable.user)).into(ivProfile);
                     }
 
                 }
@@ -284,53 +289,53 @@ public class Profile extends AppCompatActivity {
             }
         });
 
-        tvMobile.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                alertDialog.show();
-
-                editText.setHint("Write your phone with +92");
-
-                editText.setInputType(InputType.TYPE_CLASS_PHONE);
-
-                TextInputLayout2.setVisibility(View.GONE);
-
-                editText.setText(tvMobile.getText().toString());
-
-                btnAdd.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        String phoneNumber = editText.getText().toString();
-                        if (TextUtils.isEmpty(phoneNumber)){
-                            editText.setError("Please write your phone");
-                        }
-                        else {
-                            tvMobile.setText(phoneNumber);
-
-                            Map<String, Object> addData = new HashMap<>();
-                            addData.put("phoneNumber", phoneNumber);
-
-                            firebaseFirestore.collection("Users").document(firebaseAuth.getCurrentUser().getUid()).set(addData, SetOptions.merge())
-                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void aVoid) {
-                                            Snackbar.make(rootLayout, "Your phone number is updated successfully!", Snackbar.LENGTH_LONG).show();
-                                            editText.clearComposingText();
-                                        }
-                                    }).addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    Snackbar.make(rootLayout, e.getMessage(), Snackbar.LENGTH_LONG).show();
-                                }
-                            });
-
-                            alertDialog.dismiss();
-                        }
-                    }
-                });
-            }
-        });
+//        tvMobile.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//
+//                alertDialog.show();
+//
+//                editText.setHint("Write your phone with +92");
+//
+//                editText.setInputType(InputType.TYPE_CLASS_PHONE);
+//
+//                TextInputLayout2.setVisibility(View.GONE);
+//
+//                editText.setText(tvMobile.getText().toString());
+//
+//                btnAdd.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View v) {
+//                        String phoneNumber = editText.getText().toString();
+//                        if (TextUtils.isEmpty(phoneNumber)){
+//                            editText.setError("Please write your phone");
+//                        }
+//                        else {
+//                            tvMobile.setText(phoneNumber);
+//
+//                            Map<String, Object> addData = new HashMap<>();
+//                            addData.put("phoneNumber", phoneNumber);
+//
+//                            firebaseFirestore.collection("Users").document(firebaseAuth.getCurrentUser().getUid()).set(addData, SetOptions.merge())
+//                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+//                                        @Override
+//                                        public void onSuccess(Void aVoid) {
+//                                            Snackbar.make(rootLayout, "Your phone number is updated successfully!", Snackbar.LENGTH_LONG).show();
+//                                            editText.clearComposingText();
+//                                        }
+//                                    }).addOnFailureListener(new OnFailureListener() {
+//                                @Override
+//                                public void onFailure(@NonNull Exception e) {
+//                                    Snackbar.make(rootLayout, e.getMessage(), Snackbar.LENGTH_LONG).show();
+//                                }
+//                            });
+//
+//                            alertDialog.dismiss();
+//                        }
+//                    }
+//                });
+//            }
+//        });
 
         tvAddress.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -404,30 +409,56 @@ public class Profile extends AppCompatActivity {
         ivProfile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Dexter.withContext(Profile.this)
-                        .withPermissions(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                        .withListener(new MultiplePermissionsListener() {
-                            @Override
-                            public void onPermissionsChecked(MultiplePermissionsReport report) {
-                                if (report.areAllPermissionsGranted()) {
-                                    ImagePicker.Companion.with(Profile.this)
-                                            .cropSquare()
-                                            .compress(1024)			//Final image size will be less than 1 MB(Optional)
-                                            .start(REQUEST_IMAGE);
-                                }
-                                else {
-                                    Snackbar.make(rootLayout, report.getDeniedPermissionResponses().toString(), Snackbar.LENGTH_LONG).show();
-                                }
-                            }
 
-                            @Override
-                            public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
-                                token.continuePermissionRequest();
-                            }
-                        }).check();
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+                    Dexter.withContext(Profile.this)
+                            .withPermissions(Manifest.permission.CAMERA, Manifest.permission.MANAGE_EXTERNAL_STORAGE)
+                            .withListener(new MultiplePermissionsListener() {
+                                @Override
+                                public void onPermissionsChecked(MultiplePermissionsReport report) {
+                                    if (report.areAllPermissionsGranted()) {
+                                        ImagePicker.Companion.with(Profile.this)
+                                                .cropSquare()
+                                                .compress(1024)			//Final image size will be less than 1 MB(Optional)
+                                                .start(REQUEST_IMAGE);
+                                    }
+                                    else {
+                                        Snackbar.make(rootLayout, report.getDeniedPermissionResponses().toString(), Snackbar.LENGTH_LONG).show();
+                                    }
+                                }
+
+                                @Override
+                                public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
+                                    token.continuePermissionRequest();
+                                }
+                            }).check();
+                }
+                else {
+                    Dexter.withContext(Profile.this)
+                            .withPermissions(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                            .withListener(new MultiplePermissionsListener() {
+                                @Override
+                                public void onPermissionsChecked(MultiplePermissionsReport report) {
+                                    if (report.areAllPermissionsGranted()) {
+                                        ImagePicker.Companion.with(Profile.this)
+                                                .cropSquare()
+                                                .compress(1024)			//Final image size will be less than 1 MB(Optional)
+                                                .start(REQUEST_IMAGE);
+                                    }
+                                    else {
+                                        Snackbar.make(rootLayout, report.getDeniedPermissionResponses().toString(), Snackbar.LENGTH_LONG).show();
+                                    }
+                                }
+
+                                @Override
+                                public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
+                                    token.continuePermissionRequest();
+                                }
+                            }).check();
+                }
+
             }
         });
-
     }
 
     @Override
@@ -449,14 +480,13 @@ public class Profile extends AppCompatActivity {
                 Snackbar.make(rootLayout, ex.getMessage(), Snackbar.LENGTH_LONG).show();
             }
         }
+
         else if (requestCode == REQUEST_IMAGE ) {
 
             if (data!= null && data.getData() != null){
 
                 //Image Uri will not be null for RESULT_OK
                 Uri uri = data.getData();
-
-                dialog.show();
 
                 Glide.with(this)
                         .load(uri)
@@ -476,6 +506,9 @@ public class Profile extends AppCompatActivity {
                             }
                         })
                         .into(ivProfile);
+
+                uploadImage(uri);
+
             }
             else if (resultCode == ImagePicker.RESULT_ERROR) {
                 Toast.makeText(this, ""+ImagePicker.RESULT_ERROR, Toast.LENGTH_SHORT).show();
@@ -486,4 +519,55 @@ public class Profile extends AppCompatActivity {
 
         }
     }
+
+    private void uploadImage(Uri imageUri) {
+
+        dialog.show();
+
+        String someFilepath = String.valueOf(imageUri);
+        String extension = someFilepath.substring(someFilepath.lastIndexOf("."));
+
+        String userId = firebaseAuth.getCurrentUser().getUid();
+
+        StorageReference riversRef = storageReference.child("images/Restaurants/Profile" + extension+ " " + tvFirstName.getText().toString() +" "+ tvLastName.getText().toString());
+
+        riversRef.putFile(imageUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+
+                Task<Uri> urlTask = taskSnapshot.getStorage().getDownloadUrl();
+                while (!urlTask.isSuccessful());
+                Uri downloadUrl = urlTask.getResult();
+
+                final String sdownload_url = String.valueOf(downloadUrl);
+
+                HashMap<String, Object> img = new HashMap<>();
+                img.put("ResImageProfile", sdownload_url);
+
+                firebaseFirestore.collection("Users").document(userId).set(img, SetOptions.merge())
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                dialog.dismiss();
+                                Snackbar.make(findViewById(android.R.id.content), "Image Uploaded", Snackbar.LENGTH_LONG).setBackgroundTint(getResources().getColor(R.color.myColor)).show();
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                dialog.dismiss();
+                                Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).setBackgroundTint(getResources().getColor(R.color.myColor)).show();
+                            }
+                        });
+            }
+        })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception exception) {
+                        dialog.dismiss();
+                        Snackbar.make(findViewById(android.R.id.content), "Failed to Upload", Snackbar.LENGTH_LONG).setBackgroundTint(getResources().getColor(R.color.myColor)).show();
+                    }
+                });
+    }
+
 }

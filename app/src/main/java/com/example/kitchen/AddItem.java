@@ -125,7 +125,6 @@ public class AddItem extends AppCompatActivity {
             //Image Uri will not be null for RESULT_OK
             fileUri = data.getData();
             etItemImage.setImageURI(fileUri);
-            Toast.makeText(this, ""+fileUri, Toast.LENGTH_SHORT).show();
 
 //            //You can get File object from intent
 //            File file = ImagePicker.getFile(data);
@@ -149,7 +148,7 @@ public class AddItem extends AppCompatActivity {
         String someFilepath = String.valueOf(fileUri);
         String extension = someFilepath.substring(someFilepath.lastIndexOf("."));
 
-        StorageReference riversRef = storageReference.child("images/Restaurants" + "." + extension+ " " + name +" "+ resName);
+        StorageReference riversRef = storageReference.child("images/Restaurants/Items" + "." + extension+ " " + name +" "+ resName);
 
         riversRef.putFile(fileUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override

@@ -196,7 +196,7 @@ public class RequestDriverActivity extends FragmentActivity implements OnMapRead
 
                                                 initDriverForMoving(event.getTripId(), tripPlanModel);
 
-                                                Glide.with(RequestDriverActivity.this).load(tripPlanModel.getDriverInfoModel().getImageProfile()).into(ivDriver);
+                                                Glide.with(RequestDriverActivity.this).load(tripPlanModel.getDriverInfoModel().getDriverProfileImage()).into(ivDriver);
                                                 tvDriverName.setText(tripPlanModel.getDriverInfoModel().getFirstName()+" "+tripPlanModel.getDriverInfoModel().getLastName());
 
 
