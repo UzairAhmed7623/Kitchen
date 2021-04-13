@@ -127,14 +127,14 @@
                     android:id="@+id/nameTextView"
                     android:text="Name"
                     android:fontFamily="@font/uber_move_bold"
-                    android:layout_toRightOf="@id/nameImageView"
+                    android:layout_toEndOf="@id/nameImageView"
                     style="@style/profileDetailsTextMain" />
 
                 <TextView
                     android:id="@+id/tvName"
                     android:text="Your name"
                     android:fontFamily="@font/uber_move"
-                    android:layout_toRightOf="@id/nameImageView"
+                    android:layout_toEndOf="@id/nameImageView"
                     style="@style/profileDetailsMiniText" />
 
             </RelativeLayout>
@@ -151,14 +151,14 @@
                 <TextView
                     android:text="Mobile"
                     android:fontFamily="@font/uber_move_bold"
-                    android:layout_toRightOf="@id/mobileImageView"
+                    android:layout_toEndOf="@id/mobileImageView"
                     style="@style/profileDetailsTextMain"/>
 
                 <TextView
                     android:id="@+id/tvMobile"
                     android:text="+923012345678"
                     android:fontFamily="@font/uber_move"
-                    android:layout_toRightOf="@id/mobileImageView"
+                    android:layout_toEndOf="@id/mobileImageView"
                     style="@style/profileDetailsMiniText" />
 
             </RelativeLayout>
@@ -175,14 +175,14 @@
                 <TextView
                     android:text="Email"
                     android:fontFamily="@font/uber_move_bold"
-                    android:layout_toRightOf="@id/emailImageView"
+                    android:layout_toEndOf="@id/emailImageView"
                     style="@style/profileDetailsTextMain" />
 
                 <TextView
                     android:id="@+id/tvEmail"
                     android:text="developer@gmail.com"
                     android:fontFamily="@font/uber_move"
-                    android:layout_toRightOf="@id/emailImageView"
+                    android:layout_toEndOf="@id/emailImageView"
                     style="@style/profileDetailsMiniText" />
 
             </RelativeLayout>
@@ -200,7 +200,7 @@
                     android:fontFamily="@font/uber_move_bold"
                     android:id="@+id/addressLabel"
                     android:text="Address"
-                    android:layout_toRightOf="@id/addressImageView"
+                    android:layout_toEndOf="@id/addressImageView"
                     style="@style/profileDetailsTextMain" />
 
                 <TextView
@@ -208,7 +208,7 @@
                     android:text="Avenue 2nd Street NW SY."
                     android:fontFamily="@font/uber_move"
                     android:layout_below="@+id/addressLabel"
-                    android:layout_toRightOf="@id/addressImageView"
+                    android:layout_toEndOf="@id/addressImageView"
                     style="@style/profileDetailsMiniText" />
 
             </RelativeLayout>
@@ -225,14 +225,14 @@
                 <TextView
                     android:text="D.O.B"
                     android:fontFamily="@font/uber_move_bold"
-                    android:layout_toRightOf="@id/dobImageView"
+                    android:layout_toEndOf="@id/dobImageView"
                     style="@style/profileDetailsTextMain" />
 
                 <TextView
                     android:id="@+id/tvDateOfBirth"
                     android:text="12/05/1990"
                     android:fontFamily="@font/uber_move"
-                    android:layout_toRightOf="@id/dobImageView"
+                    android:layout_toEndOf="@id/dobImageView"
                     style="@style/profileDetailsMiniText" />
 
             </RelativeLayout>

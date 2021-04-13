@@ -2,6 +2,7 @@ package com.inkhornsolutions.kitchen;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
@@ -10,18 +11,22 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
 
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.inkhornsolutions.kitchen.adapters.MainActivityAdapter;
 import com.inkhornsolutions.kitchen.modelclasses.ItemsModelClass;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -52,6 +57,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private TextView tvUserName;
     private CircleImageView ivProfileImage;
     private ImageView ivProfileSettings;
+    private String m_Text = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,46 +100,72 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
 
+
         rvItems = (RecyclerView) findViewById(R.id.rvItems);
         rvItems.setLayoutManager(new LinearLayoutManager(MainActivity.this));
 
-        firebaseFirestore.collection("Restaurants").document("Alfredo Pizza Pasta").collection("Items")
-                .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Title");
+
+        final EditText input = new EditText(this);
+
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
+        builder.setView(input);
+
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+            public void onClick(DialogInterface dialog, int which) {
+                m_Text = input.getText().toString();
 
-                if (task.isSuccessful()){
-                    for (QueryDocumentSnapshot documentSnapshot : task.getResult()){
-                        if (documentSnapshot.exists()){
-                            String itemName = documentSnapshot.getId();
-                            String imageUri = documentSnapshot.getString("imageUri");
-                            String price = documentSnapshot.getString("price");
-                            String available = documentSnapshot.getString("available");
-                            String schedule = documentSnapshot.getString("schedule");
+                firebaseFirestore.collection("Restaurants").document(m_Text).collection("Items")
+                        .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
 
-                            Log.d("TAG", itemName+imageUri+price);
+                        if (task.isSuccessful()){
+                            for (QueryDocumentSnapshot documentSnapshot : task.getResult()){
+                                if (documentSnapshot.exists()){
+                                    String itemName = documentSnapshot.getId();
+                                    String imageUri = documentSnapshot.getString("imageUri");
+                                    String price = documentSnapshot.getString("price");
+                                    String available = documentSnapshot.getString("available");
+                                    String schedule = documentSnapshot.getString("schedule");
 
-                            ItemsModelClass itemsModelClass = new ItemsModelClass();
-                            itemsModelClass.setResName("Alfredo Pizza Pasta");
-                            itemsModelClass.setItemName(itemName);
-                            itemsModelClass.setImage(imageUri);
-                            itemsModelClass.setPrice(price);
-                            itemsModelClass.setAvailability(available);
-                            itemsModelClass.setSchedule(schedule);
+                                    Log.d("TAG", itemName+imageUri+price);
 
-                            items.add(itemsModelClass);
+                                    ItemsModelClass itemsModelClass = new ItemsModelClass();
+                                    itemsModelClass.setResName(m_Text);
+                                    itemsModelClass.setItemName(itemName);
+                                    itemsModelClass.setImage(imageUri);
+                                    itemsModelClass.setPrice(price);
+                                    itemsModelClass.setAvailability(available);
+                                    itemsModelClass.setSchedule(schedule);
+
+                                    items.add(itemsModelClass);
+                                }
+                            }
+                            rvItems.setAdapter(new MainActivityAdapter(MainActivity.this, items));
                         }
-                    }
-                    rvItems.setAdapter(new MainActivityAdapter(MainActivity.this, items));
-                }
 
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).setBackgroundTint(getResources().getColor(R.color.myColor)).show();
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).setBackgroundTint(getResources().getColor(R.color.myColor)).show();
+                    }
+                });
             }
         });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        builder.setCancelable(false);
+
+        builder.show();
 
     }
 
@@ -209,7 +241,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (item.getItemId() == R.id.addItem){
             Intent intent = new Intent(MainActivity.this, AddItem.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            intent.putExtra("resName", "Alfredo Pizza Pasta");
+            intent.putExtra("resName", m_Text);
             startActivity(intent);
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         }
@@ -221,7 +253,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         if (item.getItemId() == R.id.pendingOrders){
             Intent intent = new Intent(MainActivity.this, Orders.class);
-            intent.putExtra("resName", "Alfredo Pizza Pasta");
+            intent.putExtra("resName", m_Text);
             startActivity(intent);
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         }

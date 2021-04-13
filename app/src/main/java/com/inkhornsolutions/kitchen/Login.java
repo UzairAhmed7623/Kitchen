@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -38,6 +39,7 @@ public class Login extends AppCompatActivity {
     EditText editText;
     AlertDialog alertDialog;
     View view;
+    ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +67,11 @@ public class Login extends AppCompatActivity {
 
                 String phoneNumber = code + number;
 
+                progressDialog = new ProgressDialog(Login.this);
+                progressDialog.setMessage("Please wait...");
+                progressDialog.setCancelable(false);
+                progressDialog.show();
+
                 view = LayoutInflater.from(Login.this).inflate(R.layout.verify_phone, null);
 
 
@@ -80,13 +87,6 @@ public class Login extends AppCompatActivity {
                 editor.putString("phoneNumber", phoneNumber);
                 editor.apply();
 
-                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(Login.this);
-                alertDialogBuilder.setView(view);
-                alertDialogBuilder.setCancelable(false);
-
-                alertDialog = alertDialogBuilder.create();
-                alertDialog.show();
-
                 buttonSignIn.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -100,6 +100,7 @@ public class Login extends AppCompatActivity {
                             return;
                         }
 
+                        progressDialog.dismiss();
 
                         verifyCode(code);
                     }
@@ -109,6 +110,14 @@ public class Login extends AppCompatActivity {
 
     }
 
+    private void dialog(){
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(Login.this);
+        alertDialogBuilder.setView(view);
+        alertDialogBuilder.setCancelable(false);
+
+        alertDialog = alertDialogBuilder.create();
+        alertDialog.show();
+    }
 
     private void verifyCode(String code) {
         PhoneAuthCredential credential = PhoneAuthProvider.getCredential(verificationId, code);
@@ -154,6 +163,9 @@ public class Login extends AppCompatActivity {
         @Override
         public void onCodeSent(String s, PhoneAuthProvider.ForceResendingToken forceResendingToken) {
             super.onCodeSent(s, forceResendingToken);
+            progressDialog.dismiss();
+            dialog();
+
             verificationId = s;
         }
 

@@ -332,28 +332,9 @@ public class Profile extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                MapUtility.apiKey = getResources().getString(R.string.google_api_key);
+                MapUtility.apiKey = getResources().getString(R.string.google_maps_key);
                 Intent i = new Intent(Profile.this, LocationPickerActivity.class);
                 startActivityForResult(i, ADDRESS_PICKER_REQUEST);
-
-                String address = tvAddress.getText().toString();
-
-                Map<String, Object> addData = new HashMap<>();
-                addData.put("address", address);
-
-                firebaseFirestore.collection("Users").document(firebaseAuth.getCurrentUser().getUid()).set(addData, SetOptions.merge())
-                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                Snackbar.make(rootLayout, "Your address is updated successfully!", Snackbar.LENGTH_LONG).show();
-                            }
-                        })
-                        .addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Snackbar.make(rootLayout, e.getMessage(), Snackbar.LENGTH_LONG).show();
-                            }
-                        });
 
         }
     });
@@ -438,6 +419,22 @@ public class Profile extends AppCompatActivity {
                     String address = new StringBuilder().append(completeAddress.getString("addressline2").replace(", Punjab,","").replace("Pakistan","")).toString();
                     tvAddress.setText(address);
 
+                    Map<String, Object> addData = new HashMap<>();
+                    addData.put("address", address);
+
+                    firebaseFirestore.collection("Users").document(firebaseAuth.getCurrentUser().getUid()).set(addData, SetOptions.merge())
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    Snackbar.make(rootLayout, "Your address is updated successfully!", Snackbar.LENGTH_LONG).show();
+                                }
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Snackbar.make(rootLayout, e.getMessage(), Snackbar.LENGTH_LONG).show();
+                                }
+                            });
                 }
             }
             catch (Exception ex) {

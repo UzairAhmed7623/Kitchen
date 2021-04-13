@@ -82,9 +82,9 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:438055928659:android:0b98fd4a84d836a72bd7a6",
+        "mobilesdk_app_id": "1:438055928659:android:cc3f02fe7f53c6de2bd7a6",
         "android_client_info": {
-          "package_name": "com.example.kitchen"
+          "package_name": "com.example.myapplication"
         }
       },
       "oauth_client": [
@@ -111,12 +111,20 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:438055928659:android:cc3f02fe7f53c6de2bd7a6",
+        "mobilesdk_app_id": "1:438055928659:android:c1db25f96160a8882bd7a6",
         "android_client_info": {
-          "package_name": "com.example.myapplication"
+          "package_name": "com.inkhornsolutions.kitchen"
         }
       },
       "oauth_client": [
+        {
+          "client_id": "438055928659-btee9uf09j6dh7scd99smg47c83h45fp.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.inkhornsolutions.kitchen",
+            "certificate_hash": "1e9cf9319f501b8dc9ff76dc8e7fd037b4a23f0a"
+          }
+        },
         {
           "client_id": "438055928659-mv9a4btuqrgkdcp8tl3oat19kntkd4b3.apps.googleusercontent.com",
           "client_type": 3
