@@ -8,4 +8,6 @@
     <dimen name="text_margin">16dp</dimen>
     <dimen name="headerTextSize">28sp</dimen>
 
+    <dimen name="dp_19">19dp</dimen>
+
 </resources>

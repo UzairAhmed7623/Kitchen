@@ -11,15 +11,19 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.AlertDialog.Builder;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.InputType;
 import android.util.Log;
 
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -27,6 +31,7 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.textfield.TextInputLayout;
 import com.inkhornsolutions.kitchen.adapters.MainActivityAdapter;
 import com.inkhornsolutions.kitchen.modelclasses.ItemsModelClass;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -58,6 +63,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private CircleImageView ivProfileImage;
     private ImageView ivProfileSettings;
     private String m_Text = "";
+    AlertDialog.Builder builder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,73 +106,98 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
 
-
         rvItems = (RecyclerView) findViewById(R.id.rvItems);
         rvItems.setLayoutManager(new LinearLayoutManager(MainActivity.this));
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Title");
+        View view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.edittext_for_restaurant_name, null,false);
 
-        final EditText input = new EditText(this);
+        EditText editText = (EditText) view.findViewById(R.id.editTextres);
 
-        input.setInputType(InputType.TYPE_CLASS_TEXT);
-        builder.setView(input);
+        builder = new AlertDialog.Builder(this)
+                .setTitle("Restaurant Name")
+                .setView(view)
+                .setMessage("Please write your issued restaurant name:")
+                .setPositiveButton("Done", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (editText.getText().toString().length() <= 0){
+                            editText.setError("Please write your issued restaurant name");
+                            return;
+                        }
+                        m_Text = editText.getText().toString();
 
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        firebaseFirestore.collection("Restaurants").document(m_Text).collection("Items")
+                                .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+
+                                if (task.isSuccessful()){
+                                    for (QueryDocumentSnapshot documentSnapshot : task.getResult()){
+                                        if (documentSnapshot.exists()){
+                                            String itemName = documentSnapshot.getId();
+                                            String imageUri = documentSnapshot.getString("imageUri");
+                                            String price = documentSnapshot.getString("price");
+                                            String available = documentSnapshot.getString("available");
+                                            String schedule = documentSnapshot.getString("schedule");
+
+                                            Log.d("TAG", itemName+imageUri+price);
+
+                                            ItemsModelClass itemsModelClass = new ItemsModelClass();
+                                            itemsModelClass.setResName(m_Text);
+                                            itemsModelClass.setItemName(itemName);
+                                            itemsModelClass.setImage(imageUri);
+                                            itemsModelClass.setPrice(price);
+                                            itemsModelClass.setAvailability(available);
+                                            itemsModelClass.setSchedule(schedule);
+
+                                            items.add(itemsModelClass);
+                                        }
+                                    }
+                                    rvItems.setAdapter(new MainActivityAdapter(MainActivity.this, items));
+                                }
+
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).setBackgroundTint(getResources().getColor(R.color.myColor)).show();
+                            }
+                        });
+                        dialog.dismiss();
+                    }
+                }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                m_Text = input.getText().toString();
 
-                firebaseFirestore.collection("Restaurants").document(m_Text).collection("Items")
-                        .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                dialog.dismiss();
+
+                AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
+                alertDialog.setMessage("If you cancel it you will not be able to use this app.\nAre your sure you still want to cancel it?");
+                alertDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-
-                        if (task.isSuccessful()){
-                            for (QueryDocumentSnapshot documentSnapshot : task.getResult()){
-                                if (documentSnapshot.exists()){
-                                    String itemName = documentSnapshot.getId();
-                                    String imageUri = documentSnapshot.getString("imageUri");
-                                    String price = documentSnapshot.getString("price");
-                                    String available = documentSnapshot.getString("available");
-                                    String schedule = documentSnapshot.getString("schedule");
-
-                                    Log.d("TAG", itemName+imageUri+price);
-
-                                    ItemsModelClass itemsModelClass = new ItemsModelClass();
-                                    itemsModelClass.setResName(m_Text);
-                                    itemsModelClass.setItemName(itemName);
-                                    itemsModelClass.setImage(imageUri);
-                                    itemsModelClass.setPrice(price);
-                                    itemsModelClass.setAvailability(available);
-                                    itemsModelClass.setSchedule(schedule);
-
-                                    items.add(itemsModelClass);
-                                }
-                            }
-                            rvItems.setAdapter(new MainActivityAdapter(MainActivity.this, items));
-                        }
-
+                    public void onClick(DialogInterface dialog, int which) {
+                        finish();
                     }
-                }).addOnFailureListener(new OnFailureListener() {
+                }).setNegativeButton("No", new DialogInterface.OnClickListener() {
                     @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).setBackgroundTint(getResources().getColor(R.color.myColor)).show();
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+
+                        ((ViewGroup)view.getParent()).removeView(view);
+
+                        builder.show();
+
                     }
                 });
-            }
-        });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
+                alertDialog.setCancelable(false);
+                alertDialog.show();
+
             }
         });
 
         builder.setCancelable(false);
 
         builder.show();
-
     }
 
     public void headerTextView(){
