@@ -84,6 +84,7 @@
                 android:layout_height="wrap_content"
                 android:background="@color/myColor"
                 android:text="Confirm Pickup"
+                android:elevation="15dp"
                 android:textColor="@android:color/white"/>
 
         </LinearLayout>

@@ -187,6 +187,7 @@ public class FindDriver extends FragmentActivity implements OnMapReadyCallback, 
                         String address = addressList.get(0).getAddressLine(0);
 
                         Intent intent = new Intent(FindDriver.this, RequestDriverActivity.class);
+                        intent.putExtra("orderId", orderId);
                         startActivity(intent);
                         EventBus.getDefault().postSticky(new SelectPlaceEvent(origin, destination, originString, destinationString, address));
                     }

@@ -185,7 +185,7 @@ public class Login extends AppCompatActivity {
         @Override
         public void onVerificationFailed(FirebaseException e) {
             Toast.makeText(Login.this, e.getMessage(), Toast.LENGTH_LONG).show();
-            alertDialog.dismiss();
+            progressDialog.dismiss();
         }
     };
 

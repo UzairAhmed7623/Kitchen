@@ -41,7 +41,7 @@
                         android:layout_gravity="left|center_vertical"
                         android:text="Restaurant Name"
                         android:textAllCaps="true"
-                        android:textColor="#F64C15"
+                        android:textColor="@color/myColor"
                         android:textSize="15sp"
                         android:fontFamily="@font/poppins_medium" />
 
@@ -60,7 +60,7 @@
                             android:gravity="start"
                             android:text="Date"
                             android:textAllCaps="true"
-                            android:textColor="#F64C15"
+                            android:textColor="@color/myColor"
                             android:textSize="15sp"
                             android:fontFamily="@font/poppins_medium" />
 
@@ -89,7 +89,7 @@
                         android:layout_gravity="left|center_vertical"
                         android:text="Total Price"
                         android:textAllCaps="true"
-                        android:textColor="#F64C15"
+                        android:textColor="@color/myColor"
                         android:textSize="15sp"
                         android:fontFamily="@font/poppins_medium" />
 
@@ -105,6 +105,7 @@
                             android:layout_height="wrap_content"
                             style="@style/Widget.MaterialComponents.Button"
                             android:text="Accept"
+                            android:textColor="@color/white"
                             android:layout_alignParentStart="true"
                             android:layout_marginStart="25dp"/>
 
@@ -114,6 +115,7 @@
                             android:layout_height="wrap_content"
                             style="@style/Widget.MaterialComponents.Button"
                             android:text="Reject"
+                            android:textColor="@color/white"
                             android:layout_alignParentEnd="true"
                             android:layout_marginEnd="25dp"/>
 
@@ -131,6 +133,7 @@
                             android:layout_height="wrap_content"
                             style="@style/Widget.MaterialComponents.Button"
                             android:text="Find Rider"
+                            android:textColor="@color/white"
                             android:layout_alignParentStart="true"
                             android:layout_marginStart="25dp"/>
 
@@ -140,6 +143,7 @@
                             android:layout_height="wrap_content"
                             style="@style/Widget.MaterialComponents.Button"
                             android:text="Dispatch"
+                            android:textColor="@color/white"
                             android:layout_alignParentEnd="true"
                             android:layout_marginEnd="25dp"/>
 

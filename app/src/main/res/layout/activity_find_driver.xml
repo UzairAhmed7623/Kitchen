@@ -29,11 +29,13 @@
             android:id="@+id/btnPickupRequest"
             style="@style/Widget.MaterialComponents.Button"
             android:layout_width="match_parent"
-            android:layout_height="55dp"
+            android:layout_height="50dp"
             android:layout_margin="20dp"
             android:text="Pickup Request"
             android:textStyle="bold"
-            android:backgroundTint="@color/myColor"/>
+            android:elevation="15dp"
+            android:background="@color/myColor"
+            android:textColor="@color/white"/>
 
     </androidx.cardview.widget.CardView>
 

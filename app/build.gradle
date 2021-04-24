@@ -11,8 +11,8 @@ android {
         applicationId "com.inkhornsolutions.kitchen"
         minSdkVersion 23
         targetSdkVersion 30
-        versionCode 3
-        versionName "1.0"
+        versionCode 9
+        versionName "2.0"
         multiDexEnabled true
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -42,13 +42,13 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.1'
     implementation 'com.google.firebase:firebase-storage:19.2.2'
     implementation 'com.firebaseui:firebase-ui-auth:4.3.1'
-    implementation 'com.google.firebase:firebase-core:18.0.2'
+    implementation 'com.google.firebase:firebase-core:18.0.3'
     implementation 'com.google.android.gms:play-services-maps:17.0.0'
     implementation 'com.google.android.gms:play-services-location:18.0.0'
     implementation 'com.google.android.gms:play-services-auth:19.0.0'
     implementation 'com.google.maps.android:android-maps-utils:2.2.0'
     implementation 'com.google.firebase:firebase-database:19.7.0'
-    implementation 'com.google.firebase:firebase-messaging:21.0.1'
+    implementation 'com.google.firebase:firebase-messaging:21.1.0'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
@@ -91,4 +91,7 @@ dependencies {
     implementation 'jp.wasabeef:glide-transformations:4.1.0'
     // If you want to use the GPU Filters
     implementation 'jp.co.cyberagent.android:gpuimage:2.0.4'
+
+    implementation 'com.github.arcadefire:nice-spinner:1.4.4'
+
 }

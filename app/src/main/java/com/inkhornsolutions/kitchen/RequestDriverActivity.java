@@ -100,6 +100,8 @@ public class RequestDriverActivity extends FragmentActivity implements OnMapRead
     private int index, next;
     private LatLng start,end;
 
+    private String orderId="";
+
     private CardView driverInfoLayout;
     private CircleImageView ivDriver;
     private ImageView ivCallDriver;
@@ -432,6 +434,7 @@ public class RequestDriverActivity extends FragmentActivity implements OnMapRead
         tvForeigLanguage = (TextView) findViewById(R.id.tvForeigLanguage);
         etNote = (EditText) findViewById(R.id.etNote);
 
+        orderId = getIntent().getStringExtra("orderId");
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
@@ -463,7 +466,6 @@ public class RequestDriverActivity extends FragmentActivity implements OnMapRead
             }
         });
 
-        init();
     }
 
     private void addMarkerWithPulseAnimation() {
@@ -588,10 +590,6 @@ public class RequestDriverActivity extends FragmentActivity implements OnMapRead
         generator.setBackground(new ColorDrawable(Color.TRANSPARENT));
         Bitmap icon = generator.makeIcon();
         originMarker = mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromBitmap(icon)).position(selectPlaceEvent.getOrigin()));
-    }
-
-    private void init() {
-
     }
 
     @Override
@@ -744,6 +742,7 @@ public class RequestDriverActivity extends FragmentActivity implements OnMapRead
             EventBus.getDefault().removeStickyEvent(DriverCompleteTripEvent.class);
         }
         EventBus.getDefault().unregister(this);
+        super.onStop();
     }
 
     @Override

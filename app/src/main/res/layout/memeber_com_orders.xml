@@ -20,7 +20,7 @@
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/tvItemNameOrders"
+            android:id="@+id/tvItemNameComOrders"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
@@ -40,7 +40,7 @@
             android:layout_gravity="center_vertical">
 
             <TextView
-                android:id="@+id/tvItemPriceOrders"
+                android:id="@+id/tvItemPriceComOrders"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
@@ -54,7 +54,7 @@
                 android:paddingEnd="5dp" />
 
             <TextView
-                android:id="@+id/tvMultiplyLabelOrders"
+                android:id="@+id/tvMultiplyLabelComOrders"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="start"
@@ -67,7 +67,7 @@
                 android:paddingEnd="5dp" />
 
             <TextView
-                android:id="@+id/tvItemCountOrders"
+                android:id="@+id/tvItemCountComOrders"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="start"
@@ -80,7 +80,7 @@
                 android:paddingEnd="5dp" />
 
             <TextView
-                android:id="@+id/tvEqualToLabelOrders"
+                android:id="@+id/tvEqualToLabelComOrders"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="start"
@@ -93,7 +93,7 @@
                 android:paddingEnd="5dp" />
 
             <TextView
-                android:id="@+id/tvTotalOrders"
+                android:id="@+id/tvTotalComOrders"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="start"
@@ -106,7 +106,7 @@
                 android:layout_marginEnd="5dp" />
 
             <TextView
-                android:id="@+id/tvOrderDateOrders"
+                android:id="@+id/tvOrderDateComOrders"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"

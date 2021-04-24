@@ -11,12 +11,11 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.app.AlertDialog.Builder;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.text.InputType;
 import android.util.Log;
 
 import android.view.LayoutInflater;
@@ -31,7 +30,7 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.firestore.SetOptions;
 import com.inkhornsolutions.kitchen.adapters.MainActivityAdapter;
 import com.inkhornsolutions.kitchen.modelclasses.ItemsModelClass;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -46,7 +45,13 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import org.angmarch.views.NiceSpinner;
+import org.angmarch.views.OnSpinnerItemSelectedListener;
+
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -62,8 +67,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private TextView tvUserName;
     private CircleImageView ivProfileImage;
     private ImageView ivProfileSettings;
-    private String m_Text = "";
+    private String getResNamefromEditText = "";
+    String resName = "";
     AlertDialog.Builder builder;
+    private View view;
+    private String type = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,95 +117,261 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         rvItems = (RecyclerView) findViewById(R.id.rvItems);
         rvItems.setLayoutManager(new LinearLayoutManager(MainActivity.this));
 
-        View view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.edittext_for_restaurant_name, null,false);
+        SharedPreferences prefs = getApplicationContext().getSharedPreferences("USER_PREF", Context.MODE_PRIVATE);
+        resName = prefs.getString("restaurantName","");
 
-        EditText editText = (EditText) view.findViewById(R.id.editTextres);
+        if (resName.length() <= 0){
+            dialog();
+        }
+        else {
+            validateRes(resName);
+        }
+    }
 
-        builder = new AlertDialog.Builder(this)
-                .setTitle("Restaurant Name")
-                .setView(view)
-                .setMessage("Please write your issued restaurant name:")
-                .setPositiveButton("Done", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        if (editText.getText().toString().length() <= 0){
-                            editText.setError("Please write your issued restaurant name");
-                            return;
-                        }
-                        m_Text = editText.getText().toString();
+    private void dialog(){
+        view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.edittext_for_restaurant_name, null);
 
-                        firebaseFirestore.collection("Restaurants").document(m_Text).collection("Items")
-                                .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+        EditText etResName = (EditText) view.findViewById(R.id.etResName);
+        NiceSpinner spResCat = (NiceSpinner) view.findViewById(R.id.spResCat);
 
-                                if (task.isSuccessful()){
-                                    for (QueryDocumentSnapshot documentSnapshot : task.getResult()){
-                                        if (documentSnapshot.exists()){
-                                            String itemName = documentSnapshot.getId();
-                                            String imageUri = documentSnapshot.getString("imageUri");
-                                            String price = documentSnapshot.getString("price");
-                                            String available = documentSnapshot.getString("available");
-                                            String schedule = documentSnapshot.getString("schedule");
+        List<String> category = new ArrayList<>();
+        category.add("FastFood");
+        category.add("Desi");
 
-                                            Log.d("TAG", itemName+imageUri+price);
+        spResCat.attachDataSource(category);
 
-                                            ItemsModelClass itemsModelClass = new ItemsModelClass();
-                                            itemsModelClass.setResName(m_Text);
-                                            itemsModelClass.setItemName(itemName);
-                                            itemsModelClass.setImage(imageUri);
-                                            itemsModelClass.setPrice(price);
-                                            itemsModelClass.setAvailability(available);
-                                            itemsModelClass.setSchedule(schedule);
-
-                                            items.add(itemsModelClass);
-                                        }
-                                    }
-                                    rvItems.setAdapter(new MainActivityAdapter(MainActivity.this, items));
-                                }
-
-                            }
-                        }).addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).setBackgroundTint(getResources().getColor(R.color.myColor)).show();
-                            }
-                        });
-                        dialog.dismiss();
-                    }
-                }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+        spResCat.setOnSpinnerItemSelectedListener(new OnSpinnerItemSelectedListener() {
             @Override
-            public void onClick(DialogInterface dialog, int which) {
+            public void onItemSelected(NiceSpinner parent, View view, int position, long id) {
 
-                dialog.dismiss();
-
-                AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
-                alertDialog.setMessage("If you cancel it you will not be able to use this app.\nAre your sure you still want to cancel it?");
-                alertDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        finish();
-                    }
-                }).setNegativeButton("No", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-
-                        ((ViewGroup)view.getParent()).removeView(view);
-
-                        builder.show();
-
-                    }
-                });
-                alertDialog.setCancelable(false);
-                alertDialog.show();
+                if (position == 0){
+                    type = "1";
+                }
+                else if (position == 1){
+                    type = "0";
+                }
 
             }
         });
 
-        builder.setCancelable(false);
+        builder = new AlertDialog.Builder(this)
+                .setTitle("Write your restaurant name")
+                .setMessage("What would you like to called your restaurant.Please write below:")
+                .setPositiveButton("Done", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
 
-        builder.show();
+                        dialog.dismiss();
+
+                        AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
+                        alertDialog.setMessage("If you cancel it you will not be able to use this app.\nAre your sure you still want to cancel it?");
+                        alertDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                finish();
+                            }
+                        }).setNegativeButton("No", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.cancel();
+
+                                ((ViewGroup)view.getParent()).removeView(view);
+
+                                builder.show();
+
+                            }
+                        });
+                        alertDialog.setCancelable(false);
+                        alertDialog.show();
+
+                    }
+                });
+
+        builder.setView(view);
+        builder.setCancelable(false);
+        AlertDialog dialog = builder.create();
+        builder.setCancelable(false);
+        dialog.show();
+
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (etResName.getText().toString().length() <= 0){
+                    Toast.makeText(MainActivity.this, "Please write your restaurant name!", Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    getResNamefromEditText = etResName.getText().toString().trim();
+
+                    firebaseFirestore.collection("Restaurants").get()
+                            .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                                @Override
+                                public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+
+                                    for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots){
+                                        if (documentSnapshot.exists()){
+
+                                            String resNames = documentSnapshot.getId();
+
+                                            if (resNames.equals(getResNamefromEditText)){
+                                                Toast.makeText(MainActivity.this, "Restaurant already registered!", Toast.LENGTH_SHORT).show();
+                                            }
+                                            else {
+                                                SharedPreferences prefs = getApplicationContext().getSharedPreferences("USER_PREF", Context.MODE_PRIVATE);
+                                                SharedPreferences.Editor editor = prefs.edit();
+                                                editor.putString("restaurantName", getResNamefromEditText);
+                                                editor.apply();
+
+                                                HashMap<String, Object> resReg = new HashMap<>();
+                                                resReg.put("resName", getResNamefromEditText);
+                                                resReg.put("id", firebaseAuth.getCurrentUser().getUid());
+                                                resReg.put("type", type);
+                                                resReg.put("approved","no");
+
+                                                firebaseFirestore.collection("Restaurants").document(getResNamefromEditText).set(resReg, SetOptions.merge())
+                                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                            @Override
+                                                            public void onSuccess(Void aVoid) {
+                                                                AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
+                                                                alertDialog.setMessage("Your request has been sent to the system. Please wait for the approval.\nAfter request approval you" +
+                                                                        "will be able to use app.\nThanks a lot");
+                                                                alertDialog.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                                                                    @Override
+                                                                    public void onClick(DialogInterface dialog, int which) {
+                                                                        finish();
+                                                                    }
+                                                                });
+                                                                alertDialog.setCancelable(false);
+                                                                alertDialog.show();
+                                                            }
+                                                        })
+                                                        .addOnFailureListener(new OnFailureListener() {
+                                                            @Override
+                                                            public void onFailure(@NonNull Exception e) {
+                                                                Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).show();
+                                                            }
+                                                        });
+
+                                                HashMap<String, Object> resReg1 = new HashMap<>();
+                                                resReg.put("resName", getResNamefromEditText);
+                                                resReg.put("id", firebaseAuth.getCurrentUser().getUid());
+
+                                                firebaseFirestore.collection("Users").document(firebaseAuth.getCurrentUser().getUid()).set(resReg1, SetOptions.merge())
+                                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                            @Override
+                                                            public void onSuccess(Void aVoid) {
+                                                                Log.d("resReg", "request successfully sent.");
+                                                            }
+                                                        })
+                                                        .addOnFailureListener(new OnFailureListener() {
+                                                            @Override
+                                                            public void onFailure(@NonNull Exception e) {
+                                                                Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).show();
+                                                            }
+                                                        });
+
+                                                dialog.dismiss();
+                                            }
+                                        }
+                                    }
+                                }
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).show();
+                                }
+                            });
+                }
+            }
+        });
+
+    }
+
+    private void validateRes(String resName){
+        firebaseFirestore.collection("Restaurants").document(resName).get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        if (documentSnapshot.exists()){
+                            String approved = documentSnapshot.getString("approved");
+                            if (Objects.equals(approved, "yes")){
+                                loadRestaurant(resName);
+                            }
+                            else {
+                                AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
+                                alertDialog.setTitle("Oops");
+                                alertDialog.setMessage("Your restaurant was not approved yet. Please wait for the approval.");
+                                alertDialog.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        finish();
+                                    }
+                                });
+                                alertDialog.setCancelable(false);
+                                alertDialog.show();
+                            }
+                        }
+
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).show();
+            }
+        });
+    }
+
+    private void loadRestaurant(String resName){
+
+        firebaseFirestore.collection("Restaurants").document(resName).collection("Items")
+                .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+
+                if (task.isSuccessful()){
+                    boolean isEmpty = task.getResult().isEmpty();
+
+                    if (!isEmpty){
+                        for (QueryDocumentSnapshot documentSnapshot : task.getResult()){
+                            if (documentSnapshot.exists()){
+                                String itemName = documentSnapshot.getId();
+                                String imageUri = documentSnapshot.getString("imageUri");
+                                String price = documentSnapshot.getString("price");
+                                String available = documentSnapshot.getString("available");
+                                String schedule = documentSnapshot.getString("schedule");
+
+                                Log.d("TAG", itemName+imageUri+price);
+
+                                ItemsModelClass itemsModelClass = new ItemsModelClass();
+                                itemsModelClass.setResName(resName);
+                                itemsModelClass.setItemName(itemName);
+                                itemsModelClass.setImage(imageUri);
+                                itemsModelClass.setPrice(price);
+                                itemsModelClass.setAvailability(available);
+                                itemsModelClass.setSchedule(schedule);
+
+                                items.add(itemsModelClass);
+                            }
+                        }
+                        rvItems.setAdapter(new MainActivityAdapter(MainActivity.this, items));
+                    }
+                    else {
+                        Snackbar.make(findViewById(android.R.id.content), "No data found!", Snackbar.LENGTH_LONG).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).show();
+                    }
+                }
+
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).show();
+            }
+        });
     }
 
     public void headerTextView(){
@@ -272,7 +446,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (item.getItemId() == R.id.addItem){
             Intent intent = new Intent(MainActivity.this, AddItem.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            intent.putExtra("resName", m_Text);
+            intent.putExtra("resName", getResNamefromEditText);
             startActivity(intent);
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         }
@@ -284,12 +458,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         if (item.getItemId() == R.id.pendingOrders){
             Intent intent = new Intent(MainActivity.this, Orders.class);
-            intent.putExtra("resName", m_Text);
+            intent.putExtra("resName", resName);
             startActivity(intent);
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         }
         else if (item.getItemId() == R.id.deliveredOrders){
             Intent intent = new Intent(MainActivity.this, CompletedOrders.class);
+            intent.putExtra("resName", resName);
             startActivity(intent);
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         }
