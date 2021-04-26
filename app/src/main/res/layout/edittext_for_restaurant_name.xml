@@ -1,40 +1,105 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:padding="10dp"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    app:cardBackgroundColor="@color/white"
+    app:cardElevation="10dp"
+    app:cardCornerRadius="20dp">
 
-        <EditText
-            android:id="@+id/etResName"
-            android:layout_width="match_parent"
-            android:layout_height="55dp"
-            android:hint="Restaurant name"
-            android:textColorHint="@color/grey_60"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/tv"
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/etResName"
-            android:text="Select Category"
-            android:textStyle="bold"
-            android:textSize="14sp"/>
+            android:padding="10dp">
 
-        <org.angmarch.views.NiceSpinner
-            android:id="@+id/spResCat"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/tv"
-            android:backgroundTint="@color/white"
-            app:arrowTint="@color/black"
-            app:textTint="@color/black"
-            android:maxLines="1" />
+                <TextView
+                    android:id="@+id/tvPlace"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Write your restaurant name"
+                    android:textColor="@color/black"
+                    android:textStyle="bold"
+                    android:textSize="18sp"
+                    android:paddingTop="10dp"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
+                    android:fontFamily="@font/uber_move_bold"/>
 
-</RelativeLayout>
+                <TextView
+                    android:id="@+id/tvPlace2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/tvPlace"
+                    android:textColor="@color/black"
+                    android:text="What would you like to called your restaurant.\nPlease write below:"
+                    android:textSize="16sp"
+                    android:fontFamily="@font/uber_move"
+                    android:paddingTop="5dp"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"/>
+
+                <LinearLayout
+                    android:id="@+id/layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/tvPlace2"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp">
+
+                        <EditText
+                            android:id="@+id/etResName"
+                            android:layout_width="match_parent"
+                            android:layout_height="55dp"
+                            android:hint="Restaurant name"
+                            android:maxLines="1"
+                            android:backgroundTint="@color/myColor"
+                            android:textCursorDrawable="@drawable/cursor_color" />
+
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tv"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/layout"
+                    android:text="Select Category"
+                    android:textColor="@color/black"
+                    android:textStyle="bold"
+                    android:padding="10dp"
+                    android:textSize="16sp"/>
+
+                <Spinner
+                    android:id="@+id/spResCat"
+                    android:layout_width="200dp"
+                    android:layout_height="50dp"
+                    android:layout_below="@+id/tv"
+                    android:layout_centerHorizontal="true"
+                     />
+
+                <Button
+                    android:id="@+id/btnDone"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/spResCat"
+                    android:layout_alignParentEnd="true"
+                    android:background="@color/fui_transparent"
+                    android:text="Done"
+                    android:textColor="@color/myColor"
+                    android:textSize="14sp"/>
+
+                <Button
+                    android:id="@+id/btnCancel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/spResCat"
+                    android:layout_toStartOf="@+id/btnDone"
+                    android:background="@color/fui_transparent"
+                    android:text="Cancel"
+                    android:textColor="@color/myColor"
+                    android:textSize="14sp" />
+
+                </RelativeLayout>
+
+</androidx.cardview.widget.CardView>

@@ -11,10 +11,14 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.annotation.SuppressLint;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -23,13 +27,18 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.firestore.SetOptions;
 import com.inkhornsolutions.kitchen.adapters.MainActivityAdapter;
 import com.inkhornsolutions.kitchen.modelclasses.ItemsModelClass;
@@ -68,8 +77,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private CircleImageView ivProfileImage;
     private ImageView ivProfileSettings;
     private String getResNamefromEditText = "";
-    String resName = "";
-    AlertDialog.Builder builder;
+    private String resName = "";
+    private List<String> resId = new ArrayList<>();
+    private List<String> resNames = new ArrayList<>();
+    private Dialog builder;
     private View view;
     private String type = "";
 
@@ -117,6 +128,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         rvItems = (RecyclerView) findViewById(R.id.rvItems);
         rvItems.setLayoutManager(new LinearLayoutManager(MainActivity.this));
 
+        builder = new Dialog(this);
+
         SharedPreferences prefs = getApplicationContext().getSharedPreferences("USER_PREF", Context.MODE_PRIVATE);
         resName = prefs.getString("restaurantName","");
 
@@ -128,76 +141,47 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
+    @SuppressLint("InflateParams")
     private void dialog(){
         view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.edittext_for_restaurant_name, null);
 
         EditText etResName = (EditText) view.findViewById(R.id.etResName);
-        NiceSpinner spResCat = (NiceSpinner) view.findViewById(R.id.spResCat);
+        Spinner spResCat = (Spinner) view.findViewById(R.id.spResCat);
+        Button btnDone = (Button) view.findViewById(R.id.btnDone);
+        Button btnCancel = (Button) view.findViewById(R.id.btnCancel);
 
         List<String> category = new ArrayList<>();
-        category.add("FastFood");
         category.add("Desi");
+        category.add("FastFood");
 
-        spResCat.attachDataSource(category);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_spinner_item, category);
 
-        spResCat.setOnSpinnerItemSelectedListener(new OnSpinnerItemSelectedListener() {
+        adapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
+
+        spResCat.setAdapter(adapter);
+
+        spResCat.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
-            public void onItemSelected(NiceSpinner parent, View view, int position, long id) {
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 
                 if (position == 0){
-                    type = "1";
-                }
-                else if (position == 1){
                     type = "0";
                 }
+                else{
+                    type = "1";
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
 
             }
         });
 
-        builder = new AlertDialog.Builder(this)
-                .setTitle("Write your restaurant name")
-                .setMessage("What would you like to called your restaurant.Please write below:")
-                .setPositiveButton("Done", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
+        builder.setContentView(view);
+        builder.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
-                        dialog.dismiss();
-
-                        AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
-                        alertDialog.setMessage("If you cancel it you will not be able to use this app.\nAre your sure you still want to cancel it?");
-                        alertDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                finish();
-                            }
-                        }).setNegativeButton("No", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.cancel();
-
-                                ((ViewGroup)view.getParent()).removeView(view);
-
-                                builder.show();
-
-                            }
-                        });
-                        alertDialog.setCancelable(false);
-                        alertDialog.show();
-
-                    }
-                });
-
-        builder.setView(view);
-        builder.setCancelable(false);
-        AlertDialog dialog = builder.create();
-        builder.setCancelable(false);
-        dialog.show();
-
-        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+        btnDone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (etResName.getText().toString().length() <= 0){
@@ -206,76 +190,82 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 else {
                     getResNamefromEditText = etResName.getText().toString().trim();
 
+
                     firebaseFirestore.collection("Restaurants").get()
                             .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                                 @Override
                                 public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
 
                                     for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots){
+
                                         if (documentSnapshot.exists()){
-
-                                            String resNames = documentSnapshot.getId();
-
-                                            if (resNames.equals(getResNamefromEditText)){
-                                                Toast.makeText(MainActivity.this, "Restaurant already registered!", Toast.LENGTH_SHORT).show();
-                                            }
-                                            else {
-                                                SharedPreferences prefs = getApplicationContext().getSharedPreferences("USER_PREF", Context.MODE_PRIVATE);
-                                                SharedPreferences.Editor editor = prefs.edit();
-                                                editor.putString("restaurantName", getResNamefromEditText);
-                                                editor.apply();
-
-                                                HashMap<String, Object> resReg = new HashMap<>();
-                                                resReg.put("resName", getResNamefromEditText);
-                                                resReg.put("id", firebaseAuth.getCurrentUser().getUid());
-                                                resReg.put("type", type);
-                                                resReg.put("approved","no");
-
-                                                firebaseFirestore.collection("Restaurants").document(getResNamefromEditText).set(resReg, SetOptions.merge())
-                                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                            @Override
-                                                            public void onSuccess(Void aVoid) {
-                                                                AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
-                                                                alertDialog.setMessage("Your request has been sent to the system. Please wait for the approval.\nAfter request approval you" +
-                                                                        "will be able to use app.\nThanks a lot");
-                                                                alertDialog.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-                                                                    @Override
-                                                                    public void onClick(DialogInterface dialog, int which) {
-                                                                        finish();
-                                                                    }
-                                                                });
-                                                                alertDialog.setCancelable(false);
-                                                                alertDialog.show();
-                                                            }
-                                                        })
-                                                        .addOnFailureListener(new OnFailureListener() {
-                                                            @Override
-                                                            public void onFailure(@NonNull Exception e) {
-                                                                Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).show();
-                                                            }
-                                                        });
-
-                                                HashMap<String, Object> resReg1 = new HashMap<>();
-                                                resReg.put("resName", getResNamefromEditText);
-                                                resReg.put("id", firebaseAuth.getCurrentUser().getUid());
-
-                                                firebaseFirestore.collection("Users").document(firebaseAuth.getCurrentUser().getUid()).set(resReg1, SetOptions.merge())
-                                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                            @Override
-                                                            public void onSuccess(Void aVoid) {
-                                                                Log.d("resReg", "request successfully sent.");
-                                                            }
-                                                        })
-                                                        .addOnFailureListener(new OnFailureListener() {
-                                                            @Override
-                                                            public void onFailure(@NonNull Exception e) {
-                                                                Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).show();
-                                                            }
-                                                        });
-
-                                                dialog.dismiss();
-                                            }
+                                            resId.add(documentSnapshot.getString("id").trim());
+                                            resNames.add(documentSnapshot.getId().toLowerCase().trim().replace(" ", ""));
                                         }
+                                    }
+                                    if (resNames.contains(getResNamefromEditText.toLowerCase().trim().replace(" ", ""))
+                                                && !resId.contains(firebaseAuth.getCurrentUser().getUid())) {
+                                        Toast.makeText(MainActivity.this, "Restaurant already registered with this name!", Toast.LENGTH_SHORT).show();
+                                    }
+                                    else if (resNames.contains(getResNamefromEditText.toLowerCase().trim().replace(" ", ""))
+                                            && resId.contains(firebaseAuth.getCurrentUser().getUid())){
+                                        loadRestaurant(getResNamefromEditText);
+                                    }
+                                    else {
+                                        SharedPreferences prefs = getApplicationContext().getSharedPreferences("USER_PREF", Context.MODE_PRIVATE);
+                                        SharedPreferences.Editor editor = prefs.edit();
+                                        editor.putString("restaurantName", getResNamefromEditText);
+                                        editor.apply();
+
+                                        HashMap<String, Object> resReg = new HashMap<>();
+                                        resReg.put("resName", getResNamefromEditText);
+                                        resReg.put("id", firebaseAuth.getCurrentUser().getUid());
+                                        resReg.put("type", type);
+                                        resReg.put("approved","no");
+
+                                        firebaseFirestore.collection("Restaurants").document(getResNamefromEditText).set(resReg, SetOptions.merge())
+                                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                    @Override
+                                                    public void onSuccess(Void aVoid) {
+                                                        AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
+                                                        alertDialog.setMessage("Your request has been sent to the system. Please wait for the approval.\n\nAfter request approval you" +
+                                                                "will be able to use the app.");
+                                                        alertDialog.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                                                            @Override
+                                                            public void onClick(DialogInterface dialog, int which) {
+                                                                finish();
+                                                            }
+                                                        });
+                                                        alertDialog.setCancelable(false);
+                                                        alertDialog.show();
+                                                    }
+                                                })
+                                                .addOnFailureListener(new OnFailureListener() {
+                                                    @Override
+                                                    public void onFailure(@NonNull Exception e) {
+                                                        Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).show();
+                                                    }
+                                                });
+
+                                        HashMap<String, Object> resReg1 = new HashMap<>();
+                                        resReg.put("resName", getResNamefromEditText);
+                                        resReg.put("id", firebaseAuth.getCurrentUser().getUid());
+
+                                        firebaseFirestore.collection("Users").document(firebaseAuth.getCurrentUser().getUid()).set(resReg1, SetOptions.merge())
+                                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                    @Override
+                                                    public void onSuccess(Void aVoid) {
+                                                        Log.d("resReg", "request successfully sent.");
+                                                    }
+                                                })
+                                                .addOnFailureListener(new OnFailureListener() {
+                                                    @Override
+                                                    public void onFailure(@NonNull Exception e) {
+                                                        Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).show();
+                                                    }
+                                                });
+
+                                        builder.dismiss();
                                     }
                                 }
                             })
@@ -289,6 +279,36 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
 
+        btnCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                builder.dismiss();
+
+                AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
+                alertDialog.setMessage("If you cancel it you will not be able to use this app.\nAre your sure you still want to cancel it?");
+                alertDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        finish();
+                    }
+                }).setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+
+//                        ((ViewGroup)view.getParent()).removeView(view);
+
+                        builder.show();
+
+                    }
+                });
+                alertDialog.setCancelable(false);
+                alertDialog.show();
+            }
+        });
+
+        builder.setCancelable(false);
+        builder.show();
     }
 
     private void validateRes(String resName){
@@ -299,7 +319,40 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         if (documentSnapshot.exists()){
                             String approved = documentSnapshot.getString("approved");
                             if (Objects.equals(approved, "yes")){
-                                loadRestaurant(resName);
+
+                                final boolean firstTime;
+
+                                SharedPreferences preferences = getApplicationContext().getSharedPreferences("USER_PREF", Context.MODE_PRIVATE);
+                                firstTime = preferences.getBoolean("firstTime", true);
+
+                                if (firstTime){
+                                    AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
+                                    alertDialog.setTitle("Congrats");
+                                    alertDialog.setMessage("Your restaurant was approved. Now you can add your products by clicking on the upper right corner button.");
+                                    alertDialog.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+
+                                            boolean firstTime = false;
+
+                                            SharedPreferences prefs = getApplicationContext().getSharedPreferences("USER_PREF", Context.MODE_PRIVATE);
+                                            SharedPreferences.Editor editor = prefs.edit();
+                                            editor.putBoolean("firstTime", firstTime);
+                                            editor.apply();
+
+                                            dialog.dismiss();
+
+                                            loadRestaurant(resName);
+                                        }
+                                    });
+                                    alertDialog.setCancelable(false);
+                                    alertDialog.show();
+                                }
+                                else {
+                                    loadRestaurant(resName);
+                                }
+
+
                             }
                             else {
                                 AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
@@ -324,6 +377,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).show();
             }
         });
+
     }
 
     private void loadRestaurant(String resName){
@@ -473,5 +527,4 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         return true;
     }
-
 }
