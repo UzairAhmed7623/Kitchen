@@ -3,18 +3,24 @@ package com.inkhornsolutions.kitchen;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import android.app.ProgressDialog;
+import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.github.dhaval2404.imagepicker.ImagePicker;
@@ -29,13 +35,18 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 
 public class AddItem extends AppCompatActivity {
 
-    private EditText etItemName, etItemPrice, etScedule, etAvailable;
+    private EditText etItemName, etItemPrice, etAvailable;
+    private TextView tvFrom, tvTo;
+    private TimePicker tpScedule;
+    private int t1hour, t1minute, t2hour, t2minute;
     private ImageView etItemImage;
     private Button btnDone, btnPickImage;
     private FirebaseAuth firebaseAuth;
@@ -45,6 +56,7 @@ public class AddItem extends AppCompatActivity {
     private FirebaseStorage firebaseStorage;
     private StorageReference storageReference;
     private ProgressDialog dialog;
+    private Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,12 +68,15 @@ public class AddItem extends AppCompatActivity {
         firebaseStorage = FirebaseStorage.getInstance();
         storageReference = firebaseStorage.getReference();
 
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
         resName = getIntent().getStringExtra("resName");
 
         etItemName = (EditText) findViewById(R.id.etItemName);
         etItemPrice = (EditText) findViewById(R.id.etItemPrice);
         etItemImage = (ImageView) findViewById(R.id.etItemImage);
-        etScedule = (EditText) findViewById(R.id.etScedule);
+        tvFrom = (TextView) findViewById(R.id.tvFrom);
+        tvTo = (TextView) findViewById(R.id.tvTo);
         etAvailable = (EditText) findViewById(R.id.etAvailable);
         btnPickImage = (Button) findViewById(R.id.btnPickImage);
         btnDone = (Button) findViewById(R.id.btnDone);
@@ -70,15 +85,78 @@ public class AddItem extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-
                 ImagePicker.Companion.with(AddItem.this)
                         .crop(3f, 2f)	    			//Crop image(Optional), Check Customization for more option
                         .compress(1024)			//Final image size will be less than 1 MB(Optional)
                         .start(1002);
-
-
             }
+        });
 
+        tvFrom.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                TimePickerDialog timePickerDialog = new TimePickerDialog(AddItem.this,
+                        android.R.style.Theme_Holo_Dialog_MinWidth, new TimePickerDialog.OnTimeSetListener() {
+                    @Override
+                    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                        t1hour = hourOfDay;
+                        t1minute = minute;
+
+                        String time = t1hour + ":" + t1minute;
+
+                        SimpleDateFormat f24Hours = new SimpleDateFormat("HH:mm");
+
+                        try {
+                            Date date = f24Hours.parse(time);
+                            SimpleDateFormat f12Hours = new SimpleDateFormat("hh:mm aa");
+
+                            tvFrom.setText(f12Hours.format(date));
+
+                        }
+                        catch (Exception e){
+                            e.printStackTrace();
+                        }
+
+                    }
+                },12, 0, false);
+
+                timePickerDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                timePickerDialog.updateTime(t1hour, t1minute);
+                timePickerDialog.show();
+            }
+        });
+        tvTo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                TimePickerDialog timePickerDialog = new TimePickerDialog(AddItem.this,
+                        android.R.style.Theme_Holo_Dialog_MinWidth, new TimePickerDialog.OnTimeSetListener() {
+                    @Override
+                    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                        t2hour = hourOfDay;
+                        t2minute = minute;
+
+                        String time = t2hour + ":" + t2minute;
+
+                        SimpleDateFormat f24Hours = new SimpleDateFormat("HH:mm");
+
+                        try {
+                            Date date = f24Hours.parse(time);
+                            SimpleDateFormat f12Hours = new SimpleDateFormat("hh:mm aa");
+
+                            tvFrom.setText(f12Hours.format(date));
+
+                        }
+                        catch (Exception e){
+                            e.printStackTrace();
+                        }
+
+                    }
+                },12, 0, false);
+
+                timePickerDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                timePickerDialog.updateTime(t2hour, t2minute);
+                timePickerDialog.show();
+            }
         });
 
         btnDone.setOnClickListener(new View.OnClickListener() {
@@ -134,7 +212,7 @@ public class AddItem extends AppCompatActivity {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
 
-                Toast.makeText(AddItem.this, "on Success", Toast.LENGTH_SHORT).show();
+                Log.d("Image", "on Success");
 
                 Task<Uri> urlTask = taskSnapshot.getStorage().getDownloadUrl();
                 while (!urlTask.isSuccessful());
@@ -151,13 +229,13 @@ public class AddItem extends AppCompatActivity {
     private void setDetails(String url, String name) {
 
         String price = etItemPrice.getText().toString();
-        String schedule = etScedule.getText().toString();
+//        String schedule = etScedule.getText().toString();
         String availability = etAvailable.getText().toString();
 
         HashMap<String, Object> newItem = new HashMap<>();
         newItem.put("price",price);
         newItem.put("imageUri",url);
-        newItem.put("schedule",schedule);
+//        newItem.put("schedule",schedule);
         newItem.put("available",availability);
 
         firebaseFirestore.collection("Restaurants").document(resName).collection("Items").document(name)

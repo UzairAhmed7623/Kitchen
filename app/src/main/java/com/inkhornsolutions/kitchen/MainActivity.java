@@ -1,6 +1,7 @@
 package com.inkhornsolutions.kitchen;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,6 +20,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -37,9 +39,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.github.dhaval2404.imagepicker.ImagePicker;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.firebase.firestore.SetOptions;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.inkhornsolutions.kitchen.adapters.MainActivityAdapter;
 import com.inkhornsolutions.kitchen.modelclasses.ItemsModelClass;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -68,6 +74,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private FirebaseAuth firebaseAuth;
     private FirebaseFirestore firebaseFirestore;
+    private FirebaseStorage firebaseStorage;
+    private StorageReference storageReference;
     private ArrayList<ItemsModelClass> items = new ArrayList<>();
     private RecyclerView rvItems;
     private Toolbar toolbar;
@@ -83,6 +91,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private Dialog builder;
     private View view;
     private String type = "";
+    private Uri fileUri;
+    private String sdownload_url = "";
+    private ImageView ivResImage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,7 +102,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseFirestore = FirebaseFirestore.getInstance();
-
+        firebaseStorage = FirebaseStorage.getInstance();
+        storageReference = firebaseStorage.getReference();
 //        String resName = getIntent().getStringExtra("resName");
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -149,15 +161,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Spinner spResCat = (Spinner) view.findViewById(R.id.spResCat);
         Button btnDone = (Button) view.findViewById(R.id.btnDone);
         Button btnCancel = (Button) view.findViewById(R.id.btnCancel);
+        Button btnPickImage = (Button) view.findViewById(R.id.btnPickImage);
+        ivResImage = (ImageView) view.findViewById(R.id.ivResImage);
 
         List<String> category = new ArrayList<>();
         category.add("Desi");
         category.add("FastFood");
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(MainActivity.this, android.R.layout.simple_spinner_item, category);
-
         adapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
-
         spResCat.setAdapter(adapter);
 
         spResCat.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -178,6 +190,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
 
+        btnPickImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                ImagePicker.Companion.with(MainActivity.this)
+                        .crop(3f, 2f)   //Crop image(Optional), Check Customization for more option
+                        .compress(1024)       //Final image size will be less than 1 MB(Optional)
+                        .start(1002);
+            }
+        });
+
         builder.setContentView(view);
         builder.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
@@ -190,7 +213,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 else {
                     getResNamefromEditText = etResName.getText().toString().trim();
 
-
                     firebaseFirestore.collection("Restaurants").get()
                             .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                                 @Override
@@ -199,7 +221,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                     for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots){
 
                                         if (documentSnapshot.exists()){
-                                            resId.add(documentSnapshot.getString("id").trim());
+                                            if (documentSnapshot.getString("id") != null){
+                                                resId.add(documentSnapshot.getString("id").trim());
+                                            }
                                             resNames.add(documentSnapshot.getId().toLowerCase().trim().replace(" ", ""));
                                         }
                                     }
@@ -209,6 +233,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                     }
                                     else if (resNames.contains(getResNamefromEditText.toLowerCase().trim().replace(" ", ""))
                                             && resId.contains(firebaseAuth.getCurrentUser().getUid())){
+
+                                        SharedPreferences prefs = getApplicationContext().getSharedPreferences("USER_PREF", Context.MODE_PRIVATE);
+                                        SharedPreferences.Editor editor = prefs.edit();
+                                        editor.putString("restaurantName", getResNamefromEditText);
+                                        editor.apply();
+
+                                        builder.dismiss();
                                         loadRestaurant(getResNamefromEditText);
                                     }
                                     else {
@@ -216,6 +247,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                         SharedPreferences.Editor editor = prefs.edit();
                                         editor.putString("restaurantName", getResNamefromEditText);
                                         editor.apply();
+
+                                        uploadImage(fileUri, getResNamefromEditText);
 
                                         HashMap<String, Object> resReg = new HashMap<>();
                                         resReg.put("resName", getResNamefromEditText);
@@ -227,6 +260,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                                                     @Override
                                                     public void onSuccess(Void aVoid) {
+
                                                         AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
                                                         alertDialog.setMessage("Your request has been sent to the system. Please wait for the approval.\n\nAfter request approval you" +
                                                                 "will be able to use the app.");
@@ -309,6 +343,43 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         builder.setCancelable(false);
         builder.show();
+    }
+
+    private void uploadImage(Uri fileUri, String resName) {
+
+        String someFilepath = String.valueOf(fileUri);
+        String extension = someFilepath.substring(someFilepath.lastIndexOf("."));
+
+        StorageReference riversRef = storageReference.child("images/Restaurants" + "." + extension +" "+ resName);
+
+        riversRef.putFile(fileUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+
+                Log.d("Image", "on Success");
+
+                Task<Uri> urlTask = taskSnapshot.getStorage().getDownloadUrl();
+                while (!urlTask.isSuccessful());
+                Uri downloadUrl = urlTask.getResult();
+
+                sdownload_url = String.valueOf(downloadUrl);
+
+                addNewRestaurantImage(sdownload_url, resName);
+                
+            }
+        });
+    }
+
+    private void addNewRestaurantImage(String sdownload_url, String resName) {
+        HashMap<String, Object> image = new HashMap<>();
+        image.put("imageUri", sdownload_url);
+
+        firebaseFirestore.collection("Restaurants").document(resName).set(image, SetOptions.merge()).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Log.d("Image", "Image uploaded successfully!");
+            }
+        });
     }
 
     private void validateRes(String resName){
@@ -428,6 +499,31 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == 1002 || resultCode == RESULT_OK && data!= null && data.getData() != null) {
+            //Image Uri will not be null for RESULT_OK
+            fileUri = data.getData();
+            Glide.with(this).load(fileUri).placeholder(ContextCompat.getDrawable(this, R.drawable.food_placeholder)).fitCenter().into(ivResImage);
+
+
+//            //You can get File object from intent
+//            File file = ImagePicker.getFile(data);
+//
+//
+//            //You can also get File Path from intent
+//            String filePath = ImagePicker.getFilePath(data);
+        }
+        else if (resultCode == ImagePicker.RESULT_ERROR) {
+            Toast.makeText(this, ""+ImagePicker.RESULT_ERROR, Toast.LENGTH_SHORT).show();
+        }
+        else {
+            Toast.makeText(this, "Task Cancelled", Toast.LENGTH_SHORT).show();
+        }
+    }
+
     public void headerTextView(){
         if (firebaseAuth != null) {
             DocumentReference documentReference = firebaseFirestore.collection("Users").document(firebaseAuth.getCurrentUser().getUid());
@@ -500,7 +596,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (item.getItemId() == R.id.addItem){
             Intent intent = new Intent(MainActivity.this, AddItem.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            intent.putExtra("resName", getResNamefromEditText);
+            intent.putExtra("resName", resName);
             startActivity(intent);
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         }

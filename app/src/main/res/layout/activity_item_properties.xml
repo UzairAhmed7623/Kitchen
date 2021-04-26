@@ -47,7 +47,6 @@
         android:background="@android:color/transparent"
         android:drawablePadding="8dp"
         android:gravity="center_vertical"
-        android:hint="@string/scedule"
         android:inputType="text"
         android:padding="10dp"
         android:singleLine="true"
