@@ -10,12 +10,10 @@ import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
-import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -31,7 +29,6 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FirebaseStorage;
@@ -39,59 +36,59 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Locale;
 
-public class AddItem extends AppCompatActivity {
+public class ItemProperties extends AppCompatActivity {
 
+    private FirebaseFirestore firebaseFirestore;
     private EditText etItemName, etItemPrice, etAvailable;
     private TextView tvFrom, tvTo;
     private int t1hour, t1minute, t2hour, t2minute;
     private ImageView etItemImage;
     private Button btnDone, btnPickImage;
-    private FirebaseAuth firebaseAuth;
-    private FirebaseFirestore firebaseFirestore;
-    private String resName, name;
+    private ProgressDialog dialog;
     private Uri fileUri;
+    private String resName, itemName;
     private FirebaseStorage firebaseStorage;
     private StorageReference storageReference;
-    private ProgressDialog dialog;
     private Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_item);
+        setContentView(R.layout.activity_item_properties);
 
-        firebaseAuth = FirebaseAuth.getInstance();
         firebaseFirestore = FirebaseFirestore.getInstance();
         firebaseStorage = FirebaseStorage.getInstance();
         storageReference = firebaseStorage.getReference();
 
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("Add new product");
-
-        resName = getIntent().getStringExtra("resName");
-
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
         etItemName = (EditText) findViewById(R.id.etItemName);
         etItemPrice = (EditText) findViewById(R.id.etItemPrice);
-        etItemImage = (ImageView) findViewById(R.id.etItemImage);
+        etAvailable = (EditText) findViewById(R.id.etAvailable);
+        btnDone = (Button) findViewById(R.id.btnDone);
         tvFrom = (TextView) findViewById(R.id.tvFrom);
         tvTo = (TextView) findViewById(R.id.tvTo);
-        etAvailable = (EditText) findViewById(R.id.etAvailable);
-        btnPickImage = (Button) findViewById(R.id.btnPickImage);
+        etItemImage = (ImageView) findViewById(R.id.etItemImage);
+
         btnDone = (Button) findViewById(R.id.btnDone);
+        btnPickImage = (Button) findViewById(R.id.btnPickImage);
+
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle("Update product");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        resName = getIntent().getStringExtra("restaurant");
+        itemName = getIntent().getStringExtra("itemName");
+
+        Log.d("TAG", resName+" "+itemName);
 
         btnPickImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                ImagePicker.Companion.with(AddItem.this)
+                ImagePicker.Companion.with(ItemProperties.this)
                         .crop(3f, 2f)	    			//Crop image(Optional), Check Customization for more option
                         .compress(1024)			//Final image size will be less than 1 MB(Optional)
                         .start(1002);
@@ -101,7 +98,7 @@ public class AddItem extends AppCompatActivity {
         tvFrom.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                TimePickerDialog timePickerDialog = new TimePickerDialog(AddItem.this, new TimePickerDialog.OnTimeSetListener() {
+                TimePickerDialog timePickerDialog = new TimePickerDialog(ItemProperties.this, new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
 
@@ -133,7 +130,7 @@ public class AddItem extends AppCompatActivity {
         tvTo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                TimePickerDialog timePickerDialog = new TimePickerDialog(AddItem.this, new TimePickerDialog.OnTimeSetListener() {
+                TimePickerDialog timePickerDialog = new TimePickerDialog(ItemProperties.this, new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
                         t2hour = hourOfDay;
@@ -166,7 +163,7 @@ public class AddItem extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                dialog = new ProgressDialog(AddItem.this);
+                dialog = new ProgressDialog(ItemProperties.this);
                 dialog.setTitle("Please wait...");
                 dialog.setMessage("We are working on your request");
                 dialog.setCancelable(false);
@@ -177,7 +174,6 @@ public class AddItem extends AppCompatActivity {
             }
         });
     }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -204,13 +200,11 @@ public class AddItem extends AppCompatActivity {
 
     private void uploadImage(Uri fileUri) {
 
-        name = etItemName.getText().toString();
-
         if (fileUri != null){
             String someFilepath = String.valueOf(fileUri);
             String extension = someFilepath.substring(someFilepath.lastIndexOf("."));
 
-            StorageReference riversRef = storageReference.child("images/Restaurants/Items" + "." + extension+ " " + name +" "+ resName);
+            StorageReference riversRef = storageReference.child("images/Restaurants/Items" + "." + extension+ " " + itemName +" "+ resName);
 
             riversRef.putFile(fileUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
@@ -224,80 +218,86 @@ public class AddItem extends AppCompatActivity {
 
                     String sdownload_url = String.valueOf(downloadUrl);
 
-                    setDetails(sdownload_url, name);
+                    firebaseFirestore.collection("Restaurants").document(resName).collection("Items")
+                            .document(itemName).update("imageUri", sdownload_url);
+
+                    setDetails(itemName);
+
                 }
             });
         }
         else {
-            dialog.dismiss();
-            Snackbar.make(findViewById(android.R.id.content), "Please fill all the fields.", Snackbar.LENGTH_LONG).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).show();
+            setDetails(itemName);
         }
     }
 
-    private void setDetails(String url, String name) {
+    private void setDetails(String name) {
 
-        String price = etItemPrice.getText().toString();
+        String price = etItemPrice.getText().toString().trim().replace("PKR", "");
         String availability = etAvailable.getText().toString();
         String from = tvFrom.getText().toString().replace("from","");
         String to = tvTo.getText().toString().replace("from","");;
 
+        if (TextUtils.isEmpty(price)){
+            Log.d("TAG", "Empty");
+        }
+        else {
+            firebaseFirestore.collection("Restaurants").document(resName).collection("Items")
+                    .document(itemName).update("price", price);
+            Snackbar.make(findViewById(android.R.id.content), "Price successfully updated!", Snackbar.LENGTH_SHORT).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).setTextColor(Color.WHITE).show();
+            goBack();
+        }
+        if (TextUtils.isEmpty(availability)){
+            Log.d("TAG", "Empty");
+        }
+        else {
+            firebaseFirestore.collection("Restaurants").document(resName).collection("Items")
+                    .document(itemName).update("available", availability);
+            Snackbar.make(findViewById(android.R.id.content), "Availability successfully updated!", Snackbar.LENGTH_SHORT).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).setTextColor(Color.WHITE).show();
+            goBack();
+        }
+        if (TextUtils.isEmpty(from)){
+            Log.d("TAG", "Empty");
+        }
+        else {
+            firebaseFirestore.collection("Restaurants").document(resName).collection("Items")
+                    .document(itemName).update("from", from);
+            Snackbar.make(findViewById(android.R.id.content), "Begin time successfully updated!", Snackbar.LENGTH_SHORT).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).setTextColor(Color.WHITE).show();
+            goBack();
+        }
+        if (TextUtils.isEmpty(to)){
+            Log.d("TAG", "Empty");
+        }
+        else {
+            firebaseFirestore.collection("Restaurants").document(resName).collection("Items")
+                    .document(itemName).update("to", to);
+            Snackbar.make(findViewById(android.R.id.content), "End time successfully updated!", Snackbar.LENGTH_SHORT).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).setTextColor(Color.WHITE).show();
+            goBack();
+        }
         if (TextUtils.isEmpty(price)
-                || TextUtils.isEmpty(availability)
-                || TextUtils.isEmpty(from)
-                || TextUtils.isEmpty(to)){
+                & TextUtils.isEmpty(availability)
+                & TextUtils.isEmpty(from)
+                & TextUtils.isEmpty(to)){
 
             dialog.dismiss();
 
-            Snackbar.make(findViewById(android.R.id.content), "Please fill all the fields.", Snackbar.LENGTH_LONG).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).show();
-        }
-        else {
-            HashMap<String, Object> newItem = new HashMap<>();
-            newItem.put("price",price);
-            newItem.put("imageUri",url);
-            newItem.put("from", from);
-            newItem.put("to", to);
-            newItem.put("available",availability);
-
-            firebaseFirestore.collection("Restaurants").document(resName).collection("Items").document(name)
-                    .set(newItem, SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
-                @Override
-                public void onComplete(@NonNull Task<Void> task) {
-                    dialog.dismiss();
-
-                    Snackbar.make(findViewById(android.R.id.content), "You have added one product named "+name, Snackbar.LENGTH_SHORT).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).setTextColor(Color.WHITE).show();
-
-                    android.os.Handler handler = new Handler();
-                    handler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            Intent intent = new Intent(AddItem.this, MainActivity.class);
-                            intent.putExtra("resName", resName);
-                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                            startActivity(intent);
-                        }
-                    }, 1000);
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    dialog.dismiss();
-                    Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_SHORT).setBackgroundTint(Color.RED).setTextColor(Color.WHITE).show();
-                }
-            });
+            Snackbar.make(findViewById(android.R.id.content), "Please fill at least one field.", Snackbar.LENGTH_LONG).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).show();
         }
     }
 
-    private String getDateTime() {
-        Calendar calendar = Calendar.getInstance(Locale.getDefault());
-        long time = System.currentTimeMillis();
-        calendar.setTimeInMillis(time);
+    private void goBack(){
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
 
-        //dd=day, MM=month, yyyy=year, hh=hour, mm=minute, ss=second.
-
-        String date = DateFormat.format("dd-MM-yyyy hh-mm",calendar).toString();
-
-        return date;
+                Intent intent = new Intent(ItemProperties.this, MainActivity.class);
+                intent.putExtra("resName", resName);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+            }
+        }, 1000);
     }
 
 }

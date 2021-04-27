@@ -3,7 +3,6 @@ package com.inkhornsolutions.kitchen.adapters;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +15,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.inkhornsolutions.kitchen.R;
-import com.inkhornsolutions.kitchen.itemProperties;
 import com.inkhornsolutions.kitchen.modelclasses.ItemsModelClass;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -29,6 +27,7 @@ public class MainActivityAdapter extends RecyclerView.Adapter<MainActivityAdapte
     private Context context;
     private ArrayList<ItemsModelClass> items = new ArrayList<>();
     private FirebaseFirestore firebaseFirestore;
+
 
 
     public MainActivityAdapter(Context context, ArrayList<ItemsModelClass> items) {
@@ -55,59 +54,59 @@ public class MainActivityAdapter extends RecyclerView.Adapter<MainActivityAdapte
         String available = itemsModelClass.getAvailability();
         String schedule = itemsModelClass.getSchedule();
 
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(context, ""+resName+" "+itemName, Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(context, itemProperties.class);
-                intent.putExtra("restaurant", resName);
-                intent.putExtra("itemName", itemName);
-                context.startActivity(intent);
-            }
-        });
+//        holder.itemView.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Intent intent = new Intent(context, itemProperties.class);
+//                intent.putExtra("restaurant", resName);
+//                intent.putExtra("itemName", itemName);
+//                context.startActivity(intent);
+//            }
+//        });
+//
+//        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+//            @Override
+//            public boolean onLongClick(View v) {
+//
+//                AlertDialog.Builder dialog = new AlertDialog.Builder(context);
+//                dialog.setTitle("Confirm");
+//                dialog.setMessage("Do you want to delete this item?");
+//                dialog.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+//                    @Override
+//                    public void onClick(DialogInterface dialog, int which) {
+//
+//                        firebaseFirestore.collection("Restaurants").document(resName).collection("Items").document(itemName)
+//                                .delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+//                            @Override
+//                            public void onComplete(@NonNull Task<Void> task) {
+//                                Toast.makeText(context, "Deleted Successfully!", Toast.LENGTH_SHORT).show();
+//
+//                                items.remove(position);
+////                                notifyItemRemoved(position);
+//                                notifyDataSetChanged();
+////                                notifyItemChanged(position);
+//                                dialog.dismiss();
+//
+//                            }
+//                        });
+//
+//                    }
+//                }).setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+//                    @Override
+//                    public void onClick(DialogInterface dialog, int which) {
+//                        dialog.dismiss();
+//                    }
+//                }).show();
+//
+//                return true;
+//            }
+//        });
 
-        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-
-                AlertDialog.Builder dialog = new AlertDialog.Builder(context);
-                dialog.setTitle("Confirm");
-                dialog.setMessage("Do you want to delete this item?");
-                dialog.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                        firebaseFirestore.collection("Restaurants").document(resName).collection("Items").document(itemName)
-                                .delete().addOnCompleteListener(new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                Toast.makeText(context, "Deleted Successfully!", Toast.LENGTH_SHORT).show();
-
-                                items.remove(position);
-//                                notifyItemRemoved(position);
-                                notifyDataSetChanged();
-//                                notifyItemChanged(position);
-                                dialog.dismiss();
-
-                            }
-                        });
-
-                    }
-                }).setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                }).show();
-
-                return true;
-            }
-        });
 
         holder.tvItem.setText(itemName);
         Glide.with(context).load(imageUri).placeholder(R.drawable.food_placeholder).fitCenter().into(holder.ivItem);
         holder.tvItemPrice.setText("PKR"+price);
-        holder.tvItemSchedule.setText("Available from: "+ schedule);
+        holder.tvItemSchedule.setText("Available: "+ schedule);
     }
 
     @Override
