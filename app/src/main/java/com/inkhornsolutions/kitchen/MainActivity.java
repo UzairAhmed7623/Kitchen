@@ -40,6 +40,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
@@ -49,6 +50,8 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.github.dhaval2404.imagepicker.ImagePicker;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -85,7 +88,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private Toolbar toolbar;
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
-    private TextView tvUserName;
+    private TextView tvUserName, tvOnline, tvOffline;
+    private SwitchMaterial statusSwitch;
     private CircleImageView ivProfileImage;
     private ImageView ivProfileSettings;
     private String getResNamefromEditText = "";
@@ -114,6 +118,48 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        tvOnline = (TextView) findViewById(R.id.tvOnline);
+        tvOffline = (TextView) findViewById(R.id.tvOffline);
+        statusSwitch = (SwitchMaterial) findViewById(R.id.statusSwitch);
+
+        statusSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked){
+                    tvOnline.setVisibility(View.VISIBLE);
+                    tvOffline.setVisibility(View.GONE);
+
+                    firebaseFirestore.collection("Restaurant").document(resName).update("status", "online").addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Log.d("status", "online");
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).show();
+                                }
+                            });
+                }
+                else {
+                    tvOffline.setVisibility(View.VISIBLE);
+                    tvOnline.setVisibility(View.GONE);
+
+                    firebaseFirestore.collection("Restaurant").document(resName).update("status", "offline").addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Log.d("status", "online");
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).show();
+                        }
+                    });
+                }
+            }
+        });
 
         drawerLayout = findViewById(R.id.drawerLayout);
         navigationView = findViewById(R.id.navView);
@@ -262,6 +308,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                         resReg.put("id", firebaseAuth.getCurrentUser().getUid());
                                         resReg.put("type", type);
                                         resReg.put("approved","no");
+                                        resReg.put("status", "offline");
 
                                         firebaseFirestore.collection("Restaurants").document(getResNamefromEditText).set(resReg, SetOptions.merge())
                                                 .addOnSuccessListener(new OnSuccessListener<Void>() {
