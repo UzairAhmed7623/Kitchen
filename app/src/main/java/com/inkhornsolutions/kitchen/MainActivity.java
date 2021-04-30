@@ -94,8 +94,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private ImageView ivProfileSettings;
     private String getResNamefromEditText = "";
     private String resName = "";
-    private List<String> resId = new ArrayList<>();
-    private List<String> resNames = new ArrayList<>();
+    private List<String> resIdsList = new ArrayList<>();
+    private List<String> resNamesList = new ArrayList<>();
     private Dialog builder;
     private View view;
     private String type = "";
@@ -130,7 +130,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     tvOnline.setVisibility(View.VISIBLE);
                     tvOffline.setVisibility(View.GONE);
 
-                    firebaseFirestore.collection("Restaurant").document(resName).update("status", "online").addOnSuccessListener(new OnSuccessListener<Void>() {
+                    firebaseFirestore.collection("Restaurants").document(resName).update("status", "online").addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
                             Log.d("status", "online");
@@ -146,7 +146,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     tvOffline.setVisibility(View.VISIBLE);
                     tvOnline.setVisibility(View.GONE);
 
-                    firebaseFirestore.collection("Restaurant").document(resName).update("status", "offline").addOnSuccessListener(new OnSuccessListener<Void>() {
+                    firebaseFirestore.collection("Restaurants").document(resName).update("status", "offline").addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
                             Log.d("status", "online");
@@ -273,24 +273,53 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                                     for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots){
 
+                                        //Get data from database
                                         if (documentSnapshot.exists()){
+
                                             if (documentSnapshot.getString("id") != null){
-                                                resId.add(documentSnapshot.getString("id").trim());
+                                                resIdsList.add(documentSnapshot.getString("id").trim());
                                             }
-                                            resNames.add(documentSnapshot.getId().toLowerCase().trim().replace(" ", ""));
+                                            if (!documentSnapshot.getId().isEmpty()){
+                                                resNamesList.add(documentSnapshot.getId().toLowerCase().trim().replace(" ", ""));
+                                            }
                                         }
                                     }
-                                    if (resNames.contains(getResNamefromEditText.toLowerCase().trim().replace(" ", ""))
-                                                && !resId.contains(firebaseAuth.getCurrentUser().getUid())) {
-                                        Toast.makeText(MainActivity.this, "Restaurant already registered with this name!", Toast.LENGTH_SHORT).show();
+                                    //Now compare that data to get results
+                                    if (resNamesList.contains(getResNamefromEditText.toLowerCase().trim().replace(" ", ""))
+                                                && !resIdsList.contains(Objects.requireNonNull(firebaseAuth.getCurrentUser()).getUid())) {
+                                        Toast.makeText(MainActivity.this, "Restaurant already registered with these credentials!", Toast.LENGTH_SHORT).show();
                                     }
-                                    else if (resNames.contains(getResNamefromEditText.toLowerCase().trim().replace(" ", ""))
-                                            && resId.contains(firebaseAuth.getCurrentUser().getUid())){
+                                    if (!resNamesList.contains(getResNamefromEditText.toLowerCase().trim().replace(" ", ""))
+                                            && resIdsList.contains(Objects.requireNonNull(firebaseAuth.getCurrentUser()).getUid())) {
+                                        Toast.makeText(MainActivity.this, "Restaurant already registered with these credentials!", Toast.LENGTH_SHORT).show();
+                                    }
+                                    else if (resNamesList.contains(getResNamefromEditText.toLowerCase().trim().replace(" ", ""))
+                                            && resIdsList.contains(Objects.requireNonNull(firebaseAuth.getCurrentUser()).getUid())){
 
                                         SharedPreferences prefs = getApplicationContext().getSharedPreferences("USER_PREF", Context.MODE_PRIVATE);
                                         SharedPreferences.Editor editor = prefs.edit();
                                         editor.putString("restaurantName", getResNamefromEditText);
                                         editor.apply();
+
+                                        uploadImage(fileUri, getResNamefromEditText);
+
+                                        HashMap<String, Object> resReg = new HashMap<>();
+                                        resReg.put("resName", getResNamefromEditText);
+                                        resReg.put("id", Objects.requireNonNull(firebaseAuth.getCurrentUser()).getUid());
+
+                                        firebaseFirestore.collection("Users").document(firebaseAuth.getCurrentUser().getUid()).set(resReg, SetOptions.merge())
+                                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                    @Override
+                                                    public void onSuccess(Void aVoid) {
+                                                        Log.d("resReg", "request successfully sent.");
+                                                    }
+                                                })
+                                                .addOnFailureListener(new OnFailureListener() {
+                                                    @Override
+                                                    public void onFailure(@NonNull Exception e) {
+                                                        Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).show();
+                                                    }
+                                                });
 
                                         builder.dismiss();
                                         loadRestaurant(getResNamefromEditText);
@@ -337,7 +366,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                                         HashMap<String, Object> resReg1 = new HashMap<>();
                                         resReg.put("resName", getResNamefromEditText);
-                                        resReg.put("id", firebaseAuth.getCurrentUser().getUid());
+                                        resReg.put("id", Objects.requireNonNull(firebaseAuth.getCurrentUser()).getUid());
 
                                         firebaseFirestore.collection("Users").document(firebaseAuth.getCurrentUser().getUid()).set(resReg1, SetOptions.merge())
                                                 .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -360,7 +389,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             .addOnFailureListener(new OnFailureListener() {
                                 @Override
                                 public void onFailure(@NonNull Exception e) {
-                                    Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).show();
+                                    Snackbar.make(findViewById(android.R.id.content), Objects.requireNonNull(e.getMessage()), Snackbar.LENGTH_LONG).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).show();
                                 }
                             });
                 }
@@ -401,27 +430,32 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void uploadImage(Uri fileUri, String resName) {
 
-        String someFilepath = String.valueOf(fileUri);
-        String extension = someFilepath.substring(someFilepath.lastIndexOf("."));
+        if (fileUri != null){
+            String someFilepath = String.valueOf(fileUri);
+            String extension = someFilepath.substring(someFilepath.lastIndexOf("."));
 
-        StorageReference riversRef = storageReference.child("images/Restaurants" + "." + extension +" "+ resName);
+            StorageReference riversRef = storageReference.child("images/Restaurants" + "." + extension +" "+ resName);
 
-        riversRef.putFile(fileUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-            @Override
-            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+            riversRef.putFile(fileUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
 
-                Log.d("Image", "on Success");
+                    Log.d("Image", "on Success");
 
-                Task<Uri> urlTask = taskSnapshot.getStorage().getDownloadUrl();
-                while (!urlTask.isSuccessful());
-                Uri downloadUrl = urlTask.getResult();
+                    Task<Uri> urlTask = taskSnapshot.getStorage().getDownloadUrl();
+                    while (!urlTask.isSuccessful());
+                    Uri downloadUrl = urlTask.getResult();
 
-                sdownload_url = String.valueOf(downloadUrl);
+                    sdownload_url = String.valueOf(downloadUrl);
 
-                addNewRestaurantImage(sdownload_url, resName);
-                
-            }
-        });
+                    addNewRestaurantImage(sdownload_url, resName);
+
+                }
+            });
+        }
+        else {
+            Snackbar.make(findViewById(android.R.id.content), "Image not found!", Snackbar.LENGTH_LONG).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).show();
+        }
     }
 
     private void addNewRestaurantImage(String sdownload_url, String resName) {
@@ -432,6 +466,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void onSuccess(Void aVoid) {
                 Log.d("Image", "Image uploaded successfully!");
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).show();
             }
         });
     }
@@ -564,7 +603,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
                 return false;
             }
-
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
                 int position = viewHolder.getAdapterPosition();
@@ -628,7 +666,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         Canvas canvas = new Canvas(icon);
                         drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
                         drawable.draw(canvas);
-                        c.drawBitmap(icon, (float) ( itemView.getLeft() + 1.2 * width), (float) ( itemView.getTop() + 1.2 * width), p);
+                        c.drawBitmap(icon, (float) ( itemView.getLeft() + 1.2 * width), (float) ( itemView.getTop() + 1.1 * width), p);
                     }
                     else {
                         p.setColor(Color.parseColor("#D32F2F"));
@@ -639,7 +677,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         Canvas canvas = new Canvas(icon);
                         drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
                         drawable.draw(canvas);
-                        c.drawBitmap(icon, (float) ( itemView.getRight() - 1.5 * width), (float) ( itemView.getTop() + 1.2 * width), p);
+                        c.drawBitmap(icon, (float) ( itemView.getRight() - 1.5 * width), (float) ( itemView.getTop() + 1.1 * width), p);
                     }
                 }
                 super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);

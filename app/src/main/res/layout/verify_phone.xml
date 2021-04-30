@@ -2,53 +2,43 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@android:color/white"
-    android:fitsSystemWindows="true"
+    android:layout_height="wrap_content"
+    android:background="@drawable/otp_background"
     android:orientation="vertical">
 
-    <Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        app:contentInsetStartWithNavigation="0dp"
-        app:layout_collapseMode="pin"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
-
-        <RelativeLayout
+    <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
-                android:paddingEnd="?attr/actionBarSize"
-                android:paddingStart="?attr/actionBarSize"
+                android:layout_margin="20dp"
                 android:text="VERIFICATION"
                 android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"
                 android:textColor="@color/grey_80" />
 
         </RelativeLayout>
 
-    </Toolbar>
-
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content">
 
         <LinearLayout
             android:id="@+id/layout"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:gravity="center"
             android:orientation="vertical">
 
-            <ImageView
+            <com.airbnb.lottie.LottieAnimationView
                 android:layout_width="200dp"
-                android:layout_height="200dp"
-                android:src="@drawable/img_code_verification" />
+                android:layout_height="250dp"
+                app:lottie_rawRes="@raw/otp"
+                app:lottie_autoPlay="true"
+                app:lottie_loop="true"/>
 
             <TextView
                 android:layout_width="280dp"
@@ -82,14 +72,15 @@
 
             </LinearLayout>
 
-            <com.google.android.material.button.MaterialButton
+            <Button
                 android:id="@+id/buttonSignIn"
-                style="@style/Widget.MaterialComponents.Button"
-                android:layout_width="300dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center"
                 android:text="VERIFY"
-                android:textColor="@color/white" />
+                android:textSize="16dp"
+                android:textColor="@color/white"
+                android:background="@drawable/add_details_back"
+                android:foreground="@drawable/ripple"/>
 
         </LinearLayout>
 

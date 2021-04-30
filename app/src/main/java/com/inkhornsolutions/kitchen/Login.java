@@ -3,15 +3,19 @@ package com.inkhornsolutions.kitchen;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -74,12 +78,11 @@ public class Login extends AppCompatActivity {
 
                 view = LayoutInflater.from(Login.this).inflate(R.layout.verify_phone, null);
 
-
                 editText = view.findViewById(R.id.editTextCode);
 
-                MaterialButton buttonSignIn = view.findViewById(R.id.buttonSignIn);
+                TextView buttonSignIn = view.findViewById(R.id.buttonSignIn);
 
-                sendVerificationCode(phoneNumber, view);
+                sendVerificationCode(phoneNumber);
 
                 // save phone number
                 SharedPreferences prefs = getApplicationContext().getSharedPreferences("USER_PREF", Context.MODE_PRIVATE);
@@ -115,7 +118,10 @@ public class Login extends AppCompatActivity {
         alertDialogBuilder.setView(view);
         alertDialogBuilder.setCancelable(false);
 
+        progressDialog.dismiss();
+
         alertDialog = alertDialogBuilder.create();
+        alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         alertDialog.show();
     }
 
@@ -140,13 +146,14 @@ public class Login extends AppCompatActivity {
                         }
                         else {
                             Toast.makeText(Login.this, task.getException().getMessage(), Toast.LENGTH_LONG).show();
+                            Toast.makeText(Login.this, "galason", Toast.LENGTH_LONG).show();
 
                         }
                     }
                 });
     }
 
-    private void sendVerificationCode(String number, View view) {
+    private void sendVerificationCode(String number) {
 
         PhoneAuthOptions options =
                 PhoneAuthOptions.newBuilder(firebaseAuth)
@@ -164,6 +171,7 @@ public class Login extends AppCompatActivity {
         public void onCodeSent(String s, PhoneAuthProvider.ForceResendingToken forceResendingToken) {
             super.onCodeSent(s, forceResendingToken);
             progressDialog.dismiss();
+
             dialog();
 
             verificationId = s;
