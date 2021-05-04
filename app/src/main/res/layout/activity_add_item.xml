@@ -71,7 +71,7 @@
             android:drawablePadding="8dp"
             android:gravity="center_vertical"
             android:hint="@string/price"
-            android:inputType="text"
+            android:inputType="number"
             android:padding="10dp"
             android:singleLine="true"
             android:textSize="16sp" />
@@ -97,7 +97,6 @@
                 android:layout_marginStart="10dp"
                 android:visibility="gone"
                 android:text="Yes"
-                android:textStyle="bold"
                 android:textColor="@color/myColor"
                 android:textSize="16sp"/>
 
@@ -109,7 +108,6 @@
                 android:layout_marginStart="10dp"
                 android:visibility="visible"
                 android:text="No"
-                android:textStyle="bold"
                 android:textColor="@color/myColor"
                 android:textSize="16sp"/>
 

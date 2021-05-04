@@ -63,7 +63,7 @@ public class AddItem extends AppCompatActivity {
     private StorageReference storageReference;
     private ProgressDialog dialog;
     private Toolbar toolbar;
-    private String isAvailable = "";
+    private String isAvailable = "No";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

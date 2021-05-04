@@ -17,6 +17,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -29,6 +30,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FirebaseStorage;
@@ -53,6 +55,9 @@ public class ItemProperties extends AppCompatActivity {
     private FirebaseStorage firebaseStorage;
     private StorageReference storageReference;
     private Toolbar toolbar;
+    private TextView  tvAvailable, tvNotAvailable;
+    private SwitchMaterial switchAvailable;
+    private String isAvailable = "No";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,11 +70,13 @@ public class ItemProperties extends AppCompatActivity {
 
         etItemName = (EditText) findViewById(R.id.etItemName);
         etItemPrice = (EditText) findViewById(R.id.etItemPrice);
-        etAvailable = (EditText) findViewById(R.id.etAvailable);
         btnDone = (Button) findViewById(R.id.btnDone);
         tvFrom = (TextView) findViewById(R.id.tvFrom);
         tvTo = (TextView) findViewById(R.id.tvTo);
         etItemImage = (ImageView) findViewById(R.id.etItemImage);
+        tvAvailable = (TextView) findViewById(R.id.tvAvailable);
+        tvNotAvailable = (TextView) findViewById(R.id.tvNotAvailable);
+        switchAvailable = (SwitchMaterial) findViewById(R.id.switchAvailable);
 
         btnDone = (Button) findViewById(R.id.btnDone);
         btnPickImage = (Button) findViewById(R.id.btnPickImage);
@@ -83,6 +90,23 @@ public class ItemProperties extends AppCompatActivity {
         itemName = getIntent().getStringExtra("itemName");
 
         Log.d("TAG", resName+" "+itemName);
+
+        switchAvailable.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked){
+                    tvAvailable.setVisibility(View.VISIBLE);
+                    tvNotAvailable.setVisibility(View.GONE);
+                    isAvailable = "yes";
+                }
+                else {
+                    tvNotAvailable.setVisibility(View.VISIBLE);
+                    tvAvailable.setVisibility(View.GONE);
+
+                    isAvailable = "no";
+                }
+            }
+        });
 
         btnPickImage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -127,6 +151,7 @@ public class ItemProperties extends AppCompatActivity {
                 timePickerDialog.show();
             }
         });
+
         tvTo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -234,7 +259,6 @@ public class ItemProperties extends AppCompatActivity {
     private void setDetails(String name) {
 
         String price = etItemPrice.getText().toString().trim().replace("PKR", "");
-        String availability = etAvailable.getText().toString();
         String from = tvFrom.getText().toString().replace("from","");
         String to = tvTo.getText().toString().replace("from","");;
 
@@ -247,12 +271,12 @@ public class ItemProperties extends AppCompatActivity {
             Snackbar.make(findViewById(android.R.id.content), "Price successfully updated!", Snackbar.LENGTH_SHORT).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).setTextColor(Color.WHITE).show();
             goBack();
         }
-        if (TextUtils.isEmpty(availability)){
+        if (TextUtils.isEmpty(isAvailable)){
             Log.d("TAG", "Empty");
         }
         else {
             firebaseFirestore.collection("Restaurants").document(resName).collection("Items")
-                    .document(itemName).update("available", availability);
+                    .document(itemName).update("available", isAvailable);
             Snackbar.make(findViewById(android.R.id.content), "Availability successfully updated!", Snackbar.LENGTH_SHORT).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).setTextColor(Color.WHITE).show();
             goBack();
         }
@@ -275,7 +299,7 @@ public class ItemProperties extends AppCompatActivity {
             goBack();
         }
         if (TextUtils.isEmpty(price)
-                & TextUtils.isEmpty(availability)
+                & TextUtils.isEmpty(isAvailable)
                 & TextUtils.isEmpty(from)
                 & TextUtils.isEmpty(to)){
 
