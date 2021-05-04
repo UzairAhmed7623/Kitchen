@@ -19,6 +19,7 @@ import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -31,6 +32,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
@@ -46,8 +48,10 @@ import java.util.Locale;
 
 public class AddItem extends AppCompatActivity {
 
-    private EditText etItemName, etItemPrice, etAvailable;
+    private EditText etItemName, etItemPrice;
     private TextView tvFrom, tvTo;
+    private TextView  tvAvailable, tvNotAvailable;
+    private SwitchMaterial switchAvailable;
     private int t1hour, t1minute, t2hour, t2minute;
     private ImageView etItemImage;
     private Button btnDone, btnPickImage;
@@ -59,6 +63,7 @@ public class AddItem extends AppCompatActivity {
     private StorageReference storageReference;
     private ProgressDialog dialog;
     private Toolbar toolbar;
+    private String isAvailable = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,9 +88,30 @@ public class AddItem extends AppCompatActivity {
         etItemImage = (ImageView) findViewById(R.id.etItemImage);
         tvFrom = (TextView) findViewById(R.id.tvFrom);
         tvTo = (TextView) findViewById(R.id.tvTo);
-        etAvailable = (EditText) findViewById(R.id.etAvailable);
         btnPickImage = (Button) findViewById(R.id.btnPickImage);
         btnDone = (Button) findViewById(R.id.btnDone);
+        tvAvailable = (TextView) findViewById(R.id.tvAvailable);
+        tvNotAvailable = (TextView) findViewById(R.id.tvNotAvailable);
+        switchAvailable = (SwitchMaterial) findViewById(R.id.switchAvailable);
+
+
+        switchAvailable.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked){
+                    tvAvailable.setVisibility(View.VISIBLE);
+                    tvNotAvailable.setVisibility(View.GONE);
+                    isAvailable = "yes";
+                }
+                else {
+                    tvNotAvailable.setVisibility(View.VISIBLE);
+                    tvAvailable.setVisibility(View.GONE);
+
+                    isAvailable = "no";
+                }
+            }
+        });
+
 
         btnPickImage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -130,6 +156,7 @@ public class AddItem extends AppCompatActivity {
                 timePickerDialog.show();
             }
         });
+
         tvTo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -237,12 +264,10 @@ public class AddItem extends AppCompatActivity {
     private void setDetails(String url, String name) {
 
         String price = etItemPrice.getText().toString();
-        String availability = etAvailable.getText().toString();
         String from = tvFrom.getText().toString().replace("from","");
         String to = tvTo.getText().toString().replace("from","");;
 
         if (TextUtils.isEmpty(price)
-                || TextUtils.isEmpty(availability)
                 || TextUtils.isEmpty(from)
                 || TextUtils.isEmpty(to)){
 
@@ -256,7 +281,7 @@ public class AddItem extends AppCompatActivity {
             newItem.put("imageUri",url);
             newItem.put("from", from);
             newItem.put("to", to);
-            newItem.put("available",availability);
+            newItem.put("available",isAvailable);
 
             firebaseFirestore.collection("Restaurants").document(resName).collection("Items").document(name)
                     .set(newItem, SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -299,5 +324,4 @@ public class AddItem extends AppCompatActivity {
 
         return date;
     }
-
 }

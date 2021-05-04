@@ -83,7 +83,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private FirebaseFirestore firebaseFirestore;
     private FirebaseStorage firebaseStorage;
     private StorageReference storageReference;
-    private ArrayList<ItemsModelClass> items = new ArrayList<>();
+    private final ArrayList<ItemsModelClass> items = new ArrayList<>();
     private RecyclerView rvItems;
     private Toolbar toolbar;
     private DrawerLayout drawerLayout;
@@ -94,8 +94,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private ImageView ivProfileSettings;
     private String getResNamefromEditText = "";
     private String resName = "";
-    private List<String> resIdsList = new ArrayList<>();
-    private List<String> resNamesList = new ArrayList<>();
+    private final List<String> resIdsList = new ArrayList<>();
+    private final List<String> resNamesList = new ArrayList<>();
     private Dialog builder;
     private View view;
     private String type = "";
@@ -381,8 +381,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                                         Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).show();
                                                     }
                                                 });
-
-                                        builder.dismiss();
                                     }
                                 }
                             })
@@ -450,6 +448,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                     addNewRestaurantImage(sdownload_url, resName);
 
+                    builder.dismiss();
                 }
             });
         }
