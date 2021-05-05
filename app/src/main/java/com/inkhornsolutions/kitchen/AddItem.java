@@ -69,6 +69,7 @@ public class AddItem extends AppCompatActivity {
     private String isAvailable = "No";
     private Spinner spCategories;
     private String selectedCategory;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
