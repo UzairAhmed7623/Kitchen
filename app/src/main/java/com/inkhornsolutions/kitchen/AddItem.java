@@ -18,10 +18,13 @@ import android.text.TextUtils;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -64,7 +67,8 @@ public class AddItem extends AppCompatActivity {
     private ProgressDialog dialog;
     private Toolbar toolbar;
     private String isAvailable = "No";
-
+    private Spinner spCategories;
+    private String selectedCategory;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -93,7 +97,7 @@ public class AddItem extends AppCompatActivity {
         tvAvailable = (TextView) findViewById(R.id.tvAvailable);
         tvNotAvailable = (TextView) findViewById(R.id.tvNotAvailable);
         switchAvailable = (SwitchMaterial) findViewById(R.id.switchAvailable);
-
+        spCategories = (Spinner) findViewById(R.id.spCategories);
 
         switchAvailable.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -112,6 +116,20 @@ public class AddItem extends AppCompatActivity {
             }
         });
 
+        ArrayAdapter<CharSequence> arrayAdapter = ArrayAdapter.createFromResource(this, R.array.categories, android.R.layout.simple_spinner_item);
+        arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spCategories.setAdapter(arrayAdapter);
+
+        spCategories.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                selectedCategory = parent.getItemAtPosition(position).toString();
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
 
         btnPickImage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -282,6 +300,7 @@ public class AddItem extends AppCompatActivity {
             newItem.put("from", from);
             newItem.put("to", to);
             newItem.put("available",isAvailable);
+            newItem.put("category",selectedCategory);
 
             firebaseFirestore.collection("Restaurants").document(resName).collection("Items").document(name)
                     .set(newItem, SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {

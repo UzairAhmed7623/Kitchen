@@ -29,6 +29,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -195,15 +196,39 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         builder = new Dialog(this);
 
-        SharedPreferences prefs = getApplicationContext().getSharedPreferences("USER_PREF", Context.MODE_PRIVATE);
-        resName = prefs.getString("restaurantName","");
+        firebaseFirestore.collection("Restaurants").whereEqualTo("id", firebaseAuth.getCurrentUser().getUid())
+                .get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                        for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                            if (documentSnapshot != null) {
+                                String resNames = documentSnapshot.getString("resName");
+                                validateRes(resNames);
 
-        if (resName.length() <= 0){
-            dialog();
-        }
-        else {
-            validateRes(resName);
-        }
+                                SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences("USER_PREF", Context.MODE_PRIVATE);
+                                SharedPreferences.Editor editor = sharedPreferences.edit();
+                                editor.putString("restaurantName", resNames);
+                                editor.apply();
+
+                                SharedPreferences prefs = getApplicationContext().getSharedPreferences("USER_PREF", Context.MODE_PRIVATE);
+                                resName = prefs.getString("restaurantName", "");
+
+                                if (resName.length() <= 0) {
+                                    dialog();
+                                } else {
+                                    validateRes(resName);
+                                }
+                            }
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).show();
+                    }
+                });
     }
 
     @SuppressLint("InflateParams")
@@ -292,37 +317,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                     if (!resNamesList.contains(getResNamefromEditText.toLowerCase().trim().replace(" ", ""))
                                             && resIdsList.contains(Objects.requireNonNull(firebaseAuth.getCurrentUser()).getUid())) {
                                         Toast.makeText(MainActivity.this, "Restaurant already registered with these credentials!", Toast.LENGTH_SHORT).show();
-                                    }
-                                    else if (resNamesList.contains(getResNamefromEditText.toLowerCase().trim().replace(" ", ""))
-                                            && resIdsList.contains(Objects.requireNonNull(firebaseAuth.getCurrentUser()).getUid())){
-
-                                        SharedPreferences prefs = getApplicationContext().getSharedPreferences("USER_PREF", Context.MODE_PRIVATE);
-                                        SharedPreferences.Editor editor = prefs.edit();
-                                        editor.putString("restaurantName", getResNamefromEditText);
-                                        editor.apply();
-
-                                        uploadImage(fileUri, getResNamefromEditText);
-
-                                        HashMap<String, Object> resReg = new HashMap<>();
-                                        resReg.put("resName", getResNamefromEditText);
-                                        resReg.put("id", Objects.requireNonNull(firebaseAuth.getCurrentUser()).getUid());
-
-                                        firebaseFirestore.collection("Users").document(firebaseAuth.getCurrentUser().getUid()).set(resReg, SetOptions.merge())
-                                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                    @Override
-                                                    public void onSuccess(Void aVoid) {
-                                                        Log.d("resReg", "request successfully sent.");
-                                                    }
-                                                })
-                                                .addOnFailureListener(new OnFailureListener() {
-                                                    @Override
-                                                    public void onFailure(@NonNull Exception e) {
-                                                        Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).show();
-                                                    }
-                                                });
-
-                                        builder.dismiss();
-                                        loadRestaurant(getResNamefromEditText);
                                     }
                                     else {
                                         SharedPreferences prefs = getApplicationContext().getSharedPreferences("USER_PREF", Context.MODE_PRIVATE);
@@ -540,7 +534,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).show();
             }
         });
-
     }
 
     private void loadRestaurant(String resName){
@@ -554,6 +547,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     boolean isEmpty = task.getResult().isEmpty();
 
                     if (!isEmpty) {
+
+                        items.clear();
+
                         String itemName = null;
                         for (QueryDocumentSnapshot documentSnapshot : task.getResult()) {
                             if (documentSnapshot.exists()) {
