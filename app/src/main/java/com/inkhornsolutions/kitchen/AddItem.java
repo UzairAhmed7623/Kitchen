@@ -48,6 +48,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.Objects;
 
 public class AddItem extends AppCompatActivity {
 
@@ -82,7 +83,7 @@ public class AddItem extends AppCompatActivity {
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("Add new product");
+        Objects.requireNonNull(getSupportActionBar()).setTitle("Add new product");
 
         resName = getIntent().getStringExtra("resName");
 

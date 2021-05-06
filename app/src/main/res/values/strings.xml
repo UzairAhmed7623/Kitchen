@@ -45,12 +45,11 @@
     <string name="title_activity_profile">Profile</string>
 
     <string-array name="categories">
-        <item>Burger</item>
+        <item>Main Course</item>
         <item>Drinks</item>
         <item>Frozen</item>
+        <item>Sides</item>
         <item>Desserts</item>
-        <item>Salads</item>
-
     </string-array>
 
 </resources>
