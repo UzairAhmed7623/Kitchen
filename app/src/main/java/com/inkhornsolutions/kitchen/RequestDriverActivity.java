@@ -465,7 +465,6 @@ public class RequestDriverActivity extends FragmentActivity implements OnMapRead
                 addMarkerWithPulseAnimation();
             }
         });
-
     }
 
     private void addMarkerWithPulseAnimation() {

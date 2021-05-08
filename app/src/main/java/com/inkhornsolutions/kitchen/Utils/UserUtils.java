@@ -6,6 +6,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.inkhornsolutions.kitchen.EventBus.SelectPlaceEvent;
 import com.inkhornsolutions.kitchen.Remote.IFCMService;
 import com.inkhornsolutions.kitchen.Remote.RetrofitFCMClient;
@@ -28,40 +29,21 @@ import io.reactivex.schedulers.Schedulers;
 
 public class UserUtils {
 
-	private static String id = "P5397d1k8cYDoW8dtEIOQClO8OI2";
-
-	//Email Validation pattern
-	public static final String regEx = "\\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,4}\\b";
-
-	//Fragments Tags
-	public static final String Login_Fragment = "Login_Fragment";
-	public static final String SignUp_Fragment = "SignUp_Fragment";
-	public static final String ForgotPassword_Fragment = "ForgotPassword_Fragment";
-
 	public static void updateToken(Context context, String token) {
 		TokenModel tokenModel = new TokenModel(token);
 
 		FirebaseDatabase db = FirebaseDatabase.getInstance();
 		DatabaseReference tokens = db.getReference("Tokens");
 
-			tokens.child(id).setValue(tokenModel)
+		if (FirebaseAuth.getInstance().getCurrentUser() != null){
+			tokens.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).setValue(tokenModel)
 					.addOnSuccessListener(aVoid -> {
 
-//						Toast.makeText(context, "Token successfully submitted to database!", Toast.LENGTH_SHORT).show();
+						Toast.makeText(context, "Token successfully submitted to database!", Toast.LENGTH_SHORT).show();
 
 
 					}).addOnFailureListener(e -> Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show());
-
-
-//		if (FirebaseAuth.getInstance().getCurrentUser() != null){
-//			tokens.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).setValue(tokenModel)
-//					.addOnSuccessListener(aVoid -> {
-//
-//						Toast.makeText(context, "Token successfully submitted to database!", Toast.LENGTH_SHORT).show();
-//
-//
-//					}).addOnFailureListener(e -> Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show());
-//		}
+		}
 	}
 
     public static void sendRequestToDriver(Context context, RelativeLayout main_layout, DriverGeoModel foundDriver, SelectPlaceEvent selectPlaceEvent) {
@@ -78,7 +60,7 @@ public class UserUtils {
 					Map<String, String> notificationdata = new HashMap<>();
 					notificationdata.put("title", "RequestDriver");
 					notificationdata.put("body", "This message represent for request driver action");
-					notificationdata.put("RiderKey", id);
+					notificationdata.put("RiderKey", FirebaseAuth.getInstance().getCurrentUser().getUid());
 
 					notificationdata.put("PickupLocationString", selectPlaceEvent.getOriginString());
 					notificationdata.put("PickupLocation", new StringBuilder("")

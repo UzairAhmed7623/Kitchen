@@ -6,11 +6,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -18,13 +19,10 @@ import android.text.TextUtils;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -68,8 +66,9 @@ public class AddItem extends AppCompatActivity {
     private ProgressDialog dialog;
     private Toolbar toolbar;
     private String isAvailable = "No";
-    private Spinner spCategories;
+    private ImageView ivCategories;
     private String selectedCategory;
+    private TextView tvSpinnerHead;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,7 +98,8 @@ public class AddItem extends AppCompatActivity {
         tvAvailable = (TextView) findViewById(R.id.tvAvailable);
         tvNotAvailable = (TextView) findViewById(R.id.tvNotAvailable);
         switchAvailable = (SwitchMaterial) findViewById(R.id.switchAvailable);
-        spCategories = (Spinner) findViewById(R.id.spCategories);
+        ivCategories = (ImageView) findViewById(R.id.ivCategories);
+        tvSpinnerHead = (TextView) findViewById(R.id.tvSpinnerHead);
 
         switchAvailable.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -118,18 +118,42 @@ public class AddItem extends AppCompatActivity {
             }
         });
 
-        ArrayAdapter<CharSequence> arrayAdapter = ArrayAdapter.createFromResource(this, R.array.categories, android.R.layout.simple_spinner_item);
-        arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spCategories.setAdapter(arrayAdapter);
 
-        spCategories.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        ivCategories.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                selectedCategory = parent.getItemAtPosition(position).toString();
-            }
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
+            public void onClick(View v) {
 
+                AlertDialog.Builder builder = new AlertDialog.Builder(AddItem.this, R.style.MaterialThemeDialog);
+                builder.setCancelable(false);
+                String[] categories = new String[]{"Main Course","Drinks","Frozen","Sides","Desserts"};
+
+                final int checkedItem = -1;
+
+                builder.setTitle(getString(R.string.select_category));
+
+                builder.setSingleChoiceItems(categories, checkedItem, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        tvSpinnerHead.setText(categories[which]);
+                    }
+                });
+                builder.setPositiveButton("Select", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        selectedCategory = tvSpinnerHead.getText().toString();
+                    }
+                });
+
+                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+
+                AlertDialog alertDialog = builder.create();
+                alertDialog.show();
             }
         });
 
