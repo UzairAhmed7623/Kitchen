@@ -55,9 +55,9 @@ public class ItemProperties extends AppCompatActivity {
     private FirebaseStorage firebaseStorage;
     private StorageReference storageReference;
     private Toolbar toolbar;
-    private TextView  tvAvailable, tvNotAvailable;
+    private TextView tvAvailable, tvNotAvailable;
     private SwitchMaterial switchAvailable;
-    private String isAvailable = "No";
+    private String isAvailable = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,17 +89,16 @@ public class ItemProperties extends AppCompatActivity {
         resName = getIntent().getStringExtra("restaurant");
         itemName = getIntent().getStringExtra("itemName");
 
-        Log.d("TAG", resName+" "+itemName);
+        Log.d("TAG", resName + " " + itemName);
 
         switchAvailable.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked){
+                if (isChecked) {
                     tvAvailable.setVisibility(View.VISIBLE);
                     tvNotAvailable.setVisibility(View.GONE);
                     isAvailable = "yes";
-                }
-                else {
+                } else {
                     tvNotAvailable.setVisibility(View.VISIBLE);
                     tvAvailable.setVisibility(View.GONE);
 
@@ -113,8 +112,8 @@ public class ItemProperties extends AppCompatActivity {
             public void onClick(View v) {
 
                 ImagePicker.Companion.with(ItemProperties.this)
-                        .crop(3f, 2f)	    			//Crop image(Optional), Check Customization for more option
-                        .compress(1024)			//Final image size will be less than 1 MB(Optional)
+                        .crop(3f, 2f)                    //Crop image(Optional), Check Customization for more option
+                        .compress(1024)            //Final image size will be less than 1 MB(Optional)
                         .start(1002);
             }
         });
@@ -139,13 +138,12 @@ public class ItemProperties extends AppCompatActivity {
 
                             tvFrom.setText(f12Hours.format(date));
 
-                        }
-                        catch (Exception e){
+                        } catch (Exception e) {
                             e.printStackTrace();
                         }
 
                     }
-                },12, 0, false);
+                }, 12, 0, false);
 
                 timePickerDialog.updateTime(t1hour, t1minute);
                 timePickerDialog.show();
@@ -171,13 +169,12 @@ public class ItemProperties extends AppCompatActivity {
 
                             tvTo.setText(f12Hours.format(date));
 
-                        }
-                        catch (Exception e){
+                        } catch (Exception e) {
                             e.printStackTrace();
                         }
 
                     }
-                },12, 0, false);
+                }, 12, 0, false);
 
                 timePickerDialog.updateTime(t2hour, t2minute);
                 timePickerDialog.show();
@@ -199,11 +196,12 @@ public class ItemProperties extends AppCompatActivity {
             }
         });
     }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == 1002 || resultCode == RESULT_OK && data!= null && data.getData() != null) {
+        if (requestCode == 1002 || resultCode == RESULT_OK && data != null && data.getData() != null) {
             //Image Uri will not be null for RESULT_OK
             fileUri = data.getData();
             etItemImage.setImageURI(fileUri);
@@ -214,22 +212,20 @@ public class ItemProperties extends AppCompatActivity {
 //
 //            //You can also get File Path from intent
 //            String filePath = ImagePicker.getFilePath(data);
-        }
-        else if (resultCode == ImagePicker.RESULT_ERROR) {
-            Toast.makeText(this, ""+ImagePicker.RESULT_ERROR, Toast.LENGTH_SHORT).show();
-        }
-        else {
+        } else if (resultCode == ImagePicker.RESULT_ERROR) {
+            Toast.makeText(this, "" + ImagePicker.RESULT_ERROR, Toast.LENGTH_SHORT).show();
+        } else {
             Toast.makeText(this, "Task Cancelled", Toast.LENGTH_SHORT).show();
         }
     }
 
     private void uploadImage(Uri fileUri) {
 
-        if (fileUri != null){
+        if (fileUri != null) {
             String someFilepath = String.valueOf(fileUri);
             String extension = someFilepath.substring(someFilepath.lastIndexOf("."));
 
-            StorageReference riversRef = storageReference.child("images/Restaurants/Items" + "." + extension+ " " + itemName +" "+ resName);
+            StorageReference riversRef = storageReference.child("images/Restaurants/Items" + "." + extension + " " + itemName + " " + resName);
 
             riversRef.putFile(fileUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
@@ -238,7 +234,7 @@ public class ItemProperties extends AppCompatActivity {
                     Log.d("Image", "on Success");
 
                     Task<Uri> urlTask = taskSnapshot.getStorage().getDownloadUrl();
-                    while (!urlTask.isSuccessful());
+                    while (!urlTask.isSuccessful()) ;
                     Uri downloadUrl = urlTask.getResult();
 
                     String sdownload_url = String.valueOf(downloadUrl);
@@ -250,8 +246,7 @@ public class ItemProperties extends AppCompatActivity {
 
                 }
             });
-        }
-        else {
+        } else {
             setDetails(itemName);
         }
     }
@@ -259,57 +254,208 @@ public class ItemProperties extends AppCompatActivity {
     private void setDetails(String name) {
 
         String price = etItemPrice.getText().toString().trim().replace("PKR", "");
-        String from = tvFrom.getText().toString().replace("from","");
-        String to = tvTo.getText().toString().replace("from","");;
+        String from = tvFrom.getText().toString().replace("from", "");
+        String to = tvTo.getText().toString().replace("from", "");
 
-        if (TextUtils.isEmpty(price)){
-            Log.d("TAG", "Empty");
-        }
-        else {
+        if (!TextUtils.isEmpty(price) && TextUtils.isEmpty(isAvailable) && TextUtils.isEmpty(from) && TextUtils.isEmpty(to)) {
+
             firebaseFirestore.collection("Restaurants").document(resName).collection("Items")
                     .document(itemName).update("price", price);
             Snackbar.make(findViewById(android.R.id.content), "Price successfully updated!", Snackbar.LENGTH_SHORT).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).setTextColor(Color.WHITE).show();
-            goBack();
-        }
-        if (TextUtils.isEmpty(isAvailable)){
-            Log.d("TAG", "Empty");
-        }
-        else {
-            firebaseFirestore.collection("Restaurants").document(resName).collection("Items")
-                    .document(itemName).update("available", isAvailable);
-            Snackbar.make(findViewById(android.R.id.content), "Availability successfully updated!", Snackbar.LENGTH_SHORT).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).setTextColor(Color.WHITE).show();
-            goBack();
-        }
-        if (TextUtils.isEmpty(from)){
-            Log.d("TAG", "Empty");
-        }
-        else {
-            firebaseFirestore.collection("Restaurants").document(resName).collection("Items")
-                    .document(itemName).update("from", from);
-            Snackbar.make(findViewById(android.R.id.content), "Begin time successfully updated!", Snackbar.LENGTH_SHORT).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).setTextColor(Color.WHITE).show();
-            goBack();
-        }
-        if (TextUtils.isEmpty(to)){
-            Log.d("TAG", "Empty");
-        }
-        else {
-            firebaseFirestore.collection("Restaurants").document(resName).collection("Items")
-                    .document(itemName).update("to", to);
-            Snackbar.make(findViewById(android.R.id.content), "End time successfully updated!", Snackbar.LENGTH_SHORT).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).setTextColor(Color.WHITE).show();
-            goBack();
-        }
-        if (TextUtils.isEmpty(price)
-                & TextUtils.isEmpty(isAvailable)
-                & TextUtils.isEmpty(from)
-                & TextUtils.isEmpty(to)){
 
             dialog.dismiss();
 
-            Snackbar.make(findViewById(android.R.id.content), "Please fill at least one field.", Snackbar.LENGTH_LONG).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).show();
+            goBack();
+
+        } else if (TextUtils.isEmpty(price) && !TextUtils.isEmpty(isAvailable) && TextUtils.isEmpty(from) && TextUtils.isEmpty(to)) {
+
+            firebaseFirestore.collection("Restaurants").document(resName).collection("Items")
+                    .document(itemName).update("available", isAvailable);
+            Snackbar.make(findViewById(android.R.id.content), "Availability successfully updated!", Snackbar.LENGTH_SHORT).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).setTextColor(Color.WHITE).show();
+
+            dialog.dismiss();
+
+            goBack();
+
+        } else if (TextUtils.isEmpty(price) && TextUtils.isEmpty(isAvailable) && !TextUtils.isEmpty(from) && TextUtils.isEmpty(to)) {
+
+            firebaseFirestore.collection("Restaurants").document(resName).collection("Items")
+                    .document(itemName).update("from", from);
+            Snackbar.make(findViewById(android.R.id.content), "Starting time successfully updated!", Snackbar.LENGTH_SHORT).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).setTextColor(Color.WHITE).show();
+
+            dialog.dismiss();
+
+            goBack();
+
+        } else if (TextUtils.isEmpty(price) && TextUtils.isEmpty(isAvailable) && TextUtils.isEmpty(from) && !TextUtils.isEmpty(to)) {
+
+            firebaseFirestore.collection("Restaurants").document(resName).collection("Items")
+                    .document(itemName).update("to", to);
+            Snackbar.make(findViewById(android.R.id.content), "End time successfully updated!", Snackbar.LENGTH_SHORT).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).setTextColor(Color.WHITE).show();
+
+            dialog.dismiss();
+
+            goBack();
+
+        } else if (!TextUtils.isEmpty(price) && !TextUtils.isEmpty(isAvailable) && TextUtils.isEmpty(from) && TextUtils.isEmpty(to)) {
+
+            HashMap<String, Object> updated = new HashMap<>();
+            updated.put("price", price);
+            updated.put("available", isAvailable);
+
+            firebaseFirestore.collection("Restaurants").document(resName).collection("Items")
+                    .document(itemName).update(updated);
+            Snackbar.make(findViewById(android.R.id.content), "Price and availability successfully updated!", Snackbar.LENGTH_SHORT).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).setTextColor(Color.WHITE).show();
+
+            dialog.dismiss();
+
+            goBack();
+        } else if (!TextUtils.isEmpty(price) && TextUtils.isEmpty(isAvailable) && !TextUtils.isEmpty(from) && TextUtils.isEmpty(to)) {
+
+            HashMap<String, Object> updated = new HashMap<>();
+            updated.put("price", price);
+            updated.put("from", from);
+
+            firebaseFirestore.collection("Restaurants").document(resName).collection("Items")
+                    .document(itemName).update(updated);
+            Snackbar.make(findViewById(android.R.id.content), "Price and started time successfully updated!", Snackbar.LENGTH_SHORT).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).setTextColor(Color.WHITE).show();
+
+            dialog.dismiss();
+
+            goBack();
+        } else if (!TextUtils.isEmpty(price) && TextUtils.isEmpty(isAvailable) && TextUtils.isEmpty(from) && !TextUtils.isEmpty(to)) {
+
+            HashMap<String, Object> updated = new HashMap<>();
+            updated.put("price", price);
+            updated.put("to", to);
+
+            firebaseFirestore.collection("Restaurants").document(resName).collection("Items")
+                    .document(itemName).update(updated);
+            Snackbar.make(findViewById(android.R.id.content), "Price and end time successfully updated!", Snackbar.LENGTH_SHORT).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).setTextColor(Color.WHITE).show();
+
+            dialog.dismiss();
+
+            goBack();
+        } else if (TextUtils.isEmpty(price) && !TextUtils.isEmpty(isAvailable) && !TextUtils.isEmpty(from) && TextUtils.isEmpty(to)) {
+
+            HashMap<String, Object> updated = new HashMap<>();
+            updated.put("available", isAvailable);
+            updated.put("from", from);
+
+            firebaseFirestore.collection("Restaurants").document(resName).collection("Items")
+                    .document(itemName).update(updated);
+            Snackbar.make(findViewById(android.R.id.content), "Availability and starting time successfully updated!", Snackbar.LENGTH_SHORT).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).setTextColor(Color.WHITE).show();
+
+            dialog.dismiss();
+
+            goBack();
+        } else if (TextUtils.isEmpty(price) && !TextUtils.isEmpty(isAvailable) && TextUtils.isEmpty(from) && !TextUtils.isEmpty(to)) {
+
+            HashMap<String, Object> updated = new HashMap<>();
+            updated.put("available", isAvailable);
+            updated.put("to", to);
+
+            firebaseFirestore.collection("Restaurants").document(resName).collection("Items")
+                    .document(itemName).update(updated);
+            Snackbar.make(findViewById(android.R.id.content), "Availability and end time successfully updated!", Snackbar.LENGTH_SHORT).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).setTextColor(Color.WHITE).show();
+
+            dialog.dismiss();
+
+            goBack();
+        } else if (TextUtils.isEmpty(price) && TextUtils.isEmpty(isAvailable) && !TextUtils.isEmpty(from) && !TextUtils.isEmpty(to)) {
+
+            HashMap<String, Object> updated = new HashMap<>();
+            updated.put("from", from);
+            updated.put("to", to);
+
+            firebaseFirestore.collection("Restaurants").document(resName).collection("Items")
+                    .document(itemName).update(updated);
+            Snackbar.make(findViewById(android.R.id.content), "Starting and end time successfully updated!", Snackbar.LENGTH_SHORT).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).setTextColor(Color.WHITE).show();
+
+            dialog.dismiss();
+
+            goBack();
+        } else if (!TextUtils.isEmpty(price) && !TextUtils.isEmpty(isAvailable) && !TextUtils.isEmpty(from) && TextUtils.isEmpty(to)) {
+
+            HashMap<String, Object> updated = new HashMap<>();
+            updated.put("price", price);
+            updated.put("available", isAvailable);
+            updated.put("from", from);
+
+            firebaseFirestore.collection("Restaurants").document(resName).collection("Items")
+                    .document(itemName).update(updated);
+            Snackbar.make(findViewById(android.R.id.content), "Availability, Price and starting time successfully updated!", Snackbar.LENGTH_SHORT).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).setTextColor(Color.WHITE).show();
+
+            dialog.dismiss();
+
+            goBack();
+        } else if (!TextUtils.isEmpty(price) && !TextUtils.isEmpty(isAvailable) && TextUtils.isEmpty(from) && !TextUtils.isEmpty(to)) {
+
+            HashMap<String, Object> updated = new HashMap<>();
+            updated.put("price", price);
+            updated.put("available", isAvailable);
+            updated.put("to", to);
+
+            firebaseFirestore.collection("Restaurants").document(resName).collection("Items")
+                    .document(itemName).update(updated);
+            Snackbar.make(findViewById(android.R.id.content), "Availability, Price and end time successfully updated!", Snackbar.LENGTH_SHORT).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).setTextColor(Color.WHITE).show();
+
+            dialog.dismiss();
+
+            goBack();
+        } else if (!TextUtils.isEmpty(price) && TextUtils.isEmpty(isAvailable) && !TextUtils.isEmpty(from) && !TextUtils.isEmpty(to)) {
+
+            HashMap<String, Object> updated = new HashMap<>();
+            updated.put("price", price);
+            updated.put("from", from);
+            updated.put("to", to);
+
+            firebaseFirestore.collection("Restaurants").document(resName).collection("Items")
+                    .document(itemName).update(updated);
+            Snackbar.make(findViewById(android.R.id.content), "Price, starting and end time successfully updated!", Snackbar.LENGTH_SHORT).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).setTextColor(Color.WHITE).show();
+
+            dialog.dismiss();
+
+            goBack();
+        } else if (TextUtils.isEmpty(price) && !TextUtils.isEmpty(isAvailable) && !TextUtils.isEmpty(from) && !TextUtils.isEmpty(to)) {
+
+            HashMap<String, Object> updated = new HashMap<>();
+            updated.put("available", isAvailable);
+            updated.put("from", from);
+            updated.put("to", to);
+
+            firebaseFirestore.collection("Restaurants").document(resName).collection("Items")
+                    .document(itemName).update(updated);
+            Snackbar.make(findViewById(android.R.id.content), "Availability, starting and end time successfully updated!", Snackbar.LENGTH_SHORT).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).setTextColor(Color.WHITE).show();
+
+            dialog.dismiss();
+
+            goBack();
+        } else if (!TextUtils.isEmpty(price) && !TextUtils.isEmpty(isAvailable) && !TextUtils.isEmpty(from) && !TextUtils.isEmpty(to)) {
+
+            HashMap<String, Object> updated = new HashMap<>();
+            updated.put("price", price);
+            updated.put("available", isAvailable);
+            updated.put("from", from);
+            updated.put("to", to);
+
+            firebaseFirestore.collection("Restaurants").document(resName).collection("Items")
+                    .document(itemName).update(updated);
+            Snackbar.make(findViewById(android.R.id.content), "All Fields are successfully updated!", Snackbar.LENGTH_SHORT).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).setTextColor(Color.WHITE).show();
+
+            dialog.dismiss();
+
+            goBack();
+        } else if (TextUtils.isEmpty(price) && TextUtils.isEmpty(isAvailable) && TextUtils.isEmpty(from) && TextUtils.isEmpty(to)) {
+
+            dialog.dismiss();
+
+            Snackbar.make(findViewById(android.R.id.content), "Please update at least one field!", Snackbar.LENGTH_SHORT).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).setTextColor(Color.WHITE).show();
         }
     }
 
-    private void goBack(){
+    private void goBack() {
+        dialog.dismiss();
         Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
             @Override

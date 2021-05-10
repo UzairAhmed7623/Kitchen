@@ -23,6 +23,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import jp.co.recruit_lifestyle.android.widget.WaveSwipeRefreshLayout;
 
@@ -46,6 +47,7 @@ public class Orders extends AppCompatActivity {
 
         toolbarOrders = (Toolbar) findViewById(R.id.toolbarOrders);
         setSupportActionBar(toolbarOrders);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
         String resName = getIntent().getStringExtra("resName");
 

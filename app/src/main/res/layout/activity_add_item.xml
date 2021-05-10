@@ -16,7 +16,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/myColor"
-            app:titleTextColor="@android:color/white" />
+            app:titleTextColor="@android:color/white"
+            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
 
         <TextView
             android:id="@+id/textView"
@@ -297,6 +298,7 @@
                     <Button
                         android:id="@+id/btnPickImage"
                         style="@style/Widget.MaterialComponents.Button"
+                        android:foreground="?attr/selectableItemBackground"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:backgroundTint="@color/myColor"
@@ -320,6 +322,7 @@
                 <Button
                     android:id="@+id/btnDone"
                     style="@style/Widget.MaterialComponents.Button"
+                    android:foreground="?attr/selectableItemBackground"
                     android:layout_width="0dp"
                     android:layout_height="55dp"
                     android:layout_marginTop="40dp"

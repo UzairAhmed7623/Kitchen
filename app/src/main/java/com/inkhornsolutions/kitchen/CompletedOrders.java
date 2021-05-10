@@ -26,6 +26,7 @@ import com.inkhornsolutions.kitchen.modelclasses.OrdersModelClass;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import jp.co.recruit_lifestyle.android.widget.WaveSwipeRefreshLayout;
 
@@ -51,6 +52,7 @@ public class CompletedOrders extends AppCompatActivity {
 
         toolbarComOrders = (Toolbar) findViewById(R.id.toolbarComOrders);
         setSupportActionBar(toolbarComOrders);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
         String resName = getIntent().getStringExtra("resName");
 
