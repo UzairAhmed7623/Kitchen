@@ -77,6 +77,7 @@ import java.util.List;
 import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import jp.co.recruit_lifestyle.android.widget.WaveSwipeRefreshLayout;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -104,7 +105,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private String sdownload_url = "";
     private ImageView ivResImage;
     private MainActivityAdapter adapter;
-    private Paint p = new Paint();
+    private final Paint p = new Paint();
+    WaveSwipeRefreshLayout layoutOrder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -123,6 +125,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         tvOnline = (TextView) findViewById(R.id.tvOnline);
         tvOffline = (TextView) findViewById(R.id.tvOffline);
         statusSwitch = (SwitchMaterial) findViewById(R.id.statusSwitch);
+        layoutOrder = (WaveSwipeRefreshLayout) findViewById(R.id.layoutOrder);
+
+        layoutOrder.setColorSchemeColors(Color.WHITE, Color.WHITE);
+        layoutOrder.setWaveColor(getColor(R.color.myColor));
+        layoutOrder.setMaxDropHeight(750);
+        layoutOrder.setMinimumHeight(750);
+//        layoutOrder.setWaveColor(0xFF000000+new Random().nextInt(0xFFFFFF)); // Random color assign
 
         statusSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -229,6 +238,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).show();
                     }
                 });
+
+        layoutOrder.setOnRefreshListener(new WaveSwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+
+                loadRestaurant(resName);
+            }
+        });
     }
 
     @SuppressLint("InflateParams")
@@ -576,6 +593,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             }
                         }
                         rvItems.setAdapter(adapter);
+                        layoutOrder.setRefreshing(false);
                         initSwipe(itemName);
                     }
                     else {

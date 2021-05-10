@@ -92,8 +92,6 @@ public class FindDriver extends FragmentActivity implements OnMapReadyCallback, 
 
     private FusedLocationProviderClient fusedLocationProviderClient;
 
-    String id = "P5397d1k8cYDoW8dtEIOQClO8OI2";
-
     private SupportMapFragment mapFragment;
     private LocationRequest locationRequest;
     private LocationCallback locationCallback;
