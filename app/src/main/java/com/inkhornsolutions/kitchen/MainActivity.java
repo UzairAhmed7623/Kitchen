@@ -133,6 +133,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         layoutOrder.setMinimumHeight(750);
 //        layoutOrder.setWaveColor(0xFF000000+new Random().nextInt(0xFFFFFF)); // Random color assign
 
+
         statusSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -225,8 +226,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                                 if (resName.length() <= 0) {
                                     dialog();
-                                } else {
-                                    validateRes(resName);
+                                }
+                                else {
+                                    loadRestaurant(resName);
                                 }
                             }
                         }
@@ -492,6 +494,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         if (documentSnapshot.exists()){
                             String approved = documentSnapshot.getString("approved");
+                            String status = documentSnapshot.getString("status");
+
+                            statusSwitch.setChecked(status != null && status.equals("online"));
+
                             if (Objects.equals(approved, "yes")){
 
                                 final boolean firstTime;

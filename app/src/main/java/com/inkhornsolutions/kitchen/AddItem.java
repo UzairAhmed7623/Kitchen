@@ -125,7 +125,7 @@ public class AddItem extends AppCompatActivity {
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(AddItem.this, R.style.MaterialThemeDialog);
                 builder.setCancelable(false);
-                String[] categories = new String[]{"Main Course","Drinks","Frozen","Sides","Desserts"};
+                String[] categories = new String[]{"Main Course","Drinks","Frozen","Sides","Desserts","Organic"};
 
                 final int checkedItem = -1;
 
