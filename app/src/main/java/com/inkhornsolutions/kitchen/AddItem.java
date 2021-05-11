@@ -140,8 +140,15 @@ public class AddItem extends AppCompatActivity {
                 builder.setPositiveButton("Select", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
+
                         selectedCategory = tvSpinnerHead.getText().toString();
+
+                        if (selectedCategory.length() > 0){
+                            dialog.dismiss();
+                        }
+                        else {
+                            Snackbar.make(findViewById(android.R.id.content), "Please select one from all off the categories.", Snackbar.LENGTH_LONG).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).show();
+                        }
                     }
                 });
 
