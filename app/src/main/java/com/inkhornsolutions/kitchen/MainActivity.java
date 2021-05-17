@@ -212,7 +212,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     @Override
                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                         for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
-                            if (documentSnapshot != null) {
+                            if (documentSnapshot.exists()) {
                                 String resNames = documentSnapshot.getString("resName");
                                 validateRes(resNames);
 
@@ -221,6 +221,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                 editor.putString("restaurantName", resNames);
                                 editor.apply();
 
+                                SharedPreferences prefs = getApplicationContext().getSharedPreferences("USER_PREF", Context.MODE_PRIVATE);
+                                resName = prefs.getString("restaurantName", "");
+
+                                if (resName.length() <= 0) {
+                                    dialog();
+                                }
+                                else {
+                                    loadRestaurant(resName);
+                                }
+                            }
+                            else {
                                 SharedPreferences prefs = getApplicationContext().getSharedPreferences("USER_PREF", Context.MODE_PRIVATE);
                                 resName = prefs.getString("restaurantName", "");
 

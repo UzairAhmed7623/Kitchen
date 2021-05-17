@@ -35,11 +35,18 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -50,7 +57,7 @@ import java.util.Objects;
 
 public class AddItem extends AppCompatActivity {
 
-    private EditText etItemName, etItemPrice;
+    private EditText etItemName, etItemPrice, etItemDes, etItemQuantity;
     private TextView tvFrom, tvTo;
     private TextView  tvAvailable, tvNotAvailable;
     private SwitchMaterial switchAvailable;
@@ -89,6 +96,8 @@ public class AddItem extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         etItemName = (EditText) findViewById(R.id.etItemName);
+        etItemQuantity = (EditText) findViewById(R.id.etItemQuantity);
+        etItemDes = (EditText) findViewById(R.id.etItemDes);
         etItemPrice = (EditText) findViewById(R.id.etItemPrice);
         etItemImage = (ImageView) findViewById(R.id.etItemImage);
         tvFrom = (TextView) findViewById(R.id.tvFrom);
@@ -117,6 +126,22 @@ public class AddItem extends AppCompatActivity {
                 }
             }
         });
+
+        //Code for copy document data.
+//        DocumentReference copyFrom = FirebaseFirestore.getInstance().collection("Restaurants").document("asd").collection("Items").document("Honey");
+        DocumentReference copyTo = FirebaseFirestore.getInstance().collection("Restaurants").document("Organic Shop").collection("Items").document("Honey");
+//
+//        copyFrom.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+//            @Override
+//            public void onComplete(@NonNull @NotNull Task<DocumentSnapshot> task) {
+//                if (task.isSuccessful()){
+//                    DocumentSnapshot documentSnapshot = task.getResult();
+//                    copyTo.set(documentSnapshot.getData());
+//                }
+//            }
+//        });
+
+
 
 
         ivCategories.setOnClickListener(new View.OnClickListener() {
@@ -314,13 +339,16 @@ public class AddItem extends AppCompatActivity {
 
     private void setDetails(String url, String name) {
 
-        String price = etItemPrice.getText().toString();
+        String price = etItemPrice.getText().toString().trim();
+        String quantity = etItemQuantity.getText().toString().trim();
+        String description = etItemDes.getText().toString().trim();
         String from = tvFrom.getText().toString().replace("from","");
         String to = tvTo.getText().toString().replace("from","");;
 
         if (TextUtils.isEmpty(price)
                 || TextUtils.isEmpty(from)
-                || TextUtils.isEmpty(to)){
+                || TextUtils.isEmpty(to)
+                || TextUtils.isEmpty(description)){
 
             dialog.dismiss();
 
@@ -334,6 +362,8 @@ public class AddItem extends AppCompatActivity {
             newItem.put("to", to);
             newItem.put("available",isAvailable);
             newItem.put("category",selectedCategory);
+            newItem.put("description",description);
+            newItem.put("quantity",quantity);
 
             firebaseFirestore.collection("Restaurants").document(resName).collection("Items").document(name)
                     .set(newItem, SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -376,4 +406,5 @@ public class AddItem extends AppCompatActivity {
 
         return date;
     }
+
 }
