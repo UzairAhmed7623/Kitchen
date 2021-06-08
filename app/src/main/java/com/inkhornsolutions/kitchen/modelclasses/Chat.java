@@ -6,20 +6,50 @@ import java.util.List;
 import java.util.Map;
 
 public class Chat {
-    private List<Map<String, Object>> messages = new ArrayList<>();
+    private String message;
+    private String time;
+    private String senderId;
+    private String receiverId;
 
     public Chat() {
     }
 
-    public Chat(List<Map<String, Object>> messages) {
-        this.messages = messages;
+    public Chat(String message, String time, String senderId, String receiverId) {
+        this.message = message;
+        this.time = time;
+        this.senderId = senderId;
+        this.receiverId = receiverId;
     }
 
-    public List<Map<String, Object>> getMessages() {
-        return messages;
+    public String getMessage() {
+        return message;
     }
 
-    public void setMessages(List<Map<String, Object>> messages) {
-        this.messages = messages;
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public String getTime() {
+        return time;
+    }
+
+    public void setTime(String time) {
+        this.time = time;
+    }
+
+    public String getSenderId() {
+        return senderId;
+    }
+
+    public void setSenderId(String senderId) {
+        this.senderId = senderId;
+    }
+
+    public String getReceiverId() {
+        return receiverId;
+    }
+
+    public void setReceiverId(String receiverId) {
+        this.receiverId = receiverId;
     }
 }

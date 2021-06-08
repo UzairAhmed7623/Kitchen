@@ -3,90 +3,106 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
-    android:background="@android:color/white"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@drawable/background"
     android:fitsSystemWindows="true"
     tools:context=".Login">
 
-    <LinearLayout
+    <TextView
+        android:id="@+id/welcome"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
+        android:text="Hello And Welcome!"
+        android:textStyle="bold"
+        android:fontFamily="@font/montserra_regular_bold"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="120dp"
+        android:letterSpacing="0.05"
+        android:textColor="@color/black"
+        android:textSize="16sp"/>
+
+    <TextView
+        android:id="@+id/please"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/welcome"
+        android:layout_marginTop="35dp"
+        android:fontFamily="@font/montserra_regular_bold"
+        android:text="Please Enter your Phone\nnumber to use app"
+        android:textStyle="bold"
         android:gravity="center"
-        android:orientation="vertical">
+        android:textColor="@color/black"
+        android:layout_centerHorizontal="true"
+        android:letterSpacing="0.06"
+        android:textSize="12sp"/>
 
-        <ImageView
-            android:layout_width="220dp"
-            android:layout_height="220dp"
-            android:src="@drawable/img_number_verification" />
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/countryCode2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="65dp"
+        android:layout_marginStart="20dp"
+        android:layout_below="@+id/please"
+        app:boxCornerRadiusBottomEnd="10dp"
+        app:boxCornerRadiusTopStart="10dp"
+        app:boxCornerRadiusTopEnd="10dp"
+        app:boxCornerRadiusBottomStart="10dp"
+        app:boxStrokeWidth="0dp"
+        app:boxBackgroundColor="@color/editTextBack"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
-        <TextView
+        <EditText
+            android:id="@+id/editTextCountryCode"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Verify Your Number"
-            android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"
-            android:textColor="@color/grey_80"
-            android:textStyle="bold" />
+            android:fontFamily="@font/montserra_regular_bold"
+            android:padding="10dp"
+            android:textColor="@color/grey_60"
+            android:textSize="15sp"
+            android:text="    +92    " />
 
-        <TextView
-            android:layout_width="280dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:gravity="center"
-            android:text="Please enter your mobile number to receive a verification code"
-            android:textAppearance="@style/Base.TextAppearance.AppCompat.Subhead"
-            android:textColor="@color/grey_60" />
+    </com.google.android.material.textfield.TextInputLayout>
 
-        <LinearLayout
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/phone_number2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="65dp"
+        android:layout_marginStart="15dp"
+        android:layout_marginEnd="20dp"
+        android:layout_below="@+id/please"
+        android:layout_toEndOf="@+id/countryCode2"
+        app:boxCornerRadiusBottomEnd="10dp"
+        app:boxCornerRadiusTopStart="10dp"
+        app:boxCornerRadiusTopEnd="10dp"
+        app:boxCornerRadiusBottomStart="10dp"
+        app:boxStrokeWidth="0dp"
+        android:hint="  323-333-12341"
+        android:textColorHint="@color/grey_40"
+        app:boxBackgroundColor="@color/editTextBack"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+        <EditText
+            android:id="@+id/editTextPhone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="35dp"
-            android:layout_marginBottom="15dp"
-            android:orientation="horizontal">
+            android:fontFamily="@font/montserra_regular_bold"
+            android:padding="10dp"
+            android:textSize="15sp" />
 
-            <EditText
-                android:id="@+id/editTextCountryCode"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:inputType="phone"
-                android:maxLines="1"
-                android:singleLine="true"
-                android:text="+92"
-                android:enabled="false"
-                android:textAppearance="@style/Base.TextAppearance.AppCompat.Title"
-                android:textColor="@color/grey_80" />
+    </com.google.android.material.textfield.TextInputLayout>
 
-            <View
-                android:layout_width="5dp"
-                android:layout_height="0dp" />
-
-            <EditText
-                android:id="@+id/editTextPhone"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Phone Number"
-                android:inputType="phone"
-                android:maxLines="1"
-                android:maxLength="10"
-                android:singleLine="true"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-                android:textAppearance="@style/TextAppearance.AppCompat.Title"
-                android:textColor="@color/grey_90">
-
-                <requestFocus />
-
-            </EditText>
-
-        </LinearLayout>
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/buttonContinue"
-            android:layout_width="300dp"
-            android:layout_height="wrap_content"
-            android:background="@drawable/loginbutton_selector"
-            android:text="CONTINUE"
-            android:textColor="@android:color/white"
-            style="@style/Widget.MaterialComponents.Button"/>
-
-    </LinearLayout>
+    <Button
+        android:id="@+id/buttonContinue"
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:layout_below="@id/phone_number2"
+        android:layout_marginTop="29dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:backgroundTint="@color/myColor"
+        android:foreground="@drawable/ripple"
+        android:text="Next"
+        android:textColor="@color/white"/>
 
 </RelativeLayout>

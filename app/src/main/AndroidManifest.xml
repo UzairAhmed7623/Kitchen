@@ -19,7 +19,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Kitchen">
-        <activity android:name=".ChatActivity" android:parentActivityName=".MainActivity">
+        <activity android:name=".VerifyPhone">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -28,7 +28,10 @@
             </intent-filter>
 
         </activity>
-
+        <activity android:name=".Splash" />
+        <activity
+            android:name=".ChatActivity"
+            android:parentActivityName=".MainActivity" />
         <activity
             android:name=".Profile"
             android:parentActivityName=".MainActivity"
@@ -41,12 +44,12 @@
         <activity
             android:name=".RequestDriverActivity"
             android:label="@string/title_activity_request_driver" />
-
         <activity
             android:name=".FindDriver"
             android:label="@string/title_activity_find_driver" />
-
-        <activity android:name=".CompletedOrders" android:parentActivityName=".MainActivity"/>
+        <activity
+            android:name=".CompletedOrders"
+            android:parentActivityName=".MainActivity" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -67,22 +70,21 @@
             </intent-filter>
         </service>
 
-        <activity android:name=".Orders" android:parentActivityName=".MainActivity"/>
-
+        <activity
+            android:name=".Orders"
+            android:parentActivityName=".MainActivity" />
         <activity
             android:name=".AddItem"
             android:parentActivityName=".MainActivity" />
-
         <activity
             android:name=".ItemProperties"
             android:parentActivityName=".MainActivity" />
-
         <activity android:name=".Login">
 
+
+
         </activity>
-
         <activity android:name=".MainActivity" />
-
     </application>
 
 </manifest>

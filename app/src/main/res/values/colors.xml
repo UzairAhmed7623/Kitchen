@@ -8,8 +8,8 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="red">#ff0000</color>
-    <color name="myColor">#0084d1</color>
-    <color name="myColorSecond">#37B4FD</color>
+    <color name="myColor">#ff9933</color>
+    <color name="myColorSecond">#FFDCB8</color>
 
 
     <color name="background_color">#009688</color>
@@ -33,5 +33,7 @@
     <color name="grey_60">#666666</color>
     <color name="grey_80">#37474F</color>
     <color name="grey_90">#263238</color>
+    
+    <color name="editTextBack">#f3f3f3</color>
 
 </resources>

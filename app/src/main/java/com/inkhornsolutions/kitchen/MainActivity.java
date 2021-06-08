@@ -52,6 +52,7 @@ import com.bumptech.glide.Glide;
 import com.github.dhaval2404.imagepicker.ImagePicker;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FirebaseStorage;
@@ -106,7 +107,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private ImageView ivResImage;
     private MainActivityAdapter adapter;
     private final Paint p = new Paint();
-    WaveSwipeRefreshLayout layoutOrder;
+    private WaveSwipeRefreshLayout layoutOrder;
+    private FloatingActionButton fabChat;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -126,6 +128,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         tvOffline = (TextView) findViewById(R.id.tvOffline);
         statusSwitch = (SwitchMaterial) findViewById(R.id.statusSwitch);
         layoutOrder = (WaveSwipeRefreshLayout) findViewById(R.id.layoutOrder);
+        fabChat = (FloatingActionButton) findViewById(R.id.fabChat);
 
         layoutOrder.setColorSchemeColors(Color.WHITE, Color.WHITE);
         layoutOrder.setWaveColor(getColor(R.color.myColor));
@@ -196,7 +199,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 Intent intent = new Intent(MainActivity.this, Profile.class);
                 startActivity(intent);
                 overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-                drawerLayout.closeDrawer(GravityCompat.START);
             }
         });
 
@@ -214,33 +216,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
                             if (documentSnapshot.exists()) {
                                 String resNames = documentSnapshot.getString("resName");
-                                validateRes(resNames);
 
                                 SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences("USER_PREF", Context.MODE_PRIVATE);
                                 SharedPreferences.Editor editor = sharedPreferences.edit();
                                 editor.putString("restaurantName", resNames);
                                 editor.apply();
 
-                                SharedPreferences prefs = getApplicationContext().getSharedPreferences("USER_PREF", Context.MODE_PRIVATE);
-                                resName = prefs.getString("restaurantName", "");
-
-                                if (resName.length() <= 0) {
-                                    dialog();
-                                }
-                                else {
-                                    loadRestaurant(resName);
-                                }
-                            }
-                            else {
-                                SharedPreferences prefs = getApplicationContext().getSharedPreferences("USER_PREF", Context.MODE_PRIVATE);
-                                resName = prefs.getString("restaurantName", "");
-
-                                if (resName.length() <= 0) {
-                                    dialog();
-                                }
-                                else {
-                                    loadRestaurant(resName);
-                                }
+//                                SharedPreferences prefs = getApplicationContext().getSharedPreferences("USER_PREF", Context.MODE_PRIVATE);
+//                                resName = prefs.getString("restaurantName", "");
+//
+//                                if (resName.length() <= 0) {
+//                                    dialog();
+//                                }
+//                                else {
+//                                    loadRestaurant(resName);
+//                                }
                             }
                         }
                     }
@@ -252,11 +242,30 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     }
                 });
 
+        SharedPreferences prefs = getApplicationContext().getSharedPreferences("USER_PREF", Context.MODE_PRIVATE);
+        resName = prefs.getString("restaurantName", "");
+
+        if (resName.length() <= 0) {
+            dialog();
+        }
+        else {
+            validateRes(resName);
+        }
+
         layoutOrder.setOnRefreshListener(new WaveSwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
 
                 loadRestaurant(resName);
+            }
+        });
+
+        fabChat.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, ChatActivity.class);
+                startActivity(intent);
+                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
             }
         });
     }
@@ -842,7 +851,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             startActivity(intent);
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         }
-
         drawerLayout.closeDrawer(GravityCompat.START);
 
         return true;
