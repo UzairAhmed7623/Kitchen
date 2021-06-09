@@ -15,6 +15,7 @@
     <color name="background_color">#009688</color>
     <color name="white_greyish">#EEEEEE</color>
     <color name="button_selectorcolor">#9E9E9E</color>
+    <color name="activity_back">#FAFAFA</color>
 
     <color name="ucrop_color_toolbar">@color/teal_200</color>
     <color name="ucrop_color_statusbar">@color/teal_700</color>

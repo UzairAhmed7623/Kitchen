@@ -1,18 +1,27 @@
 package com.inkhornsolutions.kitchen.modelclasses;
 
 public class ItemsModelClass {
-    private String resName, itemName, price, image, availability, schedule;
+    private String resName, itemName, price, image, availability, schedule, description;
 
     public ItemsModelClass() {
     }
 
-    public ItemsModelClass(String resName, String itemName, String price, String image, String availability, String schedule) {
+    public ItemsModelClass(String resName, String itemName, String price, String image, String availability, String schedule, String description) {
         this.resName = resName;
         this.itemName = itemName;
         this.price = price;
         this.image = image;
         this.availability = availability;
         this.schedule = schedule;
+        this.description = description;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public String getResName() {

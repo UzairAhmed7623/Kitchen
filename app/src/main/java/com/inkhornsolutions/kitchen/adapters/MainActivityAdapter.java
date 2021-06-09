@@ -53,59 +53,14 @@ public class MainActivityAdapter extends RecyclerView.Adapter<MainActivityAdapte
         String price = itemsModelClass.getPrice();
         String available = itemsModelClass.getAvailability();
         String schedule = itemsModelClass.getSchedule();
+        String description = itemsModelClass.getDescription();
 
-//        holder.itemView.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Intent intent = new Intent(context, itemProperties.class);
-//                intent.putExtra("restaurant", resName);
-//                intent.putExtra("itemName", itemName);
-//                context.startActivity(intent);
-//            }
-//        });
-//
-//        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
-//            @Override
-//            public boolean onLongClick(View v) {
-//
-//                AlertDialog.Builder dialog = new AlertDialog.Builder(context);
-//                dialog.setTitle("Confirm");
-//                dialog.setMessage("Do you want to delete this item?");
-//                dialog.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-//                    @Override
-//                    public void onClick(DialogInterface dialog, int which) {
-//
-//                        firebaseFirestore.collection("Restaurants").document(resName).collection("Items").document(itemName)
-//                                .delete().addOnCompleteListener(new OnCompleteListener<Void>() {
-//                            @Override
-//                            public void onComplete(@NonNull Task<Void> task) {
-//                                Toast.makeText(context, "Deleted Successfully!", Toast.LENGTH_SHORT).show();
-//
-//                                items.remove(position);
-////                                notifyItemRemoved(position);
-//                                notifyDataSetChanged();
-////                                notifyItemChanged(position);
-//                                dialog.dismiss();
-//
-//                            }
-//                        });
-//
-//                    }
-//                }).setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-//                    @Override
-//                    public void onClick(DialogInterface dialog, int which) {
-//                        dialog.dismiss();
-//                    }
-//                }).show();
-//
-//                return true;
-//            }
-//        });
 
 
         holder.tvItem.setText(itemName);
         Glide.with(context).load(imageUri).placeholder(R.drawable.food_placeholder).fitCenter().into(holder.ivItem);
         holder.tvItemPrice.setText("PKR"+price);
+        holder.tvItemDescription.setText(description);
         holder.tvItemSchedule.setText("Available: "+ schedule);
     }
 
@@ -115,7 +70,7 @@ public class MainActivityAdapter extends RecyclerView.Adapter<MainActivityAdapte
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        private TextView tvItem, tvItemPrice, tvItemSchedule;
+        private TextView tvItem, tvItemPrice, tvItemSchedule, tvItemDescription;
         private ImageView ivItem;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -123,6 +78,7 @@ public class MainActivityAdapter extends RecyclerView.Adapter<MainActivityAdapte
             tvItem = (TextView) itemView.findViewById(R.id.tvItem);
             tvItemPrice = (TextView) itemView.findViewById(R.id.tvItemPrice);
             tvItemSchedule = (TextView) itemView.findViewById(R.id.tvItemSchedule);
+            tvItemDescription = (TextView) itemView.findViewById(R.id.tvItemDescription);
 
             ivItem = (ImageView) itemView.findViewById(R.id.ivItem);
 

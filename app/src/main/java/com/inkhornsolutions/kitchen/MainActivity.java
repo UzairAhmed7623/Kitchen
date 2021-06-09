@@ -1,18 +1,5 @@
 package com.inkhornsolutions.kitchen;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.content.ContextCompat;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.recyclerview.widget.ItemTouchHelper;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
@@ -20,7 +7,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -29,10 +15,8 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
-
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -41,27 +25,33 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.bitvale.switcher.SwitcherX;
 import com.bumptech.glide.Glide;
 import com.github.dhaval2404.imagepicker.ImagePicker;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.material.button.MaterialButton;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.switchmaterial.SwitchMaterial;
-import com.google.firebase.firestore.SetOptions;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
-import com.inkhornsolutions.kitchen.adapters.MainActivityAdapter;
-import com.inkhornsolutions.kitchen.modelclasses.ItemsModelClass;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
@@ -71,6 +61,12 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.SetOptions;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+import com.inkhornsolutions.kitchen.adapters.MainActivityAdapter;
+import com.inkhornsolutions.kitchen.modelclasses.ItemsModelClass;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -79,6 +75,8 @@ import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import jp.co.recruit_lifestyle.android.widget.WaveSwipeRefreshLayout;
+import kotlin.Unit;
+import kotlin.jvm.functions.Function1;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -92,7 +90,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
     private TextView tvUserName, tvOnline, tvOffline;
-    private SwitchMaterial statusSwitch;
+    private SwitcherX statusSwitch;
     private CircleImageView ivProfileImage;
     private ImageView ivProfileSettings;
     private String getResNamefromEditText = "";
@@ -108,7 +106,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private MainActivityAdapter adapter;
     private final Paint p = new Paint();
     private WaveSwipeRefreshLayout layoutOrder;
-    private FloatingActionButton fabChat;
+    private ImageButton ibChat;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -126,9 +124,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         tvOnline = (TextView) findViewById(R.id.tvOnline);
         tvOffline = (TextView) findViewById(R.id.tvOffline);
-        statusSwitch = (SwitchMaterial) findViewById(R.id.statusSwitch);
+        statusSwitch = (SwitcherX) findViewById(R.id.statusSwitch);
         layoutOrder = (WaveSwipeRefreshLayout) findViewById(R.id.layoutOrder);
-        fabChat = (FloatingActionButton) findViewById(R.id.fabChat);
+        ibChat = (ImageButton) findViewById(R.id.ibChat);
 
         layoutOrder.setColorSchemeColors(Color.WHITE, Color.WHITE);
         layoutOrder.setWaveColor(getColor(R.color.myColor));
@@ -137,10 +135,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 //        layoutOrder.setWaveColor(0xFF000000+new Random().nextInt(0xFFFFFF)); // Random color assign
 
 
-        statusSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        statusSwitch.setOnCheckedChangeListener(new Function1<Boolean, Unit>() {
             @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked){
+            public Unit invoke(Boolean aBoolean) {
+                if (aBoolean) {
                     tvOnline.setVisibility(View.VISIBLE);
                     tvOffline.setVisibility(View.GONE);
 
@@ -150,13 +148,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             Log.d("status", "online");
                         }
                     }).addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).show();
-                                }
-                            });
-                }
-                else {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).show();
+                        }
+                    });
+                } else {
                     tvOffline.setVisibility(View.VISIBLE);
                     tvOnline.setVisibility(View.GONE);
 
@@ -172,6 +169,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         }
                     });
                 }
+                return Unit.INSTANCE;
             }
         });
 
@@ -181,10 +179,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         navigationView.bringToFront();
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(MainActivity.this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        toggle.setDrawerIndicatorEnabled(false);
+        Drawable drawable = ResourcesCompat.getDrawable(getResources(), R.drawable.navigation_icon, getTheme());
+        toggle.setHomeAsUpIndicator(drawable);
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
         navigationView.setNavigationItemSelectedListener(MainActivity.this);
         navigationView.setCheckedItem(R.id.navView);
+
 
         tvUserName = (TextView) header_View.findViewById(R.id.tvUserName);
         headerTextView();
@@ -247,8 +249,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         if (resName.length() <= 0) {
             dialog();
-        }
-        else {
+        } else {
             validateRes(resName);
         }
 
@@ -260,7 +261,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
 
-        fabChat.setOnClickListener(new View.OnClickListener() {
+        ibChat.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, ChatActivity.class);
@@ -271,7 +272,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @SuppressLint("InflateParams")
-    private void dialog(){
+    private void dialog() {
         view = LayoutInflater.from(getApplicationContext()).inflate(R.layout.edittext_for_restaurant_name, null);
 
         EditText etResName = (EditText) view.findViewById(R.id.etResName);
@@ -293,10 +294,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 
-                if (position == 0){
+                if (position == 0) {
                     type = "0";
-                }
-                else{
+                } else {
                     type = "1";
                 }
             }
@@ -324,10 +324,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         btnDone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (etResName.getText().toString().length() <= 0){
+                if (etResName.getText().toString().length() <= 0) {
                     Toast.makeText(MainActivity.this, "Please write your restaurant name!", Toast.LENGTH_SHORT).show();
-                }
-                else {
+                } else {
                     getResNamefromEditText = etResName.getText().toString().trim();
 
                     firebaseFirestore.collection("Restaurants").get()
@@ -335,29 +334,28 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                 @Override
                                 public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
 
-                                    for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots){
+                                    for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
 
                                         //Get data from database
-                                        if (documentSnapshot.exists()){
+                                        if (documentSnapshot.exists()) {
 
-                                            if (documentSnapshot.getString("id") != null){
+                                            if (documentSnapshot.getString("id") != null) {
                                                 resIdsList.add(documentSnapshot.getString("id").trim());
                                             }
-                                            if (!documentSnapshot.getId().isEmpty()){
+                                            if (!documentSnapshot.getId().isEmpty()) {
                                                 resNamesList.add(documentSnapshot.getId().toLowerCase().trim().replace(" ", ""));
                                             }
                                         }
                                     }
                                     //Now compare that data to get results
                                     if (resNamesList.contains(getResNamefromEditText.toLowerCase().trim().replace(" ", ""))
-                                                && !resIdsList.contains(Objects.requireNonNull(firebaseAuth.getCurrentUser()).getUid())) {
+                                            && !resIdsList.contains(Objects.requireNonNull(firebaseAuth.getCurrentUser()).getUid())) {
                                         Toast.makeText(MainActivity.this, "Restaurant already registered with these credentials!", Toast.LENGTH_SHORT).show();
                                     }
                                     if (!resNamesList.contains(getResNamefromEditText.toLowerCase().trim().replace(" ", ""))
                                             && resIdsList.contains(Objects.requireNonNull(firebaseAuth.getCurrentUser()).getUid())) {
                                         Toast.makeText(MainActivity.this, "Restaurant already registered with these credentials!", Toast.LENGTH_SHORT).show();
-                                    }
-                                    else {
+                                    } else {
                                         SharedPreferences prefs = getApplicationContext().getSharedPreferences("USER_PREF", Context.MODE_PRIVATE);
                                         SharedPreferences.Editor editor = prefs.edit();
                                         editor.putString("restaurantName", getResNamefromEditText);
@@ -369,7 +367,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                         resReg.put("resName", getResNamefromEditText);
                                         resReg.put("id", firebaseAuth.getCurrentUser().getUid());
                                         resReg.put("type", type);
-                                        resReg.put("approved","no");
+                                        resReg.put("approved", "no");
                                         resReg.put("status", "offline");
 
                                         firebaseFirestore.collection("Restaurants").document(getResNamefromEditText).set(resReg, SetOptions.merge())
@@ -461,11 +459,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void uploadImage(Uri fileUri, String resName) {
 
-        if (fileUri != null){
+        if (fileUri != null) {
             String someFilepath = String.valueOf(fileUri);
             String extension = someFilepath.substring(someFilepath.lastIndexOf("."));
 
-            StorageReference riversRef = storageReference.child("images/Restaurants" + "." + extension +" "+ resName);
+            StorageReference riversRef = storageReference.child("images/Restaurants" + "." + extension + " " + resName);
 
             riversRef.putFile(fileUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
@@ -474,7 +472,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     Log.d("Image", "on Success");
 
                     Task<Uri> urlTask = taskSnapshot.getStorage().getDownloadUrl();
-                    while (!urlTask.isSuccessful());
+                    while (!urlTask.isSuccessful()) ;
                     Uri downloadUrl = urlTask.getResult();
 
                     sdownload_url = String.valueOf(downloadUrl);
@@ -484,8 +482,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     builder.dismiss();
                 }
             });
-        }
-        else {
+        } else {
             Snackbar.make(findViewById(android.R.id.content), "Image not found!", Snackbar.LENGTH_LONG).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).show();
         }
     }
@@ -507,25 +504,27 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
     }
 
-    private void validateRes(String resName){
+    private void validateRes(String resName) {
         firebaseFirestore.collection("Restaurants").document(resName).get()
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        if (documentSnapshot.exists()){
+                        if (documentSnapshot.exists()) {
                             String approved = documentSnapshot.getString("approved");
                             String status = documentSnapshot.getString("status");
 
-                            statusSwitch.setChecked(status != null && status.equals("online"));
+                            if (status != null && status.equals("online")) {
+                                statusSwitch.setChecked(true, true);
+                            }
 
-                            if (Objects.equals(approved, "yes")){
+                            if (Objects.equals(approved, "yes")) {
 
                                 final boolean firstTime;
 
                                 SharedPreferences preferences = getApplicationContext().getSharedPreferences("USER_PREF", Context.MODE_PRIVATE);
                                 firstTime = preferences.getBoolean("firstTime", true);
 
-                                if (firstTime){
+                                if (firstTime) {
                                     AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
                                     alertDialog.setTitle("Congrats");
                                     alertDialog.setMessage("Your restaurant was approved. Now you can add your products by clicking on the upper right corner button.");
@@ -547,14 +546,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                     });
                                     alertDialog.setCancelable(false);
                                     alertDialog.show();
-                                }
-                                else {
+                                } else {
                                     loadRestaurant(resName);
                                 }
 
 
-                            }
-                            else {
+                            } else {
                                 AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
                                 alertDialog.setTitle("Oops");
                                 alertDialog.setMessage("Your restaurant was not approved yet. Please wait for the approval.");
@@ -572,21 +569,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).show();
-            }
-        });
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).show();
+                    }
+                });
     }
 
-    private void loadRestaurant(String resName){
+    private void loadRestaurant(String resName) {
 
         firebaseFirestore.collection("Restaurants").document(resName).collection("Items")
                 .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
 
-                if (task.isSuccessful()){
+                if (task.isSuccessful()) {
                     boolean isEmpty = task.getResult().isEmpty();
 
                     if (!isEmpty) {
@@ -602,6 +599,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                 String available = documentSnapshot.getString("available");
                                 String from = documentSnapshot.getString("from");
                                 String to = documentSnapshot.getString("to");
+                                String description = documentSnapshot.getString("description");
 
                                 Log.d("TAG", itemName + " " + imageUri + " " + price + " " + available + " " + from + " " + to);
 
@@ -614,6 +612,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                 if (!TextUtils.isEmpty(from) || !TextUtils.isEmpty(to)) {
                                     itemsModelClass.setSchedule(from + " " + "to" + " " + to);
                                 }
+                                itemsModelClass.setDescription(description);
 
                                 items.add(itemsModelClass);
                             }
@@ -621,8 +620,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         rvItems.setAdapter(adapter);
                         layoutOrder.setRefreshing(false);
                         initSwipe(itemName);
-                    }
-                    else {
+                    } else {
                         Snackbar.make(findViewById(android.R.id.content), "No data found!", Snackbar.LENGTH_LONG).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).show();
                     }
                 }
@@ -642,6 +640,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
                 return false;
             }
+
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
                 int position = viewHolder.getAdapterPosition();
@@ -675,8 +674,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         }
                     }).show();
                     adapter.notifyDataSetChanged();
-                }
-                else {
+                } else {
 
                     Intent intent = new Intent(MainActivity.this, ItemProperties.class);
                     intent.putExtra("restaurant", resName);
@@ -700,23 +698,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         p.setColor(Color.parseColor("#388E3C"));
                         RectF background = new RectF((float) itemView.getLeft(), (float) itemView.getTop(), dX, (float) itemView.getBottom());
                         c.drawRect(background, p);
-                        Drawable drawable = ContextCompat.getDrawable(MainActivity.this,R.drawable.swipe_edit);
+                        Drawable drawable = ContextCompat.getDrawable(MainActivity.this, R.drawable.swipe_edit);
                         icon = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
                         Canvas canvas = new Canvas(icon);
                         drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
                         drawable.draw(canvas);
-                        c.drawBitmap(icon, (float) ( itemView.getLeft() + 1.2 * width), (float) ( itemView.getTop() + 1.1 * width), p);
-                    }
-                    else {
+                        c.drawBitmap(icon, (float) (itemView.getLeft() + 1.2 * width), (float) (itemView.getTop() + 1.1 * width), p);
+                    } else {
                         p.setColor(Color.parseColor("#D32F2F"));
                         RectF background = new RectF((float) itemView.getRight() + dX, (float) itemView.getTop(), (float) itemView.getRight(), (float) itemView.getBottom());
                         c.drawRect(background, p);
-                        Drawable drawable = ContextCompat.getDrawable(MainActivity.this,R.drawable.swipe_delete);
+                        Drawable drawable = ContextCompat.getDrawable(MainActivity.this, R.drawable.swipe_delete);
                         icon = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
                         Canvas canvas = new Canvas(icon);
                         drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
                         drawable.draw(canvas);
-                        c.drawBitmap(icon, (float) ( itemView.getRight() - 1.5 * width), (float) ( itemView.getTop() + 1.1 * width), p);
+                        c.drawBitmap(icon, (float) (itemView.getRight() - 1.5 * width), (float) (itemView.getTop() + 1.1 * width), p);
                     }
                 }
                 super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
@@ -736,7 +733,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == 1002 || resultCode == RESULT_OK && data!= null && data.getData() != null) {
+        if (requestCode == 1002 || resultCode == RESULT_OK && data != null && data.getData() != null) {
             //Image Uri will not be null for RESULT_OK
             fileUri = data.getData();
             Glide.with(this).load(fileUri).placeholder(ContextCompat.getDrawable(this, R.drawable.food_placeholder)).fitCenter().into(ivResImage);
@@ -748,38 +745,33 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 //
 //            //You can also get File Path from intent
 //            String filePath = ImagePicker.getFilePath(data);
-        }
-        else if (resultCode == ImagePicker.RESULT_ERROR) {
-            Toast.makeText(this, ""+ImagePicker.RESULT_ERROR, Toast.LENGTH_SHORT).show();
-        }
-        else {
+        } else if (resultCode == ImagePicker.RESULT_ERROR) {
+            Toast.makeText(this, "" + ImagePicker.RESULT_ERROR, Toast.LENGTH_SHORT).show();
+        } else {
             Toast.makeText(this, "Task Cancelled", Toast.LENGTH_SHORT).show();
         }
     }
 
-    public void headerTextView(){
+    public void headerTextView() {
         if (firebaseAuth != null) {
             DocumentReference documentReference = firebaseFirestore.collection("Users").document(firebaseAuth.getCurrentUser().getUid());
             documentReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                    if (task.isSuccessful()){
+                    if (task.isSuccessful()) {
                         DocumentSnapshot documentSnapshot = task.getResult();
-                        if (documentSnapshot.exists()){
-                            if (documentSnapshot.getString("firstName") != null && documentSnapshot.getString("lastName") != null){
+                        if (documentSnapshot.exists()) {
+                            if (documentSnapshot.getString("firstName") != null && documentSnapshot.getString("lastName") != null) {
                                 String fuser_Name = documentSnapshot.getString("firstName");
                                 String luser_Name = documentSnapshot.getString("lastName");
-                                tvUserName.setText(fuser_Name +" "+luser_Name);
-                            }
-                            else {
+                                tvUserName.setText(fuser_Name + " " + luser_Name);
+                            } else {
                                 Log.d("TAG", "No data found!");
                             }
-                        }
-                        else {
+                        } else {
                             Toast.makeText(MainActivity.this, "No data found!", Toast.LENGTH_SHORT).show();
                         }
-                    }
-                    else {
+                    } else {
                         Log.d("TAG", task.getException().getMessage());
                     }
                 }
@@ -788,28 +780,25 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
-    public void headerImage(){
+    public void headerImage() {
         if (firebaseAuth != null) {
             DocumentReference documentReference = firebaseFirestore.collection("Users").document(firebaseAuth.getUid());
             documentReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                    if (task.isSuccessful()){
+                    if (task.isSuccessful()) {
                         DocumentSnapshot documentSnapshot = task.getResult();
-                        if (documentSnapshot.exists()){
-                            if (documentSnapshot.getString("ResImageProfile") != null){
+                        if (documentSnapshot.exists()) {
+                            if (documentSnapshot.getString("ResImageProfile") != null) {
                                 String imageUri = documentSnapshot.getString("ResImageProfile");
                                 Glide.with(MainActivity.this).load(imageUri).placeholder(ContextCompat.getDrawable(getApplicationContext(), R.drawable.user)).into(ivProfileImage);
-                            }
-                            else {
+                            } else {
                                 Log.d("TAG", "Not found!");
                             }
-                        }
-                        else {
+                        } else {
                             Log.d("TAG", "No data found!");
                         }
-                    }
-                    else {
+                    } else {
                         Log.d("TAG", task.getException().getMessage());
                     }
                 }
@@ -826,7 +815,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.addItem){
+        if (item.getItemId() == R.id.addItem) {
             Intent intent = new Intent(MainActivity.this, AddItem.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             intent.putExtra("resName", resName);
@@ -839,13 +828,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
 
-        if (item.getItemId() == R.id.pendingOrders){
+        if (item.getItemId() == R.id.pendingOrders) {
             Intent intent = new Intent(MainActivity.this, Orders.class);
             intent.putExtra("resName", resName);
             startActivity(intent);
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-        }
-        else if (item.getItemId() == R.id.deliveredOrders){
+        } else if (item.getItemId() == R.id.deliveredOrders) {
             Intent intent = new Intent(MainActivity.this, CompletedOrders.class);
             intent.putExtra("resName", resName);
             startActivity(intent);

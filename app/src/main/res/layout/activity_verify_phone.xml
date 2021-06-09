@@ -22,7 +22,7 @@
         android:textSize="16sp"/>
 
     <TextView
-        android:id="@+id/please"
+        android:id="@+id/phonePlace"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/welcome"
@@ -42,7 +42,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="40dp"
         android:layout_centerHorizontal="true"
-        android:layout_below="@+id/please"
+        android:layout_below="@+id/phonePlace"
         style="@style/PinWidget.PinView"
         android:cursorVisible="true"
         android:inputType="text"
@@ -58,7 +58,7 @@
         app:itemRadius="5dp"
         app:itemSpacing="8dp"
         app:itemWidth="40dp"
-        app:lineWidth="0dp"
+        app:lineWidth="-1dp"
         app:viewType="rectangle" />
 
     <Button

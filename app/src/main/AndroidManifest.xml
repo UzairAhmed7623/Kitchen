@@ -19,16 +19,17 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Kitchen">
-        <activity android:name=".VerifyPhone">
-
+        <activity android:name=".RequestLocation" />
+        <activity android:name=".Verified" />
+        <activity android:name=".VerifyPhone" />
+        <activity android:name=".Splash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
         </activity>
-        <activity android:name=".Splash" />
+
         <activity
             android:name=".ChatActivity"
             android:parentActivityName=".MainActivity" />
@@ -79,11 +80,7 @@
         <activity
             android:name=".ItemProperties"
             android:parentActivityName=".MainActivity" />
-        <activity android:name=".Login">
-
-
-
-        </activity>
+        <activity android:name=".Login" />
         <activity android:name=".MainActivity" />
     </application>
 
