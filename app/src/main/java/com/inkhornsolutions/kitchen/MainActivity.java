@@ -6,19 +6,13 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.RectF;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,9 +36,7 @@ import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.recyclerview.widget.ItemTouchHelper;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager.widget.ViewPager;
 
 import com.bitvale.switcher.SwitcherX;
 import com.bumptech.glide.Glide;
@@ -65,8 +57,11 @@ import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.inkhornsolutions.kitchen.adapters.MainActivityAdapter;
-import com.inkhornsolutions.kitchen.modelclasses.ItemsModelClass;
+import com.inkhornsolutions.kitchen.Fragments.InProgress;
+import com.inkhornsolutions.kitchen.Fragments.RecentOrders;
+import com.ogaclejapan.smarttablayout.SmartTabLayout;
+import com.ogaclejapan.smarttablayout.utils.v4.FragmentPagerItemAdapter;
+import com.ogaclejapan.smarttablayout.utils.v4.FragmentPagerItems;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -74,7 +69,6 @@ import java.util.List;
 import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
-import jp.co.recruit_lifestyle.android.widget.WaveSwipeRefreshLayout;
 import kotlin.Unit;
 import kotlin.jvm.functions.Function1;
 
@@ -84,8 +78,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private FirebaseFirestore firebaseFirestore;
     private FirebaseStorage firebaseStorage;
     private StorageReference storageReference;
-    private final ArrayList<ItemsModelClass> items = new ArrayList<>();
-    private RecyclerView rvItems;
     private Toolbar toolbar;
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
@@ -103,9 +95,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private Uri fileUri;
     private String sdownload_url = "";
     private ImageView ivResImage;
-    private MainActivityAdapter adapter;
-    private final Paint p = new Paint();
-    private WaveSwipeRefreshLayout layoutOrder;
     private ImageButton ibChat;
 
     @Override
@@ -125,15 +114,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         tvOnline = (TextView) findViewById(R.id.tvOnline);
         tvOffline = (TextView) findViewById(R.id.tvOffline);
         statusSwitch = (SwitcherX) findViewById(R.id.statusSwitch);
-        layoutOrder = (WaveSwipeRefreshLayout) findViewById(R.id.layoutOrder);
         ibChat = (ImageButton) findViewById(R.id.ibChat);
 
-        layoutOrder.setColorSchemeColors(Color.WHITE, Color.WHITE);
-        layoutOrder.setWaveColor(getColor(R.color.myColor));
-        layoutOrder.setMaxDropHeight(750);
-        layoutOrder.setMinimumHeight(750);
 //        layoutOrder.setWaveColor(0xFF000000+new Random().nextInt(0xFFFFFF)); // Random color assign
 
+        FragmentPagerItemAdapter adapter = new FragmentPagerItemAdapter(
+                getSupportFragmentManager(), FragmentPagerItems.with(this)
+                .add("Recent Items", RecentOrders.class)
+                .add("In Progress", InProgress.class)
+                .create());
+
+        ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
+        viewPager.setAdapter(adapter);
+
+        SmartTabLayout viewPagerTab = (SmartTabLayout) findViewById(R.id.viewpagertab);
+        viewPagerTab.setViewPager(viewPager);
 
         statusSwitch.setOnCheckedChangeListener(new Function1<Boolean, Unit>() {
             @Override
@@ -186,7 +181,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         toggle.syncState();
         navigationView.setNavigationItemSelectedListener(MainActivity.this);
         navigationView.setCheckedItem(R.id.navView);
-
+        toggle.setToolbarNavigationClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (drawerLayout.isDrawerVisible(GravityCompat.START)) {
+                    drawerLayout.closeDrawer(GravityCompat.START);
+                } else {
+                    drawerLayout.openDrawer(GravityCompat.START);
+                }
+            }
+        });
 
         tvUserName = (TextView) header_View.findViewById(R.id.tvUserName);
         headerTextView();
@@ -203,10 +207,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
             }
         });
-
-        rvItems = (RecyclerView) findViewById(R.id.rvItems);
-        rvItems.setLayoutManager(new LinearLayoutManager(MainActivity.this));
-        adapter = new MainActivityAdapter(this, items);
 
         builder = new Dialog(this);
 
@@ -252,14 +252,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else {
             validateRes(resName);
         }
-
-        layoutOrder.setOnRefreshListener(new WaveSwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-
-                loadRestaurant(resName);
-            }
-        });
 
         ibChat.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -578,149 +570,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void loadRestaurant(String resName) {
 
-        firebaseFirestore.collection("Restaurants").document(resName).collection("Items")
-                .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-
-                if (task.isSuccessful()) {
-                    boolean isEmpty = task.getResult().isEmpty();
-
-                    if (!isEmpty) {
-
-                        items.clear();
-
-                        String itemName = null;
-                        for (QueryDocumentSnapshot documentSnapshot : task.getResult()) {
-                            if (documentSnapshot.exists()) {
-                                itemName = documentSnapshot.getId();
-                                String imageUri = documentSnapshot.getString("imageUri");
-                                String price = documentSnapshot.getString("price");
-                                String available = documentSnapshot.getString("available");
-                                String from = documentSnapshot.getString("from");
-                                String to = documentSnapshot.getString("to");
-                                String description = documentSnapshot.getString("description");
-
-                                Log.d("TAG", itemName + " " + imageUri + " " + price + " " + available + " " + from + " " + to);
-
-                                ItemsModelClass itemsModelClass = new ItemsModelClass();
-                                itemsModelClass.setResName(resName);
-                                itemsModelClass.setItemName(itemName);
-                                itemsModelClass.setImage(imageUri);
-                                itemsModelClass.setPrice(price);
-                                itemsModelClass.setAvailability(available);
-                                if (!TextUtils.isEmpty(from) || !TextUtils.isEmpty(to)) {
-                                    itemsModelClass.setSchedule(from + " " + "to" + " " + to);
-                                }
-                                itemsModelClass.setDescription(description);
-
-                                items.add(itemsModelClass);
-                            }
-                        }
-                        rvItems.setAdapter(adapter);
-                        layoutOrder.setRefreshing(false);
-                        initSwipe(itemName);
-                    } else {
-                        Snackbar.make(findViewById(android.R.id.content), "No data found!", Snackbar.LENGTH_LONG).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).show();
-                    }
-                }
-
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).show();
-            }
-        });
-    }
-
-    private void initSwipe(String itemName) {
-        ItemTouchHelper.SimpleCallback itemTouchCallBack = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
-            @Override
-            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
-                return false;
-            }
-
-            @Override
-            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-                int position = viewHolder.getAdapterPosition();
-
-                if (direction == ItemTouchHelper.LEFT) {
-
-                    AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
-                    dialog.setTitle("Confirm");
-                    dialog.setMessage("Do you want to delete this item?");
-                    dialog.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-
-                            firebaseFirestore.collection("Restaurants").document(resName).collection("Items").document(itemName)
-                                    .delete().addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    Snackbar.make(findViewById(android.R.id.content), "Deleted Successfully!", Snackbar.LENGTH_LONG).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).show();
-
-                                    items.remove(position);
-                                    adapter.notifyDataSetChanged();
-                                    dialog.dismiss();
-                                }
-                            });
-                        }
-                    }).setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
-                            adapter.notifyDataSetChanged();
-                        }
-                    }).show();
-                    adapter.notifyDataSetChanged();
-                } else {
-
-                    Intent intent = new Intent(MainActivity.this, ItemProperties.class);
-                    intent.putExtra("restaurant", resName);
-                    intent.putExtra("itemName", itemName);
-                    startActivity(intent);
-
-                    adapter.notifyDataSetChanged();
-                }
-            }
-
-            @Override
-            public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
-                Bitmap icon;
-                if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
-
-                    View itemView = viewHolder.itemView;
-                    float height = (float) itemView.getBottom() - (float) itemView.getTop();
-                    float width = height / 3;
-
-                    if (dX > 0) {
-                        p.setColor(Color.parseColor("#388E3C"));
-                        RectF background = new RectF((float) itemView.getLeft(), (float) itemView.getTop(), dX, (float) itemView.getBottom());
-                        c.drawRect(background, p);
-                        Drawable drawable = ContextCompat.getDrawable(MainActivity.this, R.drawable.swipe_edit);
-                        icon = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
-                        Canvas canvas = new Canvas(icon);
-                        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
-                        drawable.draw(canvas);
-                        c.drawBitmap(icon, (float) (itemView.getLeft() + 1.2 * width), (float) (itemView.getTop() + 1.1 * width), p);
-                    } else {
-                        p.setColor(Color.parseColor("#D32F2F"));
-                        RectF background = new RectF((float) itemView.getRight() + dX, (float) itemView.getTop(), (float) itemView.getRight(), (float) itemView.getBottom());
-                        c.drawRect(background, p);
-                        Drawable drawable = ContextCompat.getDrawable(MainActivity.this, R.drawable.swipe_delete);
-                        icon = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
-                        Canvas canvas = new Canvas(icon);
-                        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
-                        drawable.draw(canvas);
-                        c.drawBitmap(icon, (float) (itemView.getRight() - 1.5 * width), (float) (itemView.getTop() + 1.1 * width), p);
-                    }
-                }
-                super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
-            }
-        };
-        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(itemTouchCallBack);
-        itemTouchHelper.attachToRecyclerView(rvItems);
+        Bundle bundle = new Bundle();
+        bundle.putString("resName", resName);
+//        set Fragmentclass Arguments
+        RecentOrders recentOrders = new RecentOrders();
+        recentOrders.setArguments(bundle);
     }
 
     private void removeView() {
@@ -808,33 +662,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.add_item, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.addItem) {
-            Intent intent = new Intent(MainActivity.this, AddItem.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            intent.putExtra("resName", resName);
-            startActivity(intent);
-            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-        }
-        return true;
-    }
-
-    @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
 
-        if (item.getItemId() == R.id.pendingOrders) {
-            Intent intent = new Intent(MainActivity.this, Orders.class);
-            intent.putExtra("resName", resName);
-            startActivity(intent);
-            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-        } else if (item.getItemId() == R.id.deliveredOrders) {
-            Intent intent = new Intent(MainActivity.this, CompletedOrders.class);
+        if (item.getItemId() == R.id.YourItems) {
+            Intent intent = new Intent(MainActivity.this, Items.class);
             intent.putExtra("resName", resName);
             startActivity(intent);
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);

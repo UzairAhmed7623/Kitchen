@@ -26,11 +26,18 @@
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="80dp"
+            app:buttonGravity="bottom"
+            android:gravity="bottom"
+            app:titleMarginBottom="15dp"
+            app:titleTextAppearance="@style/TextAppearance.AppCompat.Medium"
             android:background="@drawable/add_details_back"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.0"
             app:titleTextColor="@android:color/white" />
 
         <RelativeLayout
@@ -38,9 +45,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:padding="10dp"
             android:background="#ebebeb"
-            app:layout_constraintTop_toBottomOf="@+id/toolbar">
+            android:padding="10dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/toolbar"
+            app:layout_constraintVertical_bias="0.0">
 
             <TextView
                 android:id="@+id/tvOnline"
@@ -49,10 +61,10 @@
                 android:layout_centerVertical="true"
                 android:layout_marginStart="10dp"
                 android:fontFamily="@font/montserra_regular_bold"
-                android:textSize="14sp"
                 android:letterSpacing="0.05"
                 android:text="Online"
                 android:textColor="@color/black"
+                android:textSize="14sp"
                 android:textStyle="bold"
                 android:visibility="gone" />
 
@@ -63,10 +75,10 @@
                 android:layout_centerVertical="true"
                 android:layout_marginStart="10dp"
                 android:fontFamily="@font/montserra_regular_bold"
+                android:letterSpacing="0.05"
                 android:text="Offline"
                 android:textColor="@color/black"
                 android:textSize="14sp"
-                android:letterSpacing="0.05"
                 android:textStyle="bold"
                 android:visibility="visible" />
 
@@ -76,31 +88,60 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
                 android:layout_marginEnd="10dp"
-                app:elevation="4dp"
                 android:checked="false"
+                app:elevation="4dp"
                 app:switcher_icon_color="@color/white"
                 app:switcher_off_color="@color/grey_40"
                 app:switcher_on_color="@color/myColor" />
 
         </RelativeLayout>
 
-        <jp.co.recruit_lifestyle.android.widget.WaveSwipeRefreshLayout
-            android:id="@+id/layoutOrder"
+        <com.ogaclejapan.smarttablayout.SmartTabLayout
+            android:id="@+id/viewpagertab"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="10dp"
+            android:background="@color/myColor"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/layout"
+            app:layout_constraintVertical_bias="0.0"
+            app:stl_clickable="true"
+            app:stl_defaultTabBackground="?attr/selectableItemBackground"
+            app:stl_defaultTabTextAllCaps="false"
+            app:stl_defaultTabTextColor="@color/white"
+            app:stl_defaultTabTextHorizontalPadding="14dp"
+            app:stl_defaultTabTextMinWidth="0dp"
+            app:stl_defaultTabTextSize="14sp"
+            app:stl_distributeEvenly="true"
+            app:stl_dividerColor="#4D000000"
+            app:stl_dividerThickness="1dp"
+            app:stl_drawDecorationAfterTab="false"
+            app:stl_indicatorAlwaysInCenter="false"
+            app:stl_indicatorColor="@color/white"
+            app:stl_indicatorCornerRadius="2dp"
+            app:stl_indicatorGravity="bottom"
+            app:stl_indicatorInFront="false"
+            app:stl_indicatorInterpolation="smart"
+            app:stl_indicatorThickness="4dp"
+            app:stl_indicatorWidth="110dp"
+            app:stl_indicatorWithoutPadding="false"
+            app:stl_overlineColor="@color/myColor"
+            app:stl_overlineThickness="0dp"
+            app:stl_titleOffset="2dp"
+            app:stl_underlineColor="@color/myColor"
+            app:stl_underlineThickness="1dp" />
+
+        <androidx.viewpager.widget.ViewPager
+            android:id="@+id/viewpager"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:orientation="vertical"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/layout">
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvItems"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@color/activity_back"/>
-
-        </jp.co.recruit_lifestyle.android.widget.WaveSwipeRefreshLayout>
+            app:layout_constraintTop_toBottomOf="@+id/viewpagertab" />
 
         <ImageButton
             android:id="@+id/ibChat"

@@ -29,7 +29,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".ChatActivity"
             android:parentActivityName=".MainActivity" />
@@ -72,14 +71,14 @@
         </service>
 
         <activity
-            android:name=".Orders"
+            android:name=".Items"
             android:parentActivityName=".MainActivity" />
         <activity
             android:name=".AddItem"
-            android:parentActivityName=".MainActivity" />
+            android:parentActivityName=".Items" />
         <activity
             android:name=".ItemProperties"
-            android:parentActivityName=".MainActivity" />
+            android:parentActivityName=".Items" />
         <activity android:name=".Login" />
         <activity android:name=".MainActivity" />
     </application>

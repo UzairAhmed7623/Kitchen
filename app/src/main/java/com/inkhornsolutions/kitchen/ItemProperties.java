@@ -1019,7 +1019,7 @@ public class ItemProperties extends AppCompatActivity {
             @Override
             public void run() {
 
-                Intent intent = new Intent(ItemProperties.this, MainActivity.class);
+                Intent intent = new Intent(ItemProperties.this, Items.class);
                 intent.putExtra("resName", resName);
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);

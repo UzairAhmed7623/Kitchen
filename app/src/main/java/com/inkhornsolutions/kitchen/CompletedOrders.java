@@ -8,9 +8,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -21,7 +19,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.inkhornsolutions.kitchen.adapters.CompletedOrdersAdapter;
-import com.inkhornsolutions.kitchen.adapters.OrdersAdapter;
 import com.inkhornsolutions.kitchen.modelclasses.OrdersModelClass;
 
 import java.util.ArrayList;

@@ -31,6 +31,7 @@ import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthOptions;
 import com.google.firebase.auth.PhoneAuthProvider;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -126,7 +127,7 @@ public class VerifyPhone extends AppCompatActivity {
                             ph.put("phoneNumber", Objects.requireNonNull(firebaseAuth.getCurrentUser()).getPhoneNumber());
 
                             firebaseFirestore.collection("Users").document(firebaseAuth.getCurrentUser().getUid())
-                                    .set(ph)
+                                    .set(ph, SetOptions.merge())
                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
                                         public void onSuccess(Void unused) {

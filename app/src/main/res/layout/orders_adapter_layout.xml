@@ -107,7 +107,8 @@
                             android:text="Accept"
                             android:textColor="@color/white"
                             android:layout_alignParentStart="true"
-                            android:layout_marginStart="25dp"/>
+                            android:layout_marginStart="25dp"
+                            android:backgroundTint="@color/myColor"/>
 
                         <Button
                             android:id="@+id/btnReject"
@@ -117,7 +118,8 @@
                             android:text="Reject"
                             android:textColor="@color/white"
                             android:layout_alignParentEnd="true"
-                            android:layout_marginEnd="25dp"/>
+                            android:layout_marginEnd="25dp"
+                            android:backgroundTint="@color/myColor"/>
 
                     </RelativeLayout>
 

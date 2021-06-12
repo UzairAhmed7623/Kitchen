@@ -384,7 +384,7 @@ public class RequestDriverActivity extends FragmentActivity implements OnMapRead
     @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
     public void onDriverCompleteTrip(DriverCompleteTripEvent event){
 
-        Intent intent = new Intent(RequestDriverActivity.this, Orders.class);
+        Intent intent = new Intent(RequestDriverActivity.this, Items.class);
 
         Common.showNotification(this, new Random().nextInt(),
                 "Complete trip",

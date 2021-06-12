@@ -3,11 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/pendingOrders"
-        android:title="Orders" />
-
-    <item
-        android:id="@+id/deliveredOrders"
-        android:title="Delivered Orders" />
+        android:id="@+id/YourItems"
+        android:title="Your Items" />
 
 </menu>

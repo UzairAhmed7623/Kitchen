@@ -1,16 +1,19 @@
-package com.inkhornsolutions.kitchen;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+package com.inkhornsolutions.kitchen.Fragments;
 
 import android.graphics.Color;
 import android.os.Bundle;
 
-import com.inkhornsolutions.kitchen.adapters.OrdersAdapter;
-import com.inkhornsolutions.kitchen.modelclasses.OrdersModelClass;
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Toast;
+
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -19,6 +22,12 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.inkhornsolutions.kitchen.R;
+import com.inkhornsolutions.kitchen.adapters.OrdersAdapter;
+import com.inkhornsolutions.kitchen.adapters.MainActivityAdapter;
+import com.inkhornsolutions.kitchen.modelclasses.OrdersModelClass;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,52 +36,66 @@ import java.util.Objects;
 
 import jp.co.recruit_lifestyle.android.widget.WaveSwipeRefreshLayout;
 
-public class Orders extends AppCompatActivity {
+public class RecentOrders extends Fragment {
 
-    private Toolbar toolbarOrders;
-    private RecyclerView rvOrders;
-    private List<OrdersModelClass> Orders = new ArrayList<>();
     private FirebaseAuth firebaseAuth;
     private FirebaseFirestore firebaseFirestore;
-    OrdersModelClass ordersModelClass;
-    WaveSwipeRefreshLayout layoutOrder;
+    private FirebaseStorage firebaseStorage;
+    private StorageReference storageReference;
+    private WaveSwipeRefreshLayout layoutOrderFrag;
+    private RecyclerView rvOrdersFrag;
+    private MainActivityAdapter adapter;
+    private String resName;
+    private List<OrdersModelClass> Orders = new ArrayList<>();
+    private OrdersModelClass ordersModelClass;
+
+    public RecentOrders() {
+        // Required empty public constructor
+    }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_orders);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+
+        View view = inflater.inflate(R.layout.fragment_recent_orders, container, false);
 
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseFirestore = FirebaseFirestore.getInstance();
+        firebaseStorage = FirebaseStorage.getInstance();
+        storageReference = firebaseStorage.getReference();
 
-        toolbarOrders = (Toolbar) findViewById(R.id.toolbarOrders);
-        setSupportActionBar(toolbarOrders);
-        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+        layoutOrderFrag = (WaveSwipeRefreshLayout) view.findViewById(R.id.layoutOrderFrag);
+        layoutOrderFrag.setColorSchemeColors(Color.WHITE, Color.WHITE);
+        layoutOrderFrag.setWaveColor(getContext().getColor(R.color.myColor));
+        layoutOrderFrag.setMaxDropHeight(750);
+        layoutOrderFrag.setMinimumHeight(750);
 
-        String resName = getIntent().getStringExtra("resName");
+        resName = this.getArguments().getString("resName");
 
-        layoutOrder = (WaveSwipeRefreshLayout) findViewById(R.id.layoutOrder);
+        rvOrdersFrag = (RecyclerView) view.findViewById(R.id.rvOrdersFrag);
+        rvOrdersFrag.setLayoutManager(new LinearLayoutManager(view.getContext()));
+        adapter = new MainActivityAdapter(getActivity(), Orders);
+        rvOrdersFrag.setAdapter(adapter);
 
-        rvOrders = (RecyclerView) findViewById(R.id.rvOrders);
-        rvOrders.setLayoutManager(new LinearLayoutManager(this));
 
-        OrdersList(resName);
+        OrdersList("Soban Fish");
 
-        layoutOrder.setColorSchemeColors(Color.WHITE, Color.WHITE);
-        layoutOrder.setWaveColor(getColor(R.color.myColor));
-        layoutOrder.setMaxDropHeight(750);
-        layoutOrder.setMinimumHeight(750);
-//        layoutOrder.setWaveColor(0xFF000000+new Random().nextInt(0xFFFFFF)); // Random color assign
+        Toast.makeText(getActivity(), "resName"+resName, Toast.LENGTH_SHORT).show();
 
-        layoutOrder.setOnRefreshListener(new WaveSwipeRefreshLayout.OnRefreshListener() {
+        layoutOrderFrag.setOnRefreshListener(new WaveSwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
 
-                OrdersList(resName);
+                OrdersList("Soban Fish");
             }
         });
+
+        return view;
     }
+
     private void OrdersList(String resName) {
+
+        Toast.makeText(getActivity(), "resName1"+resName, Toast.LENGTH_SHORT).show();
+
         firebaseFirestore.collection("Users").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
             @Override
             public void onSuccess(QuerySnapshot value) {
@@ -85,7 +108,7 @@ public class Orders extends AppCompatActivity {
 
                         firebaseFirestore.collection("Users").document(id).collection("Cart")
                                 .whereIn("status", Arrays.asList("Pending","In progress"))
-                                .whereEqualTo("restaurant name", resName)
+                                .whereEqualTo("restaurantName", resName)
                                 .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                             @Override
                             public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -95,7 +118,7 @@ public class Orders extends AppCompatActivity {
                                         String resId = documentSnapshot.getId();
                                         String orderId = documentSnapshot.getString("ID");
                                         String time = documentSnapshot.getString("Time");
-                                        String resName = documentSnapshot.getString("restaurant name");
+                                        String resName = documentSnapshot.getString("restaurantName");
                                         String status = documentSnapshot.getString("status");
                                         String total = documentSnapshot.getString("total");
                                         Double lat = documentSnapshot.getDouble("latlng.latitude");
@@ -113,22 +136,19 @@ public class Orders extends AppCompatActivity {
                                         ordersModelClass.setOrderId(orderId);
 
                                         Orders.add(ordersModelClass);
-
-
                                     }
                                     else {
-                                        Snackbar.make(getParent().findViewById(android.R.id.content), "Data not found!", Snackbar.LENGTH_LONG).show();
+                                        Snackbar.make(getActivity().findViewById(android.R.id.content), "Data not found!", Snackbar.LENGTH_LONG).show();
                                     }
                                 }
-
-                                rvOrders.setAdapter(new OrdersAdapter(Orders.this, Orders));
                             }
                         });
                     }
                 }
-                layoutOrder.setRefreshing(false);
+                layoutOrderFrag.setRefreshing(false);
             }
 
         });
     }
+
 }
