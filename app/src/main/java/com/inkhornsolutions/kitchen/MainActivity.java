@@ -96,6 +96,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private String sdownload_url = "";
     private ImageView ivResImage;
     private ImageButton ibChat;
+    private TextView tvResName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,20 +116,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         tvOffline = (TextView) findViewById(R.id.tvOffline);
         statusSwitch = (SwitcherX) findViewById(R.id.statusSwitch);
         ibChat = (ImageButton) findViewById(R.id.ibChat);
+        tvResName = (TextView) findViewById(R.id.tvResName);
 
 //        layoutOrder.setWaveColor(0xFF000000+new Random().nextInt(0xFFFFFF)); // Random color assign
 
-        FragmentPagerItemAdapter adapter = new FragmentPagerItemAdapter(
-                getSupportFragmentManager(), FragmentPagerItems.with(this)
-                .add("Recent Items", RecentOrders.class)
-                .add("In Progress", InProgress.class)
-                .create());
 
-        ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
-        viewPager.setAdapter(adapter);
-
-        SmartTabLayout viewPagerTab = (SmartTabLayout) findViewById(R.id.viewpagertab);
-        viewPagerTab.setViewPager(viewPager);
 
         statusSwitch.setOnCheckedChangeListener(new Function1<Boolean, Unit>() {
             @Override
@@ -251,6 +243,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             dialog();
         } else {
             validateRes(resName);
+            tvResName.setText(resName);
         }
 
         ibChat.setOnClickListener(new View.OnClickListener() {
@@ -570,11 +563,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void loadRestaurant(String resName) {
 
-        Bundle bundle = new Bundle();
-        bundle.putString("resName", resName);
-//        set Fragmentclass Arguments
-        RecentOrders recentOrders = new RecentOrders();
-        recentOrders.setArguments(bundle);
+        FragmentPagerItemAdapter adapter = new FragmentPagerItemAdapter(
+                getSupportFragmentManager(), FragmentPagerItems.with(this)
+                .add("Recent Orders", RecentOrders.class)
+                .add("In Progress", InProgress.class)
+                .create());
+
+        ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
+        viewPager.setAdapter(adapter);
+
+        SmartTabLayout viewPagerTab = (SmartTabLayout) findViewById(R.id.viewpagertab);
+        viewPagerTab.setViewPager(viewPager);
+    }
+
+    public String sendData(){
+        return resName;
     }
 
     private void removeView() {

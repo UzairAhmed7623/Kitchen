@@ -12,8 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="8dp"
-        android:background="@drawable/orders_item_shape">
+        android:padding="8dp">
 
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"

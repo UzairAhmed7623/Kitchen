@@ -1,5 +1,6 @@
 package com.inkhornsolutions.kitchen.Fragments;
 
+import android.app.ProgressDialog;
 import android.graphics.Color;
 import android.os.Bundle;
 
@@ -8,7 +9,6 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,15 +24,14 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.inkhornsolutions.kitchen.MainActivity;
 import com.inkhornsolutions.kitchen.R;
-import com.inkhornsolutions.kitchen.adapters.OrdersAdapter;
-import com.inkhornsolutions.kitchen.adapters.MainActivityAdapter;
+import com.inkhornsolutions.kitchen.adapters.RecentOrdersAdapter;
 import com.inkhornsolutions.kitchen.modelclasses.OrdersModelClass;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 import jp.co.recruit_lifestyle.android.widget.WaveSwipeRefreshLayout;
 
@@ -44,19 +43,24 @@ public class RecentOrders extends Fragment {
     private StorageReference storageReference;
     private WaveSwipeRefreshLayout layoutOrderFrag;
     private RecyclerView rvOrdersFrag;
-    private MainActivityAdapter adapter;
+    private RecentOrdersAdapter adapter;
     private String resName;
-    private List<OrdersModelClass> Orders = new ArrayList<>();
-    private OrdersModelClass ordersModelClass;
+    private ArrayList<OrdersModelClass> Orders = new ArrayList<>();
+    private ProgressDialog progressDialog;
 
     public RecentOrders() {
         // Required empty public constructor
+    }
+
+    public static RecentOrders newInstance(){
+        return new RecentOrders();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_recent_orders, container, false);
+        rvOrdersFrag = (RecyclerView) view.findViewById(R.id.rvOrdersFrag);
 
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseFirestore = FirebaseFirestore.getInstance();
@@ -69,32 +73,37 @@ public class RecentOrders extends Fragment {
         layoutOrderFrag.setMaxDropHeight(750);
         layoutOrderFrag.setMinimumHeight(750);
 
-        resName = this.getArguments().getString("resName");
-
-        rvOrdersFrag = (RecyclerView) view.findViewById(R.id.rvOrdersFrag);
         rvOrdersFrag.setLayoutManager(new LinearLayoutManager(view.getContext()));
-        adapter = new MainActivityAdapter(getActivity(), Orders);
+
+        adapter = new RecentOrdersAdapter(getActivity(), Orders);
         rvOrdersFrag.setAdapter(adapter);
 
+        MainActivity activity = (MainActivity) getActivity();
+        resName = activity.sendData();
 
-        OrdersList("Soban Fish");
 
-        Toast.makeText(getActivity(), "resName"+resName, Toast.LENGTH_SHORT).show();
+        progressDialog = new ProgressDialog(getActivity());
+        progressDialog.setTitle("Please wait...");
+        progressDialog.setMessage("Results are loading");
+        progressDialog.setCancelable(false);
+        progressDialog.show();
+
+        ordersList(resName);
 
         layoutOrderFrag.setOnRefreshListener(new WaveSwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
 
-                OrdersList("Soban Fish");
+                ordersList(resName);
             }
         });
 
         return view;
     }
 
-    private void OrdersList(String resName) {
+    private void ordersList(String resName) {
 
-        Toast.makeText(getActivity(), "resName1"+resName, Toast.LENGTH_SHORT).show();
+//        Toast.makeText(getActivity(), "resName1"+resName, Toast.LENGTH_SHORT).show();
 
         firebaseFirestore.collection("Users").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
             @Override
@@ -124,7 +133,7 @@ public class RecentOrders extends Fragment {
                                         Double lat = documentSnapshot.getDouble("latlng.latitude");
                                         Double lng = documentSnapshot.getDouble("latlng.longitude");
 
-                                        ordersModelClass = new OrdersModelClass();
+                                        OrdersModelClass ordersModelClass = new OrdersModelClass();
 
                                         ordersModelClass.setResId(resId);
                                         ordersModelClass.setDate(time);
@@ -136,6 +145,8 @@ public class RecentOrders extends Fragment {
                                         ordersModelClass.setOrderId(orderId);
 
                                         Orders.add(ordersModelClass);
+                                        adapter.notifyDataSetChanged();
+
                                     }
                                     else {
                                         Snackbar.make(getActivity().findViewById(android.R.id.content), "Data not found!", Snackbar.LENGTH_LONG).show();
@@ -145,6 +156,7 @@ public class RecentOrders extends Fragment {
                         });
                     }
                 }
+                progressDialog.dismiss();
                 layoutOrderFrag.setRefreshing(false);
             }
 

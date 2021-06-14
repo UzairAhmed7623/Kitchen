@@ -17,7 +17,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 
-public class OrdersAdapter extends RecyclerView.Adapter<OrdersAdapter.ViewHolder> {
+public class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.ViewHolder> {
 
     private Context context;
     private ArrayList<ItemsModelClass> items = new ArrayList<>();
@@ -25,21 +25,21 @@ public class OrdersAdapter extends RecyclerView.Adapter<OrdersAdapter.ViewHolder
 
 
 
-    public OrdersAdapter(Context context, ArrayList<ItemsModelClass> items) {
+    public ItemsAdapter(Context context, ArrayList<ItemsModelClass> items) {
         this.context = context;
         this.items = items;
     }
 
     @NonNull
     @Override
-    public OrdersAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public ItemsAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-        View view = inflater.inflate(R.layout.main_activity_adapter_layout, parent, false);
-        return new OrdersAdapter.ViewHolder(view);
+        View view = inflater.inflate(R.layout.items_activity_adapter_layout, parent, false);
+        return new ItemsAdapter.ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull OrdersAdapter.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ItemsAdapter.ViewHolder holder, int position) {
         ItemsModelClass itemsModelClass = items.get(position);
 
         String resName = itemsModelClass.getResName();

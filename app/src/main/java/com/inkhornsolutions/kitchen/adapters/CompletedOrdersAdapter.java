@@ -89,7 +89,7 @@ public class CompletedOrdersAdapter extends RecyclerView.Adapter<CompletedOrders
                         String id = documentSnapshot.getId();
 
                         firebaseFirestore.collection("Users").document(id).collection("Cart").document(resId)
-                                .collection("Items").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                .collection("Orders").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                             @Override
                             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                                 if (task.isSuccessful()){

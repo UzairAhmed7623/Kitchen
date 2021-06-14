@@ -25,7 +25,7 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.google.android.gms.tasks.OnFailureListener;
-import com.inkhornsolutions.kitchen.adapters.OrdersAdapter;
+import com.inkhornsolutions.kitchen.adapters.ItemsAdapter;
 import com.inkhornsolutions.kitchen.modelclasses.ItemsModelClass;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -50,7 +50,7 @@ public class Items extends AppCompatActivity {
     private final ArrayList<ItemsModelClass> items = new ArrayList<>();
     private final Paint p = new Paint();
     private String resName;
-    private OrdersAdapter adapter;
+    private ItemsAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,7 +70,7 @@ public class Items extends AppCompatActivity {
 
         rvItems = (RecyclerView) findViewById(R.id.rvItems);
         rvItems.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new OrdersAdapter(this, items);
+        adapter = new ItemsAdapter(this, items);
 
         loadRestaurant(resName);
 

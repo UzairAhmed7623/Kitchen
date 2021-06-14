@@ -157,7 +157,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
-                android:background="@drawable/orders_item_shape"
                 app:layout_constraintTop_toBottomOf="@+id/toolbar">
 
                 <TextView
@@ -285,7 +284,6 @@
                     android:layout_weight="1"
                     android:backgroundTint="@color/myColor"
                     style="@style/Widget.AppCompat.Button"
-                    android:background="@drawable/orders_item_shape"
                     android:foreground="@drawable/ripple"
                     android:text="@string/From"
                     android:textColor="@color/white" />
@@ -298,7 +296,6 @@
                     android:layout_marginTop="5dp"
                     android:layout_marginBottom="5dp"
                     android:layout_weight="1"
-                    android:background="@drawable/orders_item_shape"
                     android:backgroundTint="@color/myColor"
                     android:gravity="center"
                     android:padding="10dp"
@@ -318,7 +315,6 @@
                     android:layout_weight="1"
                     android:backgroundTint="@color/myColor"
                     style="@style/Widget.AppCompat.Button"
-                    android:background="@drawable/orders_item_shape"
                     android:foreground="@drawable/ripple"
                     android:text="@string/From"
                     android:textColor="@color/white" />

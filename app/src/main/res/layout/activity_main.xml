@@ -23,25 +23,47 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
+        <FrameLayout
+            android:id="@+id/layout"
             android:layout_width="match_parent"
-            android:layout_height="80dp"
-            app:buttonGravity="bottom"
-            android:gravity="bottom"
-            app:titleMarginBottom="15dp"
-            app:titleTextAppearance="@style/TextAppearance.AppCompat.Medium"
-            android:background="@drawable/add_details_back"
+            android:layout_height="wrap_content"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.0"
-            app:titleTextColor="@android:color/white" />
+            app:layout_constraintVertical_bias="0.0">
+
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:background="@drawable/add_details_back"
+                android:gravity="bottom"
+                app:buttonGravity="bottom"
+                app:titleMarginBottom="15dp"
+                app:titleTextAppearance="@style/TextAppearance.AppCompat.Medium"
+                app:titleTextColor="@android:color/white"/>
+
+            <TextView
+                android:id="@+id/tvResName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_gravity="end|bottom"
+                android:layout_marginEnd="10dp"
+                android:layout_marginBottom="13dp"
+                android:textColor="@color/white"
+                android:fontFamily="@font/montserra_regular_bold"
+                android:textSize="16sp"
+                android:letterSpacing="0.05"
+                app:titleTextAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:text="Res Name" />
+
+        </FrameLayout>
 
         <RelativeLayout
-            android:id="@+id/layout"
+            android:id="@+id/layout2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
@@ -51,7 +73,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/toolbar"
+            app:layout_constraintTop_toBottomOf="@+id/layout"
             app:layout_constraintVertical_bias="0.0">
 
             <TextView
@@ -106,7 +128,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/layout"
+            app:layout_constraintTop_toBottomOf="@+id/layout2"
             app:layout_constraintVertical_bias="0.0"
             app:stl_clickable="true"
             app:stl_defaultTabBackground="?attr/selectableItemBackground"
@@ -118,7 +140,7 @@
             app:stl_distributeEvenly="true"
             app:stl_dividerColor="#4D000000"
             app:stl_dividerThickness="1dp"
-            app:stl_drawDecorationAfterTab="false"
+            app:stl_drawDecorationAfterTab="true"
             app:stl_indicatorAlwaysInCenter="false"
             app:stl_indicatorColor="@color/white"
             app:stl_indicatorCornerRadius="2dp"
@@ -147,7 +169,7 @@
             android:id="@+id/ibChat"
             android:layout_width="32dp"
             android:layout_height="32dp"
-            android:layout_marginHorizontal="15dp"
+            android:layout_marginHorizontal="25dp"
             android:layout_marginVertical="45dp"
             android:scaleType="centerCrop"
             android:src="@drawable/chat_icon"

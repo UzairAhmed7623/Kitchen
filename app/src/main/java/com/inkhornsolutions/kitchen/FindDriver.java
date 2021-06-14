@@ -190,7 +190,7 @@ public class FindDriver extends FragmentActivity implements OnMapReadyCallback, 
                         EventBus.getDefault().postSticky(new SelectPlaceEvent(origin, destination, originString, destinationString, address));
                     }
                     catch (Exception e){
-                        Snackbar.make(mapFragment.getView(), e.getMessage(), Snackbar.LENGTH_LONG).show();
+                        Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).show();
                     }
                 });
             }
@@ -327,7 +327,7 @@ public class FindDriver extends FragmentActivity implements OnMapReadyCallback, 
 
                             @Override
                             public void onGeoQueryError(DatabaseError error) {
-                                Snackbar.make(mapFragment.getView(), error.getMessage(), Snackbar.LENGTH_LONG).show();
+                                Snackbar.make(findViewById(android.R.id.content), error.getMessage(), Snackbar.LENGTH_LONG).show();
 
                             }
                         });
@@ -370,14 +370,14 @@ public class FindDriver extends FragmentActivity implements OnMapReadyCallback, 
 
                     } catch (IOException e) {
                         e.printStackTrace();
-                        Snackbar.make(mapFragment.getView(), e.getMessage(), Snackbar.LENGTH_LONG).show();
+                        Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).show();
                     }
                 }
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                Snackbar.make(mapFragment.getView(), e.getMessage(), Snackbar.LENGTH_LONG).show();
+                Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).show();
 
             }
         });
@@ -397,7 +397,7 @@ public class FindDriver extends FragmentActivity implements OnMapReadyCallback, 
 
         }
         else {
-            Snackbar.make(mapFragment.getView(), "Driver not found!", Snackbar.LENGTH_LONG).show();
+            Snackbar.make(findViewById(android.R.id.content), "Driver not found!", Snackbar.LENGTH_LONG).show();
         }
     }
 
@@ -496,7 +496,7 @@ public class FindDriver extends FragmentActivity implements OnMapReadyCallback, 
 
     @Override
     public void onFirebaseLoadFailed(String message) {
-        Snackbar.make(mapFragment.getView(), message, Snackbar.LENGTH_SHORT).show();
+        Snackbar.make(findViewById(android.R.id.content), message, Snackbar.LENGTH_SHORT).show();
     }
 
     @Override
@@ -566,7 +566,7 @@ public class FindDriver extends FragmentActivity implements OnMapReadyCallback, 
 
                     @Override
                     public void onCancelled(@NonNull DatabaseError error) {
-                        Snackbar.make(mapFragment.getView(), error.getMessage(), Snackbar.LENGTH_LONG).show();
+                        Snackbar.make(findViewById(android.R.id.content), error.getMessage(), Snackbar.LENGTH_LONG).show();
                     }
                 });
             }
@@ -658,14 +658,14 @@ public class FindDriver extends FragmentActivity implements OnMapReadyCallback, 
 
                                 @Override
                                 public void onDirectionFailure(@NonNull Throwable t) {
-                                    Snackbar.make(mapFragment.getView(), t.getMessage(), Snackbar.LENGTH_LONG).show();
+                                    Snackbar.make(findViewById(android.R.id.content), t.getMessage(), Snackbar.LENGTH_LONG).show();
 
                                 }
                             });
 
                 }
                 catch (Exception e){
-                    Snackbar.make(mapFragment.getView(), e.getMessage(), Snackbar.LENGTH_LONG).show();
+                    Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).show();
                 }
 
         }
