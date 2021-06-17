@@ -3,15 +3,14 @@ package com.inkhornsolutions.kitchen.Fragments;
 import android.app.ProgressDialog;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -27,6 +26,8 @@ import com.inkhornsolutions.kitchen.MainActivity;
 import com.inkhornsolutions.kitchen.R;
 import com.inkhornsolutions.kitchen.adapters.RecentOrdersAdapter;
 import com.inkhornsolutions.kitchen.modelclasses.OrdersModelClass;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -81,13 +82,11 @@ public class InProgress extends Fragment {
         progressDialog.setCancelable(false);
         progressDialog.show();
 
-        ordersList(resName);
-
         layoutInProgress.setOnRefreshListener(new WaveSwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
 
-                ordersList(resName);
+                onStart();
             }
         });
 
@@ -104,46 +103,50 @@ public class InProgress extends Fragment {
 
                 Orders.clear();
 
-                for (QueryDocumentSnapshot documentSnapshot : value){
-                    if (documentSnapshot.exists()){
+                for (QueryDocumentSnapshot documentSnapshot : value) {
+                    if (documentSnapshot.exists()) {
                         String id = documentSnapshot.getId();
 
                         firebaseFirestore.collection("Users").document(id).collection("Cart")
-                                .whereIn("status", Arrays.asList("Pending","In progress"))
+                                .whereIn("status", Arrays.asList("In progress"))
                                 .whereEqualTo("restaurantName", resName)
                                 .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                             @Override
-                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                for (QueryDocumentSnapshot documentSnapshot : task.getResult()){
-                                    if (documentSnapshot.exists()){
+                            public void onComplete(@NonNull @NotNull Task<QuerySnapshot> task) {
 
-                                        String resId = documentSnapshot.getId();
-                                        String orderId = documentSnapshot.getString("ID");
-                                        String time = documentSnapshot.getString("Time");
-                                        String resName = documentSnapshot.getString("restaurantName");
-                                        String status = documentSnapshot.getString("status");
-                                        String total = documentSnapshot.getString("total");
-                                        Double lat = documentSnapshot.getDouble("latlng.latitude");
-                                        Double lng = documentSnapshot.getDouble("latlng.longitude");
+                                if (task.isSuccessful()) {
+                                    for (QueryDocumentSnapshot documentSnapshot : task.getResult()) {
+                                        if (documentSnapshot.exists()) {
 
-                                        OrdersModelClass ordersModelClass = new OrdersModelClass();
+                                            String resId = documentSnapshot.getId();
+                                            String orderId = documentSnapshot.getString("ID");
+                                            String time = documentSnapshot.getString("Time");
+                                            String resName = documentSnapshot.getString("restaurantName");
+                                            String status = documentSnapshot.getString("status");
+                                            String total = documentSnapshot.getString("total");
+                                            Double lat = documentSnapshot.getDouble("latlng.latitude");
+                                            Double lng = documentSnapshot.getDouble("latlng.longitude");
 
-                                        ordersModelClass.setResId(resId);
-                                        ordersModelClass.setDate(time);
-                                        ordersModelClass.setResName(resName);
-                                        ordersModelClass.setStatus(status);
-                                        ordersModelClass.setTotalPrice(total);
-                                        ordersModelClass.setLat(lat);
-                                        ordersModelClass.setLng(lng);
-                                        ordersModelClass.setOrderId(orderId);
+                                            OrdersModelClass ordersModelClass = new OrdersModelClass();
 
-                                        Orders.add(ordersModelClass);
-                                        adapter.notifyDataSetChanged();
+                                            ordersModelClass.setResId(resId);
+                                            ordersModelClass.setDate(time);
+                                            ordersModelClass.setResName(resName);
+                                            ordersModelClass.setStatus(status);
+                                            ordersModelClass.setTotalPrice(total);
+                                            ordersModelClass.setLat(lat);
+                                            ordersModelClass.setLng(lng);
+                                            ordersModelClass.setOrderId(orderId);
+                                            ordersModelClass.setUserId(id);
 
+                                            Orders.add(ordersModelClass);
+                                            adapter.notifyDataSetChanged();
+
+                                        } else {
+                                            Snackbar.make(getActivity().findViewById(android.R.id.content), "Data not found!", Snackbar.LENGTH_LONG).show();
+                                        }
                                     }
-                                    else {
-                                        Snackbar.make(getActivity().findViewById(android.R.id.content), "Data not found!", Snackbar.LENGTH_LONG).show();
-                                    }
+
                                 }
                             }
                         });
@@ -154,5 +157,11 @@ public class InProgress extends Fragment {
             }
 
         });
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        ordersList(resName);
     }
 }

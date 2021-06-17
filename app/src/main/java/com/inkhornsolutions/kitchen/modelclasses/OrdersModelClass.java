@@ -1,7 +1,7 @@
 package com.inkhornsolutions.kitchen.modelclasses;
 
 public class OrdersModelClass {
-    private String resId, id, pId, itemName, finalPrice, price,  Items_Count, status, resName, totalPrice, date, orderId;
+    private String resId, id, pId, itemName, finalPrice, price,  Items_Count, status, resName, totalPrice, date, orderId, userId;
     private Double lat, lng;
     private boolean expanded;
 
@@ -16,7 +16,7 @@ public class OrdersModelClass {
     public OrdersModelClass() {
     }
 
-    public OrdersModelClass(String resId, String id, String pId, String itemName, String finalPrice, String price, String items_Count, String status, String resName, String totalPrice, String date, String orderId) {
+    public OrdersModelClass(String resId, String id, String pId, String itemName, String finalPrice, String price, String items_Count, String status, String resName, String totalPrice, String date, String orderId, String userId, Double lat, Double lng, boolean expanded) {
         this.resId = resId;
         this.id = id;
         this.pId = pId;
@@ -29,12 +29,18 @@ public class OrdersModelClass {
         this.totalPrice = totalPrice;
         this.date = date;
         this.orderId = orderId;
-        this.expanded = false;
-    }
-
-    public OrdersModelClass(Double lat, Double lng) {
+        this.userId = userId;
         this.lat = lat;
         this.lng = lng;
+        this.expanded = expanded;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
     public Double getLat() {

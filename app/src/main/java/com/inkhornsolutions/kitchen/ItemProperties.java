@@ -189,7 +189,7 @@ public class ItemProperties extends AppCompatActivity {
 
                 dialog = new ProgressDialog(ItemProperties.this);
                 dialog.setTitle("Please wait...");
-                dialog.setMessage("We are working on your request");
+                dialog.setMessage("Product is updating");
                 dialog.setCancelable(false);
                 dialog.show();
 

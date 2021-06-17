@@ -399,7 +399,6 @@ public class RequestDriverActivity extends FragmentActivity implements OnMapRead
     @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
     public void onTimeUp(TimeUp event){
 
-
         Common.showNotification(this, new Random().nextInt(),
                 "TimeUp",
                 "Please HarryUp",

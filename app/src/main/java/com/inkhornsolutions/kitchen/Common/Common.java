@@ -47,8 +47,8 @@ public class Common {
             NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
                 NotificationChannel notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID,
-                        "Uber Remake", NotificationManager.IMPORTANCE_HIGH);
-                notificationChannel.setDescription("uber remake");
+                        "CHJ Kitchen", NotificationManager.IMPORTANCE_HIGH);
+                notificationChannel.setDescription("CHJ Kitchen");
                 notificationChannel.enableLights(true);
                 notificationChannel.setLightColor(Color.RED);
                 notificationChannel.setVibrationPattern(new long[]{0, 1000, 500, 1000});
@@ -62,14 +62,17 @@ public class Common {
                     .setAutoCancel(false)
                     .setPriority(NotificationCompat.PRIORITY_HIGH)
                     .setDefaults(Notification.DEFAULT_VIBRATE)
-                    .setSmallIcon(R.drawable.car_icon)
-                    .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.drawable.car_icon));
+                    .setSmallIcon(R.drawable.chj_logo2)
+                    .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.drawable.chj_logo2));
 
             if (pendingIntent != null){
                 builder.setContentIntent(pendingIntent);
             }
             Notification notification = builder.build();
             notificationManager.notify(id, notification);
+        }
+        else {
+            Log.d("TAG", "Intent is null");
         }
     }
 

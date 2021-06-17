@@ -152,7 +152,6 @@ public class FindDriver extends FragmentActivity implements OnMapReadyCallback, 
                         String token = task.getResult();
 
                         UserUtils.updateToken(FindDriver.this, token);
-
                     }
                 });
 

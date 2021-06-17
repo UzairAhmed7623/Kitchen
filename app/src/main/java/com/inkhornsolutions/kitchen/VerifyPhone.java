@@ -139,6 +139,7 @@ public class VerifyPhone extends AppCompatActivity {
                                     Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).show();
                                 }
                             });
+
                             Intent intent = new Intent(VerifyPhone.this, Verified.class);
                             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                             startActivity(intent);

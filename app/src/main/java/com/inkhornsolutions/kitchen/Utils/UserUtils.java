@@ -39,7 +39,7 @@ public class UserUtils {
 			tokens.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).setValue(tokenModel)
 					.addOnSuccessListener(aVoid -> {
 
-						Toast.makeText(context, "Token successfully submitted to database!", Toast.LENGTH_SHORT).show();
+//						Toast.makeText(context, "Token successfully submitted to database!", Toast.LENGTH_SHORT).show();
 
 
 					}).addOnFailureListener(e -> Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show());

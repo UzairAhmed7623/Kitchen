@@ -54,19 +54,28 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.inkhornsolutions.kitchen.Common.Common;
+import com.inkhornsolutions.kitchen.EventBus.NewOrders;
 import com.inkhornsolutions.kitchen.Fragments.InProgress;
 import com.inkhornsolutions.kitchen.Fragments.RecentOrders;
+import com.inkhornsolutions.kitchen.Utils.UserUtils;
 import com.ogaclejapan.smarttablayout.SmartTabLayout;
 import com.ogaclejapan.smarttablayout.utils.v4.FragmentPagerItemAdapter;
 import com.ogaclejapan.smarttablayout.utils.v4.FragmentPagerItems;
+
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
+import java.util.Random;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import kotlin.Unit;
@@ -98,6 +107,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private ImageButton ibChat;
     private TextView tvResName;
 
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
+    public void onOrderReceived(NewOrders event){
+
+        Common.showNotification(this, new Random().nextInt(),
+                "New Order",
+                "Congrats! You have new order. Tap to see order details.",
+                getIntent());
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -120,6 +138,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 //        layoutOrder.setWaveColor(0xFF000000+new Random().nextInt(0xFFFFFF)); // Random color assign
 
+
+        FirebaseMessaging.getInstance().getToken().addOnCompleteListener(new OnCompleteListener<String>() {
+            @Override
+            public void onComplete(@NonNull @NotNull Task<String> task) {
+                if (!task.isSuccessful()) {
+                    Toast.makeText(MainActivity.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                // Get new FCM registration token
+                String token = task.getResult();
+
+                UserUtils.updateToken(MainActivity.this, token);
+            }
+        });
 
 
         statusSwitch.setOnCheckedChangeListener(new Function1<Boolean, Unit>() {

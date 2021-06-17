@@ -2,6 +2,7 @@ package com.inkhornsolutions.kitchen.adapters;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,6 +29,8 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,10 +67,19 @@ public class RecentOrdersAdapter extends RecyclerView.Adapter<RecentOrdersAdapte
         Double lat = ordersModelClass.getLat();
         Double lng = ordersModelClass.getLng();
         String orderId = ordersModelClass.getOrderId();
+        String userId = ordersModelClass.getUserId();
 
         holder.tvResNameOrders.setText("Order ID: " + orderId);
         holder.tvGradTotalOrders.setText("Price: " + totalPrice);
         holder.tvDateOrders.setText("Date: " + date);
+
+        if (status.equals("Rejected")){
+            holder.tvStatusOrders.setTextColor(Color.RED);
+        }
+        else {
+            holder.tvStatusOrders.setTextColor(Color.BLACK);
+        }
+
         holder.tvStatusOrders.setText("Status: " + status);
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -78,6 +90,7 @@ public class RecentOrdersAdapter extends RecyclerView.Adapter<RecentOrdersAdapte
                 intent.putExtra("resName", resName);
                 intent.putExtra("resId", resId);
                 intent.putExtra("orderId", orderId);
+                intent.putExtra("userId", userId);
 
                 v.getContext().startActivity(intent);
             }
@@ -93,10 +106,6 @@ public class RecentOrdersAdapter extends RecyclerView.Adapter<RecentOrdersAdapte
     public class ViewHolder extends RecyclerView.ViewHolder {
 
         private TextView tvStatusOrders, tvResNameOrders, tvDateOrders, tvGradTotalOrders;
-        private LinearLayout expandablelLayoutOrders;
-        private RelativeLayout hideLayout, hideLayout2;
-        private RecyclerView rvMember;
-        private Button btnAccept, btnReject, btnRider, btnDispatch;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
