@@ -1,14 +1,5 @@
 package com.inkhornsolutions.kitchen;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.ItemTouchHelper;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -24,16 +15,25 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.inkhornsolutions.kitchen.adapters.ItemsAdapter;
-import com.inkhornsolutions.kitchen.modelclasses.ItemsModelClass;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.inkhornsolutions.kitchen.adapters.ItemsAdapter;
+import com.inkhornsolutions.kitchen.modelclasses.ItemsModelClass;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -42,11 +42,11 @@ import jp.co.recruit_lifestyle.android.widget.WaveSwipeRefreshLayout;
 
 public class Items extends AppCompatActivity {
 
-    private Toolbar toolbarOrders;
+    private Toolbar toolbarItems;
     private RecyclerView rvItems;
     private FirebaseAuth firebaseAuth;
     private FirebaseFirestore firebaseFirestore;
-    private WaveSwipeRefreshLayout layoutOrder;
+    private WaveSwipeRefreshLayout layoutItems;
     private final ArrayList<ItemsModelClass> items = new ArrayList<>();
     private final Paint p = new Paint();
     private String resName;
@@ -60,13 +60,13 @@ public class Items extends AppCompatActivity {
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseFirestore = FirebaseFirestore.getInstance();
 
-        toolbarOrders = (Toolbar) findViewById(R.id.toolbarOrders);
-        setSupportActionBar(toolbarOrders);
+        toolbarItems = (Toolbar) findViewById(R.id.toolbarItems);
+        setSupportActionBar(toolbarItems);
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
         resName = getIntent().getStringExtra("resName");
 
-        layoutOrder = (WaveSwipeRefreshLayout) findViewById(R.id.layoutOrder);
+        layoutItems = (WaveSwipeRefreshLayout) findViewById(R.id.layoutItems);
 
         rvItems = (RecyclerView) findViewById(R.id.rvItems);
         rvItems.setLayoutManager(new LinearLayoutManager(this));
@@ -74,13 +74,13 @@ public class Items extends AppCompatActivity {
 
         loadRestaurant(resName);
 
-        layoutOrder.setColorSchemeColors(Color.WHITE, Color.WHITE);
-        layoutOrder.setWaveColor(getColor(R.color.myColor));
-        layoutOrder.setMaxDropHeight(750);
-        layoutOrder.setMinimumHeight(750);
+        layoutItems.setColorSchemeColors(Color.WHITE, Color.WHITE);
+        layoutItems.setWaveColor(getColor(R.color.myColor));
+        layoutItems.setMaxDropHeight(750);
+        layoutItems.setMinimumHeight(750);
 //        layoutOrder.setWaveColor(0xFF000000+new Random().nextInt(0xFFFFFF)); // Random color assign
 
-        layoutOrder.setOnRefreshListener(new WaveSwipeRefreshLayout.OnRefreshListener() {
+        layoutItems.setOnRefreshListener(new WaveSwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
 
@@ -130,7 +130,7 @@ public class Items extends AppCompatActivity {
                             }
                         }
                         rvItems.setAdapter(adapter);
-                        layoutOrder.setRefreshing(false);
+                        layoutItems.setRefreshing(false);
                         initSwipe(itemName);
                     } else {
                         Snackbar.make(findViewById(android.R.id.content), "No data found!", Snackbar.LENGTH_LONG).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).show();
@@ -249,6 +249,9 @@ public class Items extends AppCompatActivity {
             intent.putExtra("resName", resName);
             startActivity(intent);
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+        }
+        else if (item.getItemId() == android.R.id.home) {
+            onBackPressed();
         }
         return true;
     }

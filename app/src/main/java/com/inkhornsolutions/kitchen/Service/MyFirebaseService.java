@@ -1,6 +1,7 @@
 package com.inkhornsolutions.kitchen.Service;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -10,8 +11,8 @@ import com.inkhornsolutions.kitchen.EventBus.DeclineRequestAndRemoveTripFromDriv
 import com.inkhornsolutions.kitchen.EventBus.DeclineRequestFromDriver;
 import com.inkhornsolutions.kitchen.EventBus.DriverAcceptTripEvent;
 import com.inkhornsolutions.kitchen.EventBus.DriverCompleteTripEvent;
-import com.inkhornsolutions.kitchen.EventBus.NewOrders;
 import com.inkhornsolutions.kitchen.EventBus.TimeUp;
+import com.inkhornsolutions.kitchen.MainActivity;
 import com.inkhornsolutions.kitchen.Utils.UserUtils;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
@@ -63,8 +64,10 @@ public class MyFirebaseService extends FirebaseMessagingService {
                 else if (title.equals("TimeOver")){
                     EventBus.getDefault().postSticky(new TimeUp(tripKey));
                 }
-                else if (title.equals("NewOrders")){
-                    EventBus.getDefault().postSticky(new NewOrders());
+                else if (title.equals("NewOrder")){
+                    Intent intent = new Intent(this, MainActivity.class);
+
+                    Common.showNotification(this, new Random().nextInt(), title, body, intent);
                 }
                 else {
                     Intent intent = new Intent(this, MyFirebaseService.class);

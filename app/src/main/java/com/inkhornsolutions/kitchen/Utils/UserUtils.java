@@ -1,6 +1,7 @@
 package com.inkhornsolutions.kitchen.Utils;
 
 import android.content.Context;
+import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
@@ -102,4 +103,149 @@ public class UserUtils {
 			}
 		});
     }
+
+	public static void acceptOrderNotificationToCustomer(View view, Context context, String key) {
+		CompositeDisposable compositeDisposable = new CompositeDisposable();
+		IFCMService ifcmService = RetrofitFCMClient.getInstance().create(IFCMService.class);
+
+		FirebaseDatabase.getInstance()
+				.getReference("Tokens")
+				.child(key).addListenerForSingleValueEvent(new ValueEventListener() {
+			@Override
+			public void onDataChange(@NonNull DataSnapshot snapshot) {
+				if (snapshot.exists()){
+					TokenModel tokenModel = snapshot.getValue(TokenModel.class);
+
+					Map<String, String> notificationdata = new HashMap<>();
+					notificationdata.put("title", "OrderAccepted");
+					notificationdata.put("body", "Your order has been accepted. Your order will be deliver you within time");
+
+					FCMSendData fcmSendData = new FCMSendData(tokenModel.getToken(), notificationdata);
+					compositeDisposable.add(ifcmService.sendNotification(fcmSendData)
+							.subscribeOn(Schedulers.newThread())
+							.observeOn(AndroidSchedulers.mainThread())
+							.subscribe(fcmResponse -> {
+								if (fcmResponse.getSuccess() == 0){
+									compositeDisposable.clear();
+									Snackbar.make(view, "Order message send failed!", Snackbar.LENGTH_LONG).show();
+								}
+								else {
+									Snackbar.make(view, "Order placed!", Snackbar.LENGTH_LONG).show();
+								}
+
+							}, throwable -> {
+								compositeDisposable.clear();
+								Snackbar.make(view, throwable.getMessage(), Snackbar.LENGTH_LONG).show();
+							}));
+				}
+				else {
+					compositeDisposable.clear();
+					Snackbar.make(view, "Token not found!", Snackbar.LENGTH_LONG).show();
+				}
+			}
+
+			@Override
+			public void onCancelled(@NonNull DatabaseError error) {
+				compositeDisposable.clear();
+				Snackbar.make(view, error.getMessage(), Snackbar.LENGTH_LONG).show();
+			}
+		});
+	}
+
+	public static void rejectOrderNotificationToCustomer(View view, Context context, String key) {
+		CompositeDisposable compositeDisposable = new CompositeDisposable();
+		IFCMService ifcmService = RetrofitFCMClient.getInstance().create(IFCMService.class);
+
+		FirebaseDatabase.getInstance()
+				.getReference("Tokens")
+				.child(key).addListenerForSingleValueEvent(new ValueEventListener() {
+			@Override
+			public void onDataChange(@NonNull DataSnapshot snapshot) {
+				if (snapshot.exists()){
+					TokenModel tokenModel = snapshot.getValue(TokenModel.class);
+
+					Map<String, String> notificationdata = new HashMap<>();
+					notificationdata.put("title", "OrderRejected");
+					notificationdata.put("body", "Your order has been rejected. Please try again.");
+
+					FCMSendData fcmSendData = new FCMSendData(tokenModel.getToken(), notificationdata);
+					compositeDisposable.add(ifcmService.sendNotification(fcmSendData)
+							.subscribeOn(Schedulers.newThread())
+							.observeOn(AndroidSchedulers.mainThread())
+							.subscribe(fcmResponse -> {
+								if (fcmResponse.getSuccess() == 0){
+									compositeDisposable.clear();
+									Snackbar.make(view, "Order message send failed!", Snackbar.LENGTH_LONG).show();
+								}
+								else {
+									Snackbar.make(view, "Order placed!", Snackbar.LENGTH_LONG).show();
+								}
+
+							}, throwable -> {
+								compositeDisposable.clear();
+								Snackbar.make(view, throwable.getMessage(), Snackbar.LENGTH_LONG).show();
+							}));
+				}
+				else {
+					compositeDisposable.clear();
+					Snackbar.make(view, "Token not found!", Snackbar.LENGTH_LONG).show();
+				}
+			}
+
+			@Override
+			public void onCancelled(@NonNull DatabaseError error) {
+				compositeDisposable.clear();
+				Snackbar.make(view, error.getMessage(), Snackbar.LENGTH_LONG).show();
+			}
+		});
+	}
+
+	public static void dispatchOrderNotificationToCustomer(View view, Context context, String key) {
+		CompositeDisposable compositeDisposable = new CompositeDisposable();
+		IFCMService ifcmService = RetrofitFCMClient.getInstance().create(IFCMService.class);
+
+		FirebaseDatabase.getInstance()
+				.getReference("Tokens")
+				.child(key).addListenerForSingleValueEvent(new ValueEventListener() {
+			@Override
+			public void onDataChange(@NonNull DataSnapshot snapshot) {
+				if (snapshot.exists()){
+					TokenModel tokenModel = snapshot.getValue(TokenModel.class);
+
+					Map<String, String> notificationdata = new HashMap<>();
+					notificationdata.put("title", "OrderDispatched");
+					notificationdata.put("body", "Your order has been dispatched and will be deliver you within time");
+
+					FCMSendData fcmSendData = new FCMSendData(tokenModel.getToken(), notificationdata);
+					compositeDisposable.add(ifcmService.sendNotification(fcmSendData)
+							.subscribeOn(Schedulers.newThread())
+							.observeOn(AndroidSchedulers.mainThread())
+							.subscribe(fcmResponse -> {
+								if (fcmResponse.getSuccess() == 0){
+									compositeDisposable.clear();
+									Snackbar.make(view, "Order message send failed!", Snackbar.LENGTH_LONG).show();
+								}
+								else {
+									Snackbar.make(view, "Order placed!", Snackbar.LENGTH_LONG).show();
+								}
+
+							}, throwable -> {
+								compositeDisposable.clear();
+								Snackbar.make(view, throwable.getMessage(), Snackbar.LENGTH_LONG).show();
+							}));
+				}
+				else {
+					compositeDisposable.clear();
+					Snackbar.make(view, "Token not found!", Snackbar.LENGTH_LONG).show();
+				}
+			}
+
+			@Override
+			public void onCancelled(@NonNull DatabaseError error) {
+				compositeDisposable.clear();
+				Snackbar.make(view, error.getMessage(), Snackbar.LENGTH_LONG).show();
+			}
+		});
+	}
+
 }

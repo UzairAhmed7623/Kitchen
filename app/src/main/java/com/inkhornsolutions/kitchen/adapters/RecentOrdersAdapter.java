@@ -73,11 +73,22 @@ public class RecentOrdersAdapter extends RecyclerView.Adapter<RecentOrdersAdapte
         holder.tvGradTotalOrders.setText("Price: " + totalPrice);
         holder.tvDateOrders.setText("Date: " + date);
 
-        if (status.equals("Rejected")){
-            holder.tvStatusOrders.setTextColor(Color.RED);
-        }
-        else {
-            holder.tvStatusOrders.setTextColor(Color.BLACK);
+        switch (status) {
+            case "Pending":
+                holder.tvStatusOrders.setTextColor(Color.BLACK);
+                break;
+            case "In progress":
+                holder.tvStatusOrders.setTextColor(context.getColor(R.color.Green));
+                break;
+            case "Rejected":
+                holder.tvStatusOrders.setTextColor(Color.RED);
+                break;
+            case "Dispatched":
+                holder.tvStatusOrders.setTextColor(context.getColor(R.color.Green));
+                break;
+            case "Completed":
+                holder.tvStatusOrders.setTextColor(context.getColor(R.color.Green));
+                break;
         }
 
         holder.tvStatusOrders.setText("Status: " + status);

@@ -23,6 +23,8 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.inkhornsolutions.kitchen.Utils.UserUtils;
 import com.inkhornsolutions.kitchen.adapters.OrdersDetailsAdapter;
 import com.inkhornsolutions.kitchen.modelclasses.OrdersModelClass;
 
@@ -78,6 +80,10 @@ public class OrderDetails extends AppCompatActivity {
                         layoutAcceptReject.setVisibility(View.GONE);
                         layoutFindRiderDispatch.setVisibility(View.VISIBLE);
 
+                        Log.d("TAG", userId);
+
+                        UserUtils.acceptOrderNotificationToCustomer(layoutAcceptReject, OrderDetails.this, userId);
+
                         Intent intent = new Intent(OrderDetails.this, MainActivity.class);
                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK);
                         startActivity(intent);
@@ -122,6 +128,8 @@ public class OrderDetails extends AppCompatActivity {
                     public void onComplete(@NonNull Task<Void> task) {
                         Toast.makeText(OrderDetails.this, "Status updated!", Toast.LENGTH_SHORT).show();
 
+                        UserUtils.rejectOrderNotificationToCustomer(layoutAcceptReject, OrderDetails.this, userId);
+
                         Intent intent = new Intent(OrderDetails.this, MainActivity.class);
                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                         startActivity(intent);
@@ -153,6 +161,8 @@ public class OrderDetails extends AppCompatActivity {
                     public void onComplete(@NonNull Task<Void> task) {
                         Toast.makeText(OrderDetails.this, "Status updated!", Toast.LENGTH_SHORT).show();
 
+                        UserUtils.dispatchOrderNotificationToCustomer(layoutAcceptReject, OrderDetails.this, userId);
+
                         Intent intent = new Intent(OrderDetails.this, MainActivity.class);
                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                         startActivity(intent);
@@ -177,16 +187,19 @@ public class OrderDetails extends AppCompatActivity {
                                 String finalPrice = documentSnapshot.getString("final_price");
                                 String pId = documentSnapshot.getString("pId");
 
+                                double deductedPrice = Double.parseDouble(price) * 0.8;
+                                double deductedTotal = Double.parseDouble(finalPrice) * 0.8;
+
                                 OrdersModelClass ordersModelClass1 = new OrdersModelClass();
 
                                 ordersModelClass1.setId(id);
                                 ordersModelClass1.setItemName(itemName);
-                                ordersModelClass1.setPrice(price);
+                                ordersModelClass1.setPrice(String.valueOf(deductedPrice));
                                 ordersModelClass1.setItems_Count(itemCount);
-                                ordersModelClass1.setFinalPrice(finalPrice);
+                                ordersModelClass1.setFinalPrice(String.valueOf(deductedTotal));
                                 ordersModelClass1.setpId(pId);
 
-                                allTotalPrice = allTotalPrice + Double.parseDouble(finalPrice);
+                                allTotalPrice = allTotalPrice + deductedTotal;
 
                                 Log.d("asdfgh2", "" + id + itemName + price + itemCount + finalPrice + pId);
 

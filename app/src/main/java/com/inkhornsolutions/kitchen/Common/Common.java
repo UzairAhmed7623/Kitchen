@@ -11,6 +11,10 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.media.AudioAttributes;
+import android.media.AudioManager;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -42,28 +46,37 @@ public class Common {
         if (intent != null){
             Log.d("TAG", "Intent is not null");
 
+            Uri soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+            AudioAttributes audioAttributes = new AudioAttributes.Builder()
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                    .setUsage(AudioAttributes.USAGE_ALARM)
+                    .build();
+
             pendingIntent = pendingIntent.getActivity(context, id, intent, PendingIntent.FLAG_UPDATE_CURRENT);
             String NOTIFICATION_CHANNEL_ID = "1001";
             NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
                 NotificationChannel notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID,
-                        "CHJ Kitchen", NotificationManager.IMPORTANCE_HIGH);
-                notificationChannel.setDescription("CHJ Kitchen");
+                        "CHJKitchen", NotificationManager.IMPORTANCE_HIGH);
+                notificationChannel.setDescription("CHJKitchen");
                 notificationChannel.enableLights(true);
                 notificationChannel.setLightColor(Color.RED);
                 notificationChannel.setVibrationPattern(new long[]{0, 1000, 500, 1000});
                 notificationChannel.enableVibration(true);
+                notificationChannel.setSound(soundUri, audioAttributes);
 
                 notificationManager.createNotificationChannel(notificationChannel);
             }
             NotificationCompat.Builder builder = new NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID);
             builder.setContentTitle(title)
                     .setContentText(body)
-                    .setAutoCancel(false)
+                    .setAutoCancel(true)
                     .setPriority(NotificationCompat.PRIORITY_HIGH)
                     .setDefaults(Notification.DEFAULT_VIBRATE)
-                    .setSmallIcon(R.drawable.chj_logo2)
-                    .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.drawable.chj_logo2));
+                    .setSound(soundUri, AudioManager.STREAM_NOTIFICATION)
+                    .setSmallIcon(R.drawable.kitchen_icon)
+                    .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.drawable.kitchen_icon))
+                    .setStyle(new NotificationCompat.BigTextStyle().bigText(body));
 
             if (pendingIntent != null){
                 builder.setContentIntent(pendingIntent);

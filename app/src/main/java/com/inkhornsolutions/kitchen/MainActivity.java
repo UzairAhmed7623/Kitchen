@@ -48,6 +48,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.annotations.NotNull;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -58,8 +59,6 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.inkhornsolutions.kitchen.Common.Common;
-import com.inkhornsolutions.kitchen.EventBus.NewOrders;
 import com.inkhornsolutions.kitchen.Fragments.InProgress;
 import com.inkhornsolutions.kitchen.Fragments.RecentOrders;
 import com.inkhornsolutions.kitchen.Utils.UserUtils;
@@ -67,15 +66,10 @@ import com.ogaclejapan.smarttablayout.SmartTabLayout;
 import com.ogaclejapan.smarttablayout.utils.v4.FragmentPagerItemAdapter;
 import com.ogaclejapan.smarttablayout.utils.v4.FragmentPagerItems;
 
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
-import org.jetbrains.annotations.NotNull;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
-import java.util.Random;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import kotlin.Unit;
@@ -105,16 +99,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private String sdownload_url = "";
     private ImageView ivResImage;
     private ImageButton ibChat;
-    private TextView tvResName;
-
-    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
-    public void onOrderReceived(NewOrders event){
-
-        Common.showNotification(this, new Random().nextInt(),
-                "New Order",
-                "Congrats! You have new order. Tap to see order details.",
-                getIntent());
-    }
+    private TextView tvResName, tvTotalPrice;
+    private double sum = 0;
+    Double deductedTotal = 0.0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -135,9 +122,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         statusSwitch = (SwitcherX) findViewById(R.id.statusSwitch);
         ibChat = (ImageButton) findViewById(R.id.ibChat);
         tvResName = (TextView) findViewById(R.id.tvResName);
+        tvTotalPrice = (TextView) findViewById(R.id.tvTotalPrice);
 
 //        layoutOrder.setWaveColor(0xFF000000+new Random().nextInt(0xFFFFFF)); // Random color assign
-
 
         FirebaseMessaging.getInstance().getToken().addOnCompleteListener(new OnCompleteListener<String>() {
             @Override
@@ -152,7 +139,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 UserUtils.updateToken(MainActivity.this, token);
             }
         });
-
 
         statusSwitch.setOnCheckedChangeListener(new Function1<Boolean, Unit>() {
             @Override
@@ -286,6 +272,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
             }
         });
+
+        OrdersList(resName);
     }
 
     @SuppressLint("InflateParams")
@@ -616,6 +604,50 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (view.getParent() != null) {
             ((ViewGroup) view.getParent()).removeView(view);
         }
+    }
+
+    private void OrdersList(String resName) {
+        firebaseFirestore.collection("Users").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot value) {
+
+                for (QueryDocumentSnapshot documentSnapshot : value){
+                    if (documentSnapshot.exists()){
+                        String id = documentSnapshot.getId();
+
+                        firebaseFirestore.collection("Users").document(id).collection("Cart")
+                                .whereEqualTo("status", "Dispatched")
+                                .whereEqualTo("restaurantName", resName)
+                                .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                for (QueryDocumentSnapshot documentSnapshot : task.getResult()){
+                                    if (documentSnapshot.exists()){
+
+                                        String total = documentSnapshot.getString("total");
+
+                                        ArrayList<Double> totalPrice = new ArrayList<>();
+                                        totalPrice.add(Double.parseDouble(total)-45);
+
+                                        for (int i = 0; i < totalPrice.size(); i++)
+                                        {
+                                            sum = sum + totalPrice.get(i);
+                                        }
+                                        deductedTotal = sum* 0.8;
+
+                                    }
+                                    else {
+                                        Snackbar.make(getParent().findViewById(android.R.id.content), "Data not found!", Snackbar.LENGTH_LONG).show();
+                                    }
+                                }
+
+                                tvTotalPrice.setText("PKR" + deductedTotal);
+                            }
+                        });
+                    }
+                }
+            }
+        });
     }
 
     @Override

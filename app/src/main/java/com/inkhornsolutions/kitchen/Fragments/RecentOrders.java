@@ -151,11 +151,14 @@ public class RecentOrders extends Fragment {
 
                                             OrdersModelClass ordersModelClass = new OrdersModelClass();
 
+                                            Double deductedTotal = (Double.parseDouble(total) - 45) * 0.8;
+
+
+                                            ordersModelClass.setTotalPrice(String.valueOf(deductedTotal));
                                             ordersModelClass.setResId(resId);
                                             ordersModelClass.setDate(time);
                                             ordersModelClass.setResName(resName);
                                             ordersModelClass.setStatus(status);
-                                            ordersModelClass.setTotalPrice(total);
                                             ordersModelClass.setLat(lat);
                                             ordersModelClass.setLng(lng);
                                             ordersModelClass.setOrderId(orderId);

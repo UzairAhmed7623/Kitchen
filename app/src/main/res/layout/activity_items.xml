@@ -7,7 +7,7 @@
     tools:context=".Items">
 
     <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbarOrders"
+        android:id="@+id/toolbarItems"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:title="Your Items"
@@ -21,7 +21,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <jp.co.recruit_lifestyle.android.widget.WaveSwipeRefreshLayout
-        android:id="@+id/layoutOrder"
+        android:id="@+id/layoutItems"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:orientation="vertical"
@@ -29,7 +29,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbarOrders">
+        app:layout_constraintTop_toBottomOf="@+id/toolbarItems">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvItems"

@@ -127,13 +127,15 @@ public class InProgress extends Fragment {
                                             Double lat = documentSnapshot.getDouble("latlng.latitude");
                                             Double lng = documentSnapshot.getDouble("latlng.longitude");
 
+                                            double deductedTotal = (Double.parseDouble(total) - 45) * 0.8;
+
                                             OrdersModelClass ordersModelClass = new OrdersModelClass();
 
                                             ordersModelClass.setResId(resId);
                                             ordersModelClass.setDate(time);
                                             ordersModelClass.setResName(resName);
                                             ordersModelClass.setStatus(status);
-                                            ordersModelClass.setTotalPrice(total);
+                                            ordersModelClass.setTotalPrice(String.valueOf(deductedTotal));
                                             ordersModelClass.setLat(lat);
                                             ordersModelClass.setLng(lng);
                                             ordersModelClass.setOrderId(orderId);
