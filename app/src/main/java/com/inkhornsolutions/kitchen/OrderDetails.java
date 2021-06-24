@@ -23,7 +23,6 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.messaging.FirebaseMessaging;
 import com.inkhornsolutions.kitchen.Utils.UserUtils;
 import com.inkhornsolutions.kitchen.adapters.OrdersDetailsAdapter;
 import com.inkhornsolutions.kitchen.modelclasses.OrdersModelClass;
