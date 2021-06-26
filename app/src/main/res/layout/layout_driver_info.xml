@@ -99,7 +99,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical"
-                    android:text="Uzair Ahmed"
+                    android:text="Driver Name"
                     android:fontFamily="@font/uber_move_bold"
                     android:textColor="#737373"
                     android:textSize="14sp"/>

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="250dp"
+    android:layout_width="200dp"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical">
 
     <androidx.cardview.widget.CardView
-        android:layout_width="250dp"
+        android:layout_width="200dp"
         android:layout_height="wrap_content"
         app:cardCornerRadius="8dp"
         android:orientation="horizontal">
@@ -15,26 +15,27 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@android:color/white"
-            android:weightSum="6"
+            android:minHeight="50dp"
+            android:weightSum="2"
             android:orientation="horizontal">
 
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:background="@android:color/black"
+                android:background="@color/myColor"
                 android:padding="4dp"
                 android:orientation="vertical"
-                android:layout_weight="1.5">
+                android:layout_weight="0.5">
 
                 <TextView
                     android:id="@+id/tvTime"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
                     android:text="5\nMIN"
-                    android:fontFamily="@font/uber_move"
-                    android:textSize="13sp"
+                    android:fontFamily="@font/montserra_regular_bold"
+                    android:textSize="14sp"
                     android:layout_gravity="center"
-                    android:textAlignment="center"
+                    android:gravity="center_vertical|center_horizontal"
                     android:textColor="@android:color/white"
                     android:textStyle="bold"/>
 
@@ -44,17 +45,13 @@
                 android:id="@+id/tvOrigin"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="4.5"
+                android:layout_weight="1.5"
+                android:textSize="14sp"
+                android:textColor="@color/black"
+                android:fontFamily="@font/montserra_regular"
                 android:text="1234 sN fdfdfdfdfdfdfdfdfdfhgfhd"
                 android:layout_gravity="center_vertical"
                 android:layout_marginStart="10dp"/>
-
-            <ImageView
-                android:id="@+id/ivNext"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:src="@drawable/next"
-                android:layout_gravity="center_vertical"/>
 
         </LinearLayout>
 
@@ -66,16 +63,16 @@
 
         <View
             android:layout_width="1dp"
-            android:layout_height="10dp"
+            android:layout_height="15dp"
             android:layout_gravity="center_horizontal"
-            android:background="@android:color/black"/>
+            android:background="@color/myColor"/>
 
-        <ImageView
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginTop="8dp"
-            android:background="@drawable/kitchen_marker_background"
-            android:src="@drawable/restaurat_marker" />
+<!--        <ImageView-->
+<!--            android:layout_width="30dp"-->
+<!--            android:layout_height="30dp"-->
+<!--            android:layout_marginTop="8dp"-->
+<!--            android:src="@drawable/location_pin"-->
+<!--             />-->
 
     </FrameLayout>
 

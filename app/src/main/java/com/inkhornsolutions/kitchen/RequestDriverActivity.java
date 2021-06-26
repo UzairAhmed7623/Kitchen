@@ -10,6 +10,8 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
@@ -30,6 +32,12 @@ import com.akexorcist.googledirection.model.Info;
 import com.akexorcist.googledirection.model.Leg;
 import com.akexorcist.googledirection.model.Route;
 import com.bumptech.glide.Glide;
+import com.firebase.geofire.GeoFire;
+import com.firebase.geofire.GeoLocation;
+import com.firebase.geofire.GeoQuery;
+import com.firebase.geofire.GeoQueryEventListener;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DatabaseReference;
 import com.inkhornsolutions.kitchen.Common.Common;
 import com.inkhornsolutions.kitchen.EventBus.DeclineRequestAndRemoveTripFromDriver;
 import com.inkhornsolutions.kitchen.EventBus.DeclineRequestFromDriver;
@@ -39,6 +47,7 @@ import com.inkhornsolutions.kitchen.EventBus.SelectPlaceEvent;
 import com.inkhornsolutions.kitchen.EventBus.TimeUp;
 import com.inkhornsolutions.kitchen.Utils.UserUtils;
 import com.inkhornsolutions.kitchen.modelclasses.DriverGeoModel;
+import com.inkhornsolutions.kitchen.modelclasses.GeoQueryModel;
 import com.inkhornsolutions.kitchen.modelclasses.TripPlanModel;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -67,7 +76,9 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Locale;
 import java.util.Random;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -516,10 +527,15 @@ public class RequestDriverActivity extends FragmentActivity implements OnMapRead
     }
 
     private void findNearByDriver(SelectPlaceEvent selectPlaceEvent) {
+
+
+        Geocoder geocoder = new Geocoder(RequestDriverActivity.this, Locale.getDefault());
+        List<Address> addressList;
+
         if (Common.driverFound.size() > 0){
 
             float min_distace = 0;
-            DriverGeoModel foundDriver = null;
+            DriverGeoModel driverGeoModel = null;
             Location currentRiderLocation = new Location("");
             currentRiderLocation.setLatitude(selectPlaceEvent.getOrigin().latitude);
             currentRiderLocation.setLongitude(selectPlaceEvent.getOrigin().longitude);
@@ -534,7 +550,7 @@ public class RequestDriverActivity extends FragmentActivity implements OnMapRead
 
                     if (!Common.driverFound.get(key).isDecline()){
 
-                        foundDriver = Common.driverFound.get(key);
+                        driverGeoModel = Common.driverFound.get(key);
                         break;
                     }
                     else {
@@ -546,7 +562,7 @@ public class RequestDriverActivity extends FragmentActivity implements OnMapRead
 
                     if (!Common.driverFound.get(key).isDecline()){
 
-                        foundDriver = Common.driverFound.get(key);
+                        driverGeoModel = Common.driverFound.get(key);
                         break;
                     }
                     else {
@@ -558,9 +574,9 @@ public class RequestDriverActivity extends FragmentActivity implements OnMapRead
 
             }
 
-            if (foundDriver != null){
-                UserUtils.sendRequestToDriver(this, main_layout, foundDriver, selectPlaceEvent);
-                lastDriverCall = foundDriver;
+            if (driverGeoModel != null){
+                UserUtils.sendRequestToDriver(this, main_layout, driverGeoModel, selectPlaceEvent);
+                lastDriverCall = driverGeoModel;
             }
             else {
                 Toast.makeText(this, "Driver not found!",Toast.LENGTH_LONG).show();

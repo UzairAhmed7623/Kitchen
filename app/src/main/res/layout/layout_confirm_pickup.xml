@@ -4,6 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/layout_confirm_Pickup"
     android:visibility="gone"
+    android:elevation="15dp"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
@@ -82,9 +83,9 @@
                 android:id="@+id/btnConfirmPickup"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/myColor"
                 android:text="Confirm Pickup"
                 android:elevation="15dp"
+                android:backgroundTint="@color/myColor"
                 android:textColor="@android:color/white"/>
 
         </LinearLayout>

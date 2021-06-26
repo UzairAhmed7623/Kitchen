@@ -47,7 +47,7 @@ public class UserUtils {
 		}
 	}
 
-    public static void sendRequestToDriver(Context context, RelativeLayout main_layout, DriverGeoModel foundDriver, SelectPlaceEvent selectPlaceEvent) {
+    public static void sendRequestToDriver(Context context, View view, DriverGeoModel foundDriver, SelectPlaceEvent selectPlaceEvent) {
 
 		CompositeDisposable compositeDisposable = new CompositeDisposable();
 		IFCMService ifcmService = RetrofitFCMClient.getInstance().create(IFCMService.class);
@@ -84,22 +84,22 @@ public class UserUtils {
 					.subscribe(fcmResponse -> {
 						if (fcmResponse.getSuccess() == 0){
 							compositeDisposable.clear();
-							Snackbar.make(main_layout, "Failed to send request to driver!", Snackbar.LENGTH_LONG).show();
+							Snackbar.make(view, "Failed to send request to driver!", Snackbar.LENGTH_LONG).show();
 
 						}
 					}, throwable -> {
 						compositeDisposable.clear();
-						Snackbar.make(main_layout, throwable.getMessage(), Snackbar.LENGTH_LONG).show();
+						Snackbar.make(view, throwable.getMessage(), Snackbar.LENGTH_LONG).show();
 					}));
 				}
 				else {
-					Snackbar.make(main_layout, "Token not found!", Snackbar.LENGTH_LONG).show();
+					Snackbar.make(view, "Token not found!", Snackbar.LENGTH_LONG).show();
 				}
 			}
 
 			@Override
 			public void onCancelled(@NonNull DatabaseError error) {
-				Snackbar.make(main_layout, error.getMessage(), Snackbar.LENGTH_LONG).show();
+				Snackbar.make(view, error.getMessage(), Snackbar.LENGTH_LONG).show();
 			}
 		});
     }
