@@ -1,14 +1,7 @@
 package com.inkhornsolutions.kitchen;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.cardview.widget.CardView;
-import androidx.core.app.ActivityCompat;
-import androidx.fragment.app.FragmentActivity;
-
 import android.Manifest;
 import android.animation.ValueAnimator;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -19,13 +12,18 @@ import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.text.TextUtils;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
+import androidx.core.app.ActivityCompat;
+import androidx.fragment.app.FragmentActivity;
 
 import com.akexorcist.googledirection.DirectionCallback;
 import com.akexorcist.googledirection.GoogleDirection;
@@ -38,6 +36,7 @@ import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
 import com.firebase.geofire.GeoQuery;
 import com.firebase.geofire.GeoQueryEventListener;
+import com.google.android.datatransport.Event;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -65,14 +64,11 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.maps.android.ui.IconGenerator;
@@ -80,10 +76,7 @@ import com.inkhornsolutions.kitchen.Common.Common;
 import com.inkhornsolutions.kitchen.EventBus.DriverAcceptTripEvent;
 import com.inkhornsolutions.kitchen.EventBus.SelectPlaceEvent;
 import com.inkhornsolutions.kitchen.Utils.UserUtils;
-import com.inkhornsolutions.kitchen.modelclasses.AnimationModel;
 import com.inkhornsolutions.kitchen.modelclasses.DriverGeoModel;
-import com.inkhornsolutions.kitchen.modelclasses.DriverInfoModel;
-import com.inkhornsolutions.kitchen.modelclasses.GeoQueryModel;
 import com.inkhornsolutions.kitchen.modelclasses.TripPlanModel;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.PermissionToken;
@@ -97,11 +90,11 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 import de.hdodenhof.circleimageview.CircleImageView;
-import io.reactivex.rxjava3.core.Observable;
 
 public class FindRider extends FragmentActivity implements OnMapReadyCallback {
 
@@ -113,12 +106,12 @@ public class FindRider extends FragmentActivity implements OnMapReadyCallback {
     private LocationRequest locationRequest;
     private LocationCallback locationCallback;
     private String cityName;
-    private double distance = 1.0; //in km
+    private double distance = 1.0; //km
     private static final double LIMIT_RANGE = 10.0;  //km
     private DriverGeoModel driverGeoModel;
     private static final String DIRECTION_API_KEY = "AIzaSyDl7YXtTZQNBkthV3PjFS0fQOKvL8SIR7k";
     private double orderLat, orderLng;
-    private String orderId="";
+    private String orderId="", userId = "";
 
 
     private TextView tvOrigin;
@@ -155,15 +148,30 @@ public class FindRider extends FragmentActivity implements OnMapReadyCallback {
     private static final int DESIRED_SECONDS_PER_ONE_360_SPIN = 40;
 
     private DriverGeoModel lastDriverCall;
+    private String driverOldPosition = "";
+    private LatLng driverOldPositionLatLng;
+
+    //move markre animation
+    private Handler handler;
+    private float v;
+    private double lat, lng;
+    private int index, next;
+    private LatLng start,end;
+
+    PolylineOptions driverPolylineOptions;
+    List<LatLng> driverPolyLinesList;
+    Polyline driverPolyline;
 
     @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
     public void onDriverAcceptEvent(DriverAcceptTripEvent event){
         //Get trip informations
+
         FirebaseDatabase.getInstance().getReference("Trips").child(event.getTripId())
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         if (snapshot.exists()){
+
                             TripPlanModel tripPlanModel = snapshot.getValue(TripPlanModel.class);
                             mgoogleMap.clear();
                             fill_all_screen.setVisibility(View.GONE);
@@ -181,6 +189,8 @@ public class FindRider extends FragmentActivity implements OnMapReadyCallback {
                             LatLng userOrigin = new LatLng(Double.parseDouble(tripPlanModel.getOrigin().split(",")[0]),
                                     Double.parseDouble(tripPlanModel.getOrigin().split(",")[1]));
 
+                            Toast.makeText(FindRider.this, "onDriverAcceptEvent", Toast.LENGTH_SHORT).show();
+
                             try {
 
                                 GoogleDirection.withServerKey(DIRECTION_API_KEY)
@@ -192,43 +202,40 @@ public class FindRider extends FragmentActivity implements OnMapReadyCallback {
                                                 Route route = direction.getRouteList().get(0);
                                                 Leg leg = route.getLegList().get(0);
 
-                                                PolylineOptions blackPolylineOptions = new PolylineOptions();
-                                                List<LatLng> polyLineList = null;
-                                                Polyline blackPolyline = null;
-
-                                                polylineList = leg.getDirectionPoint();
+                                                driverPolyLinesList = new ArrayList<>();
+                                                driverPolyLinesList = leg.getDirectionPoint();
 
                                                 String duration = leg.getDuration().getText();
                                                 String distance = leg.getDistance().getText();
 
-
-                                                blackPolylineOptions = new PolylineOptions();
-                                                blackPolylineOptions.color(Color.BLACK);
-                                                blackPolylineOptions.width(5);
-                                                blackPolylineOptions.startCap(new SquareCap());
-                                                blackPolylineOptions.jointType(JointType.ROUND);
-                                                blackPolylineOptions.addAll(polylineList);
-                                                greyPolyline = mgoogleMap.addPolyline(polylineOptions);
-                                                blackPolyLine = mgoogleMap.addPolyline(blackPolylineOptions);
+                                                driverPolylineOptions = new PolylineOptions();
+                                                driverPolylineOptions.color(Color.BLACK);
+                                                driverPolylineOptions.width(15);
+                                                driverPolylineOptions.startCap(new SquareCap());
+                                                driverPolylineOptions.jointType(JointType.ROUND);
+                                                driverPolylineOptions.addAll(driverPolyLinesList);
+                                                driverPolyline = mgoogleMap.addPolyline(driverPolylineOptions);
 
                                                 LatLng origin = new LatLng(
                                                         Double.parseDouble(tripPlanModel.getOrigin().split(",")[0]),
                                                         Double.parseDouble(tripPlanModel.getOrigin().split(",")[1]));
 
-                                                LatLng destination = new LatLng(tripPlanModel.getCurrentLat(), tripPlanModel.getCurrentLng());
+                                                LatLng driverCurrentLocation = new LatLng(
+                                                        tripPlanModel.getCurrentLat(),
+                                                        tripPlanModel.getCurrentLng());
 
                                                 LatLngBounds latLngBounds = new LatLngBounds.Builder()
                                                         .include(origin)
-                                                        .include(destination)
+                                                        .include(driverCurrentLocation)
                                                         .build();
 
-//                                                addPickupMarkerWithDuration(duration, origin);
-//                                                addDriverMarker(destination);
+                                                addPickupMarkerWithDuration(duration, origin);
+                                                addDriverMarker(driverCurrentLocation);
 
                                                 mgoogleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(latLngBounds, 160));
                                                 mgoogleMap.moveCamera(CameraUpdateFactory.zoomTo(mgoogleMap.getCameraPosition().zoom - 1));
 
-//                                                initDriverForMoving(event.getTripId(), tripPlanModel);
+                                                initDriverForMoving(event.getTripId(), tripPlanModel);
 
                                                 Glide.with(FindRider.this).load(tripPlanModel.getDriverInfoModel().getDriverProfileImage()).into(ivDriver);
                                                 tvDriverName.setText(tripPlanModel.getDriverInfoModel().getFirstName()+" "+tripPlanModel.getDriverInfoModel().getLastName());
@@ -261,6 +268,128 @@ public class FindRider extends FragmentActivity implements OnMapReadyCallback {
                 });
     }
 
+    private void addDriverMarker(LatLng driverCurrentLocation) {
+        destinationMarker = mgoogleMap.addMarker(new MarkerOptions().position(driverCurrentLocation).flat(true)
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.bike)));
+    }
+
+    private void addPickupMarkerWithDuration(String duration, LatLng origin) {
+        Bitmap icon = Common.createIconWithDuration(this, duration);
+        originMarker = mgoogleMap.addMarker(new MarkerOptions().
+                icon(BitmapDescriptorFactory.fromBitmap(icon)).position(origin));
+    }
+
+    private void initDriverForMoving(String tripId, TripPlanModel tripPlanModel) {
+
+        Toast.makeText(this, "initDriverforMoving", Toast.LENGTH_SHORT).show();
+
+        driverOldPosition = new StringBuilder()
+                .append(tripPlanModel.getCurrentLat())
+                .append(",")
+                .append(tripPlanModel.getCurrentLng())
+                .toString();
+
+        driverOldPositionLatLng = new LatLng(tripPlanModel.getCurrentLat(), tripPlanModel.getCurrentLng());
+
+        FirebaseDatabase.getInstance().getReference("Trips").child(tripId).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()){
+
+                    TripPlanModel newData = snapshot.getValue(TripPlanModel.class);
+
+                    LatLng driverNewLocation = new LatLng(newData.getCurrentLat(), newData.getCurrentLng());
+
+//                    if (driverOldPositionLatLng == driverNewLocation){
+
+//                        Toast.makeText(FindRider.this, "old"+driverOldPositionLatLng+"new"+driverNewLocation, Toast.LENGTH_LONG).show();
+                        moveMarkerAnimation(destinationMarker, driverOldPositionLatLng, driverNewLocation);
+//                    }
+//                    else {
+//                        Toast.makeText(FindRider.this, "not Matching", Toast.LENGTH_SHORT).show();
+//                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Snackbar.make(findViewById(android.R.id.content), error.getMessage(),Snackbar.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    private void moveMarkerAnimation(Marker marker, LatLng from, LatLng to) {
+
+        try {
+            GoogleDirection.withServerKey(DIRECTION_API_KEY)
+                    .from(from)
+                    .to(to)
+                    .execute(new DirectionCallback() {
+                        @Override
+                        public void onDirectionSuccess(@Nullable Direction direction) {
+                            Route route = direction.getRouteList().get(0);
+                            Leg leg = route.getLegList().get(0);
+
+                            polylineList = new ArrayList<>();
+                            polylineList = leg.getDirectionPoint();
+
+                            String duration = leg.getDuration().getText();
+                            String distance = leg.getDistance().getText();
+
+                            Bitmap bitmap = Common.createIconWithDuration(FindRider.this, duration);
+                            originMarker.setIcon(BitmapDescriptorFactory.fromBitmap(bitmap));
+
+                            handler = new Handler(Looper.myLooper());
+                            index = -1;
+                            next = 1;
+
+                            handler.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (index < polylineList.size() - 2) {
+                                        index++;
+                                        next = index + 1;
+                                        start = polylineList.get(index);
+                                        end = polylineList.get(next);
+                                    }
+
+                                    ValueAnimator valueAnimator = ValueAnimator.ofInt(0, 1);
+                                    valueAnimator.setDuration(1500);
+                                    valueAnimator.setInterpolator(new LinearInterpolator());
+                                    valueAnimator.addUpdateListener(animation -> {
+                                        v = animation.getAnimatedFraction();
+                                        lng = v * end.longitude + (1 - v) * start.longitude;
+                                        lat = v * end.latitude + (1 - v) * start.latitude;
+                                        LatLng newPosition = new LatLng(lat, lng);
+                                        marker.setPosition(newPosition);
+                                        marker.setAnchor(0.5f, 0.5f);
+                                        marker.setRotation(Common.getBearing(start, newPosition));
+
+                                        mgoogleMap.moveCamera(CameraUpdateFactory.newLatLng(newPosition));
+                                    });
+
+                                    valueAnimator.start();
+                                    if (index < polylineList.size() - 2) {
+                                        handler.postDelayed(this, 1500);
+                                    } else if (index < polylineList.size() - 1) {
+                                    }
+                                }
+                            }, 1500);
+
+                            driverOldPositionLatLng = to;
+                        }
+
+                        @Override
+                        public void onDirectionFailure(@NonNull Throwable t) {
+                            Snackbar.make(findViewById(android.R.id.content), t.getMessage(), Snackbar.LENGTH_LONG).show();
+                        }
+                    });
+        }
+        catch (Exception e) {
+            Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).show();
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -269,9 +398,11 @@ public class FindRider extends FragmentActivity implements OnMapReadyCallback {
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseFirestore = FirebaseFirestore.getInstance();
 
-//        orderLat = getIntent().getDoubleExtra("lat", 1);
-//        orderLng = getIntent().getDoubleExtra("lng", 2);
+//        orderLat = getIntent().getDoubleExtra("lat", 0);
+//        orderLng = getIntent().getDoubleExtra("lng", 0);
 //        orderId = getIntent().getStringExtra("orderId");
+        userId = getIntent().getStringExtra("userId");
+
         orderLat = 31.530351;
         orderLng = 74.4912343;
         orderId = "12345678";
@@ -289,7 +420,6 @@ public class FindRider extends FragmentActivity implements OnMapReadyCallback {
         mapFragment.getMapAsync(this);
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(FindRider.this);
-
 
         init();
     }
@@ -324,6 +454,8 @@ public class FindRider extends FragmentActivity implements OnMapReadyCallback {
                         public void onDirectionSuccess(@Nullable Direction direction) {
                             Route route = direction.getRouteList().get(0);
                             Leg leg = route.getLegList().get(0);
+
+                            polylineList = new ArrayList<>();
 
                             polylineList = leg.getDirectionPoint();
 
@@ -449,7 +581,7 @@ public class FindRider extends FragmentActivity implements OnMapReadyCallback {
                         addressList = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
                         String address = addressList.get(0).getAddressLine(0);
 
-                        selectPlaceEvent = new SelectPlaceEvent(origin, destination, originString, destinationString, address);
+                        selectPlaceEvent = new SelectPlaceEvent(origin, destination, originString, destinationString, address, userId);
 
                         drawPath(selectPlaceEvent);
 
@@ -475,7 +607,7 @@ public class FindRider extends FragmentActivity implements OnMapReadyCallback {
 //                        Intent intent = new Intent(FindRider.this, RequestDriverActivity.class);
 //                        intent.putExtra("orderId", orderId);
 //                        startActivity(intent);
-                        EventBus.getDefault().postSticky(new SelectPlaceEvent(origin, destination, originString, destinationString, address));
+                        EventBus.getDefault().postSticky(new SelectPlaceEvent(origin, destination, originString, destinationString, address, userId));
                     }
                     catch (Exception e){
                         Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).show();

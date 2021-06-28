@@ -41,6 +41,8 @@ public class OrderDetails extends AppCompatActivity {
     public double allTotalPrice = 0.00;
     private MaterialButton btnAccept, btnReject, btnFindRider, btnDispatch;
     private LinearLayout layoutAcceptReject, layoutFindRiderDispatch;
+    private Double lat, lng;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,6 +54,8 @@ public class OrderDetails extends AppCompatActivity {
         resId = getIntent().getStringExtra("resId");
         orderID = getIntent().getStringExtra("orderId");
         userId = getIntent().getStringExtra("userId");
+        lat = getIntent().getDoubleExtra("lat", 0);
+        lng = getIntent().getDoubleExtra("lng", 0);
 
         rvOrdersDetails = (RecyclerView) findViewById(R.id.rvOrdersDetails);
         tvTotalPrice = (TextView) findViewById(R.id.tvTotalPrice);
@@ -142,9 +146,10 @@ public class OrderDetails extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(OrderDetails.this, FindDriver.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//                intent.putExtra("lat", lat);
-//                intent.putExtra("lng", lng);
-//                intent.putExtra("orderId", orderId);
+                intent.putExtra("lat", lat);
+                intent.putExtra("lng", lng);
+                intent.putExtra("orderId", orderID);
+                intent.putExtra("userId", userId);
                 startActivity(intent);
             }
         });

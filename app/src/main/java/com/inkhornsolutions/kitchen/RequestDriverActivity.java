@@ -133,246 +133,246 @@ public class RequestDriverActivity extends FragmentActivity implements OnMapRead
 
     private RelativeLayout main_layout;
 
-    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
-    public void onDriverAcceptEvent(DriverAcceptTripEvent event){
-        //Get trip informations
-        FirebaseDatabase.getInstance().getReference("Trips").child(event.getTripId())
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        if (snapshot.exists()){
-                            TripPlanModel tripPlanModel = snapshot.getValue(TripPlanModel.class);
-                            mMap.clear();
-                            fillMaps.setVisibility(View.GONE);
-                            if (animator != null){
-                                animator.end();
-                            }
-                            CameraPosition cameraPosition = new CameraPosition.Builder()
-                                    .target(mMap.getCameraPosition().target)
-                                    .tilt(0f)
-                                    .zoom(mMap.getCameraPosition().zoom)
-                                    .build();
-                            mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-
-                            LatLng driverLocation = new LatLng(tripPlanModel.getCurrentLat(), tripPlanModel.getCurrentLng());
-                            LatLng userOrigin = new LatLng(Double.parseDouble(tripPlanModel.getOrigin().split(",")[0]),
-                                    Double.parseDouble(tripPlanModel.getOrigin().split(",")[1]));
-
-                            try {
-
-                                GoogleDirection.withServerKey(DIRECTION_API_KEY)
-                                        .from(userOrigin)
-                                        .to(driverLocation)
-                                        .execute(new DirectionCallback() {
-                                            @Override
-                                            public void onDirectionSuccess(@Nullable Direction direction) {
-                                                Route route = direction.getRouteList().get(0);
-                                                Leg leg = route.getLegList().get(0);
-
-                                                PolylineOptions blackPolylineOptions = new PolylineOptions();
-                                                List<LatLng> polyLineList = null;
-                                                Polyline blackPolyline = null;
-
-                                                polylineList = leg.getDirectionPoint();
-
-                                                String duration = leg.getDuration().getText();
-                                                String distance = leg.getDistance().getText();
-
-
-                                                blackPolylineOptions = new PolylineOptions();
-                                                blackPolylineOptions.color(Color.BLACK);
-                                                blackPolylineOptions.width(5);
-                                                blackPolylineOptions.startCap(new SquareCap());
-                                                blackPolylineOptions.jointType(JointType.ROUND);
-                                                blackPolylineOptions.addAll(polylineList);
-                                                greyPolyline = mMap.addPolyline(polylineOptions);
-                                                blackPolyLine = mMap.addPolyline(blackPolylineOptions);
-
-                                                LatLng origin = new LatLng(
-                                                        Double.parseDouble(tripPlanModel.getOrigin().split(",")[0]),
-                                                        Double.parseDouble(tripPlanModel.getOrigin().split(",")[1]));
-
-                                                LatLng destination = new LatLng(tripPlanModel.getCurrentLat(), tripPlanModel.getCurrentLng());
-
-                                                LatLngBounds latLngBounds = new LatLngBounds.Builder()
-                                                        .include(origin)
-                                                        .include(destination)
-                                                        .build();
-
-                                                addPickupMarkerWithDuration(duration, origin);
-                                                addDriverMarker(destination);
-
-                                                mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(latLngBounds, 160));
-                                                mMap.moveCamera(CameraUpdateFactory.zoomTo(mMap.getCameraPosition().zoom - 1));
-
-                                                initDriverForMoving(event.getTripId(), tripPlanModel);
-
-                                                Glide.with(RequestDriverActivity.this).load(tripPlanModel.getDriverInfoModel().getDriverProfileImage()).into(ivDriver);
-                                                tvDriverName.setText(tripPlanModel.getDriverInfoModel().getFirstName()+" "+tripPlanModel.getDriverInfoModel().getLastName());
-
-
-                                                layout_confirm_pickup.setVisibility(View.GONE);
-                                                layout_confirm_uber.setVisibility(View.GONE);
-                                                driverInfoLayout.setVisibility(View.VISIBLE);
-                                            }
-
-                                            @Override
-                                            public void onDirectionFailure(@NonNull Throwable t) {
-
-                                            }
-                                        });
-                            }
-                            catch (Exception e){
-                                Snackbar.make(mapFragment.getView(), e.getMessage(), Snackbar.LENGTH_LONG).show();
-                            }
-                        }
-                        else {
-                            Snackbar.make(main_layout, "Trip not found with key"+event.getTripId(), Snackbar.LENGTH_LONG).show();
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-                        Snackbar.make(main_layout, error.getMessage(), Snackbar.LENGTH_LONG).show();
-                    }
-                });
-    }
-
-    private void initDriverForMoving(String tripId, TripPlanModel tripPlanModel) {
-
-        driverOldPosition = new StringBuilder()
-                .append(tripPlanModel.getCurrentLat())
-                .append(",")
-                .append(tripPlanModel.getCurrentLng())
-                .toString();
-
-        driverOldPositionLatLng = new LatLng(tripPlanModel.getCurrentLat(), tripPlanModel.getCurrentLng());
-
-        FirebaseDatabase.getInstance().getReference("Trips").child(tripId).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()){
-
-                    TripPlanModel newData = snapshot.getValue(TripPlanModel.class);
-
-                    LatLng driverNewLocation = new LatLng(newData.getCurrentLat(), newData.getCurrentLng());
-
-                    if (driverOldPositionLatLng == driverNewLocation){
-
-                        Toast.makeText(RequestDriverActivity.this, "old"+driverOldPositionLatLng+"new"+driverNewLocation, Toast.LENGTH_LONG).show();
-                        moveMarkerAnimation(destinationMarker, driverOldPositionLatLng, driverNewLocation);
-                    }
-                    else {
-                        Toast.makeText(RequestDriverActivity.this, "not Matching", Toast.LENGTH_SHORT).show();
-                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Snackbar.make(main_layout, error.getMessage(),Snackbar.LENGTH_LONG).show();
-            }
-        });
-    }
-
-    private void moveMarkerAnimation(Marker marker, LatLng from, LatLng to) {
-        try {
-            GoogleDirection.withServerKey(DIRECTION_API_KEY)
-                    .from(from)
-                    .to(to)
-                    .execute(new DirectionCallback() {
-                        @Override
-                        public void onDirectionSuccess(@Nullable Direction direction) {
-                            Route route = direction.getRouteList().get(0);
-                            Leg leg = route.getLegList().get(0);
-                            polylineList = leg.getDirectionPoint();
-
-                            String duration = leg.getDuration().getText();
-                            String distance = leg.getDistance().getText();
-
-
-                            blackPolylineOptions = new PolylineOptions();
-                            blackPolylineOptions.color(Color.BLACK);
-                            blackPolylineOptions.width(5);
-                            blackPolylineOptions.startCap(new SquareCap());
-                            blackPolylineOptions.jointType(JointType.ROUND);
-                            blackPolylineOptions.addAll(polylineList);
-                            greyPolyline = mMap.addPolyline(polylineOptions);
-                            blackPolyLine = mMap.addPolyline(blackPolylineOptions);
-
-                            Bitmap bitmap = Common.createIconWithDuration(RequestDriverActivity.this, duration);
-                            originMarker.setIcon(BitmapDescriptorFactory.fromBitmap(bitmap));
-
-                            handler = new Handler(Looper.myLooper());
-                            index = -1;
-                            next = 1;
-
-                            handler.postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    if (index < polylineList.size() -2){
-                                        index++;
-                                        next = index + 1;
-                                        start = polylineList.get(index);
-                                        end = polylineList.get(next);
-                                    }
-
-                                    ValueAnimator valueAnimator = ValueAnimator.ofInt(0,1);
-                                    valueAnimator.setDuration(1500);
-                                    valueAnimator.setInterpolator(new LinearInterpolator());
-                                    valueAnimator.addUpdateListener(animation -> {
-                                        v = animation.getAnimatedFraction();
-                                        lng = v * end.longitude + (1 - v) * start.longitude;
-                                        lat = v * end.latitude + (1 - v) * start.latitude;
-                                        LatLng newPosition = new LatLng(lat,lng );
-                                        marker.setPosition(newPosition);
-                                        marker.setAnchor(0.5f, 0.5f);
-                                        marker.setRotation(Common.getBearing(start, newPosition));
-
-                                        mMap.moveCamera(CameraUpdateFactory.newLatLng(newPosition));
-                                    });
-
-                                    valueAnimator.start();
-                                    if (index < polylineList.size() - 2){
-                                        handler.postDelayed(this, 1500);
-                                    }
-                                    else if (index < polylineList.size() - 1){
-
-                                    }
-                                }
-                            }, 1500);
-
-                            driverOldPositionLatLng = to;
-                        }
-
-                        @Override
-                        public void onDirectionFailure(@NonNull Throwable t) {
-                            Snackbar.make(mapFragment.getView(), t.getMessage(), Snackbar.LENGTH_LONG).show();
-
-                        }
-                    });
-
-        }
-        catch (Exception e){
-            Snackbar.make(mapFragment.getView(), e.getMessage(), Snackbar.LENGTH_LONG).show();
-        }
-
-    }
-
-    private void addDriverMarker(LatLng destination) {
-        destinationMarker = mMap.addMarker(new MarkerOptions().position(destination).flat(true)
-        .icon(BitmapDescriptorFactory.fromResource(R.drawable.bike)));
-    }
-
-    private void addPickupMarkerWithDuration(String duration, LatLng origin) {
-        Bitmap icon = Common.createIconWithDuration(this, duration);
-        originMarker = mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromBitmap(icon)).position(origin));
-    }
-
-    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
-    public void onSelectPlaceEvent(SelectPlaceEvent event){
-        selectPlaceEvent = event;
-    }
+//    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
+//    public void onDriverAcceptEvent(DriverAcceptTripEvent event){
+//        //Get trip informations
+//        FirebaseDatabase.getInstance().getReference("Trips").child(event.getTripId())
+//                .addListenerForSingleValueEvent(new ValueEventListener() {
+//                    @Override
+//                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                        if (snapshot.exists()){
+//                            TripPlanModel tripPlanModel = snapshot.getValue(TripPlanModel.class);
+//                            mMap.clear();
+//                            fillMaps.setVisibility(View.GONE);
+//                            if (animator != null){
+//                                animator.end();
+//                            }
+//                            CameraPosition cameraPosition = new CameraPosition.Builder()
+//                                    .target(mMap.getCameraPosition().target)
+//                                    .tilt(0f)
+//                                    .zoom(mMap.getCameraPosition().zoom)
+//                                    .build();
+//                            mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+//
+//                            LatLng driverLocation = new LatLng(tripPlanModel.getCurrentLat(), tripPlanModel.getCurrentLng());
+//                            LatLng userOrigin = new LatLng(Double.parseDouble(tripPlanModel.getOrigin().split(",")[0]),
+//                                    Double.parseDouble(tripPlanModel.getOrigin().split(",")[1]));
+//
+//                            try {
+//
+//                                GoogleDirection.withServerKey(DIRECTION_API_KEY)
+//                                        .from(userOrigin)
+//                                        .to(driverLocation)
+//                                        .execute(new DirectionCallback() {
+//                                            @Override
+//                                            public void onDirectionSuccess(@Nullable Direction direction) {
+//                                                Route route = direction.getRouteList().get(0);
+//                                                Leg leg = route.getLegList().get(0);
+//
+//                                                PolylineOptions blackPolylineOptions = new PolylineOptions();
+//                                                List<LatLng> polyLineList = null;
+//                                                Polyline blackPolyline = null;
+//
+//                                                polylineList = leg.getDirectionPoint();
+//
+//                                                String duration = leg.getDuration().getText();
+//                                                String distance = leg.getDistance().getText();
+//
+//
+//                                                blackPolylineOptions = new PolylineOptions();
+//                                                blackPolylineOptions.color(Color.BLACK);
+//                                                blackPolylineOptions.width(5);
+//                                                blackPolylineOptions.startCap(new SquareCap());
+//                                                blackPolylineOptions.jointType(JointType.ROUND);
+//                                                blackPolylineOptions.addAll(polylineList);
+//                                                greyPolyline = mMap.addPolyline(polylineOptions);
+//                                                blackPolyLine = mMap.addPolyline(blackPolylineOptions);
+//
+//                                                LatLng origin = new LatLng(
+//                                                        Double.parseDouble(tripPlanModel.getOrigin().split(",")[0]),
+//                                                        Double.parseDouble(tripPlanModel.getOrigin().split(",")[1]));
+//
+//                                                LatLng destination = new LatLng(tripPlanModel.getCurrentLat(), tripPlanModel.getCurrentLng());
+//
+//                                                LatLngBounds latLngBounds = new LatLngBounds.Builder()
+//                                                        .include(origin)
+//                                                        .include(destination)
+//                                                        .build();
+//
+//                                                addPickupMarkerWithDuration(duration, origin);
+//                                                addDriverMarker(destination);
+//
+//                                                mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(latLngBounds, 160));
+//                                                mMap.moveCamera(CameraUpdateFactory.zoomTo(mMap.getCameraPosition().zoom - 1));
+//
+//                                                initDriverForMoving(event.getTripId(), tripPlanModel);
+//
+//                                                Glide.with(RequestDriverActivity.this).load(tripPlanModel.getDriverInfoModel().getDriverProfileImage()).into(ivDriver);
+//                                                tvDriverName.setText(tripPlanModel.getDriverInfoModel().getFirstName()+" "+tripPlanModel.getDriverInfoModel().getLastName());
+//
+//
+//                                                layout_confirm_pickup.setVisibility(View.GONE);
+//                                                layout_confirm_uber.setVisibility(View.GONE);
+//                                                driverInfoLayout.setVisibility(View.VISIBLE);
+//                                            }
+//
+//                                            @Override
+//                                            public void onDirectionFailure(@NonNull Throwable t) {
+//
+//                                            }
+//                                        });
+//                            }
+//                            catch (Exception e){
+//                                Snackbar.make(mapFragment.getView(), e.getMessage(), Snackbar.LENGTH_LONG).show();
+//                            }
+//                        }
+//                        else {
+//                            Snackbar.make(main_layout, "Trip not found with key"+event.getTripId(), Snackbar.LENGTH_LONG).show();
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onCancelled(@NonNull DatabaseError error) {
+//                        Snackbar.make(main_layout, error.getMessage(), Snackbar.LENGTH_LONG).show();
+//                    }
+//                });
+//    }
+//
+//    private void initDriverForMoving(String tripId, TripPlanModel tripPlanModel) {
+//
+//        driverOldPosition = new StringBuilder()
+//                .append(tripPlanModel.getCurrentLat())
+//                .append(",")
+//                .append(tripPlanModel.getCurrentLng())
+//                .toString();
+//
+//        driverOldPositionLatLng = new LatLng(tripPlanModel.getCurrentLat(), tripPlanModel.getCurrentLng());
+//
+//        FirebaseDatabase.getInstance().getReference("Trips").child(tripId).addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                if (snapshot.exists()){
+//
+//                    TripPlanModel newData = snapshot.getValue(TripPlanModel.class);
+//
+//                    LatLng driverNewLocation = new LatLng(newData.getCurrentLat(), newData.getCurrentLng());
+//
+//                    if (driverOldPositionLatLng == driverNewLocation){
+//
+//                        Toast.makeText(RequestDriverActivity.this, "old"+driverOldPositionLatLng+"new"+driverNewLocation, Toast.LENGTH_LONG).show();
+//                        moveMarkerAnimation(destinationMarker, driverOldPositionLatLng, driverNewLocation);
+//                    }
+//                    else {
+//                        Toast.makeText(RequestDriverActivity.this, "not Matching", Toast.LENGTH_SHORT).show();
+//                    }
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError error) {
+//                Snackbar.make(main_layout, error.getMessage(),Snackbar.LENGTH_LONG).show();
+//            }
+//        });
+//    }
+//
+//    private void moveMarkerAnimation(Marker marker, LatLng from, LatLng to) {
+//        try {
+//            GoogleDirection.withServerKey(DIRECTION_API_KEY)
+//                    .from(from)
+//                    .to(to)
+//                    .execute(new DirectionCallback() {
+//                        @Override
+//                        public void onDirectionSuccess(@Nullable Direction direction) {
+//                            Route route = direction.getRouteList().get(0);
+//                            Leg leg = route.getLegList().get(0);
+//                            polylineList = leg.getDirectionPoint();
+//
+//                            String duration = leg.getDuration().getText();
+//                            String distance = leg.getDistance().getText();
+//
+//
+//                            blackPolylineOptions = new PolylineOptions();
+//                            blackPolylineOptions.color(Color.BLACK);
+//                            blackPolylineOptions.width(5);
+//                            blackPolylineOptions.startCap(new SquareCap());
+//                            blackPolylineOptions.jointType(JointType.ROUND);
+//                            blackPolylineOptions.addAll(polylineList);
+//                            greyPolyline = mMap.addPolyline(polylineOptions);
+//                            blackPolyLine = mMap.addPolyline(blackPolylineOptions);
+//
+//                            Bitmap bitmap = Common.createIconWithDuration(RequestDriverActivity.this, duration);
+//                            originMarker.setIcon(BitmapDescriptorFactory.fromBitmap(bitmap));
+//
+//                            handler = new Handler(Looper.myLooper());
+//                            index = -1;
+//                            next = 1;
+//
+//                            handler.postDelayed(new Runnable() {
+//                                @Override
+//                                public void run() {
+//                                    if (index < polylineList.size() -2){
+//                                        index++;
+//                                        next = index + 1;
+//                                        start = polylineList.get(index);
+//                                        end = polylineList.get(next);
+//                                    }
+//
+//                                    ValueAnimator valueAnimator = ValueAnimator.ofInt(0,1);
+//                                    valueAnimator.setDuration(1500);
+//                                    valueAnimator.setInterpolator(new LinearInterpolator());
+//                                    valueAnimator.addUpdateListener(animation -> {
+//                                        v = animation.getAnimatedFraction();
+//                                        lng = v * end.longitude + (1 - v) * start.longitude;
+//                                        lat = v * end.latitude + (1 - v) * start.latitude;
+//                                        LatLng newPosition = new LatLng(lat,lng );
+//                                        marker.setPosition(newPosition);
+//                                        marker.setAnchor(0.5f, 0.5f);
+//                                        marker.setRotation(Common.getBearing(start, newPosition));
+//
+//                                        mMap.moveCamera(CameraUpdateFactory.newLatLng(newPosition));
+//                                    });
+//
+//                                    valueAnimator.start();
+//                                    if (index < polylineList.size() - 2){
+//                                        handler.postDelayed(this, 1500);
+//                                    }
+//                                    else if (index < polylineList.size() - 1){
+//
+//                                    }
+//                                }
+//                            }, 1500);
+//
+//                            driverOldPositionLatLng = to;
+//                        }
+//
+//                        @Override
+//                        public void onDirectionFailure(@NonNull Throwable t) {
+//                            Snackbar.make(mapFragment.getView(), t.getMessage(), Snackbar.LENGTH_LONG).show();
+//
+//                        }
+//                    });
+//
+//        }
+//        catch (Exception e){
+//            Snackbar.make(mapFragment.getView(), e.getMessage(), Snackbar.LENGTH_LONG).show();
+//        }
+//
+//    }
+//
+//    private void addDriverMarker(LatLng destination) {
+//        destinationMarker = mMap.addMarker(new MarkerOptions().position(destination).flat(true)
+//        .icon(BitmapDescriptorFactory.fromResource(R.drawable.bike)));
+//    }
+//
+//    private void addPickupMarkerWithDuration(String duration, LatLng origin) {
+//        Bitmap icon = Common.createIconWithDuration(this, duration);
+//        originMarker = mMap.addMarker(new MarkerOptions().icon(BitmapDescriptorFactory.fromBitmap(icon)).position(origin));
+//    }
+//
+//    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
+//    public void onSelectPlaceEvent(SelectPlaceEvent event){
+//        selectPlaceEvent = event;
+//    }
 
     @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
     public void onDeclineRequestEvent(DeclineRequestFromDriver event){

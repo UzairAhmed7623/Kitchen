@@ -6,13 +6,23 @@ public class SelectPlaceEvent {
     private LatLng origin, destination;
     private String originString, destinationString;
     private String address;
+    private String dropOffUserId;
 
-    public SelectPlaceEvent(LatLng origin, LatLng destination, String address, String originString, String destinationString) {
+    public SelectPlaceEvent(LatLng origin, LatLng destination, String originString, String destinationString, String address, String dropOffUserId) {
         this.origin = origin;
         this.destination = destination;
         this.originString = originString;
         this.destinationString = destinationString;
         this.address = address;
+        this.dropOffUserId = dropOffUserId;
+    }
+
+    public String getDropOffUserId() {
+        return dropOffUserId;
+    }
+
+    public void setDropOffUserId(String dropOffUserId) {
+        this.dropOffUserId = dropOffUserId;
     }
 
     public String getAddress() {

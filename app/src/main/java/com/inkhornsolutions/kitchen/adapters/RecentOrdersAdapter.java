@@ -85,6 +85,8 @@ public class RecentOrdersAdapter extends RecyclerView.Adapter<RecentOrdersAdapte
                 intent.putExtra("resId", resId);
                 intent.putExtra("orderId", orderId);
                 intent.putExtra("userId", userId);
+                intent.putExtra("lat", lat);
+                intent.putExtra("lng", lng);
 
                 v.getContext().startActivity(intent);
             }

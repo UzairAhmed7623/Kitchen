@@ -77,6 +77,8 @@ public class UserUtils {
 							.append(selectPlaceEvent.getDestination().longitude)
 							.toString());
 
+					notificationdata.put("dropOffUserId", selectPlaceEvent.getDropOffUserId());
+
 					FCMSendData fcmSendData = new FCMSendData(tokenModel.getToken(), notificationdata);
 					compositeDisposable.add(ifcmService.sendNotification(fcmSendData)
 					.subscribeOn(Schedulers.newThread())

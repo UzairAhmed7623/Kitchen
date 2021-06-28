@@ -186,7 +186,7 @@ public class FindDriver extends FragmentActivity implements OnMapReadyCallback, 
                         Intent intent = new Intent(FindDriver.this, RequestDriverActivity.class);
                         intent.putExtra("orderId", orderId);
                         startActivity(intent);
-                        EventBus.getDefault().postSticky(new SelectPlaceEvent(origin, destination, originString, destinationString, address));
+//                        EventBus.getDefault().postSticky(new SelectPlaceEvent(origin, destination, originString, destinationString, address));
                     }
                     catch (Exception e){
                         Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).show();
