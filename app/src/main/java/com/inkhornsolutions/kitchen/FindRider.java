@@ -111,7 +111,7 @@ public class FindRider extends FragmentActivity implements OnMapReadyCallback {
     private DriverGeoModel driverGeoModel;
     private static final String DIRECTION_API_KEY = "AIzaSyDl7YXtTZQNBkthV3PjFS0fQOKvL8SIR7k";
     private double orderLat, orderLng;
-    private String orderId="", userId = "";
+    private String orderId="", userId = "VQ9wMobC17getkUTkum0iTILZrb2";
 
 
     private TextView tvOrigin;
@@ -281,8 +281,6 @@ public class FindRider extends FragmentActivity implements OnMapReadyCallback {
 
     private void initDriverForMoving(String tripId, TripPlanModel tripPlanModel) {
 
-        Toast.makeText(this, "initDriverforMoving", Toast.LENGTH_SHORT).show();
-
         driverOldPosition = new StringBuilder()
                 .append(tripPlanModel.getCurrentLat())
                 .append(",")
@@ -401,7 +399,7 @@ public class FindRider extends FragmentActivity implements OnMapReadyCallback {
 //        orderLat = getIntent().getDoubleExtra("lat", 0);
 //        orderLng = getIntent().getDoubleExtra("lng", 0);
 //        orderId = getIntent().getStringExtra("orderId");
-        userId = getIntent().getStringExtra("userId");
+//        userId = getIntent().getStringExtra("userId");
 
         orderLat = 31.530351;
         orderLng = 74.4912343;
@@ -440,7 +438,6 @@ public class FindRider extends FragmentActivity implements OnMapReadyCallback {
                         UserUtils.updateToken(FindRider.this, token);
                     }
                 });
-
     }
 
     private void drawPath(SelectPlaceEvent selectPlaceEvent) {
@@ -581,7 +578,7 @@ public class FindRider extends FragmentActivity implements OnMapReadyCallback {
                         addressList = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
                         String address = addressList.get(0).getAddressLine(0);
 
-                        selectPlaceEvent = new SelectPlaceEvent(origin, destination, originString, destinationString, address, userId);
+                        selectPlaceEvent = new SelectPlaceEvent(origin, destination, originString, destinationString, address, userId, orderId);
 
                         drawPath(selectPlaceEvent);
 
@@ -607,7 +604,7 @@ public class FindRider extends FragmentActivity implements OnMapReadyCallback {
 //                        Intent intent = new Intent(FindRider.this, RequestDriverActivity.class);
 //                        intent.putExtra("orderId", orderId);
 //                        startActivity(intent);
-                        EventBus.getDefault().postSticky(new SelectPlaceEvent(origin, destination, originString, destinationString, address, userId));
+                        EventBus.getDefault().postSticky(new SelectPlaceEvent(origin, destination, originString, destinationString, address, userId, orderId));
                     }
                     catch (Exception e){
                         Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).show();

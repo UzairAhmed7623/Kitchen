@@ -70,7 +70,7 @@ public class UserUtils {
 							.append(selectPlaceEvent.getOrigin().longitude)
 							.toString());
 
-					notificationdata.put("DestinationLocationString", selectPlaceEvent.getAddress());
+					notificationdata.put("DestinationLocationString", selectPlaceEvent.getDestinationString());
 					notificationdata.put("DestinationLocation", new StringBuilder("")
 							.append(selectPlaceEvent.getDestination().latitude)
 							.append(",")
@@ -78,6 +78,7 @@ public class UserUtils {
 							.toString());
 
 					notificationdata.put("dropOffUserId", selectPlaceEvent.getDropOffUserId());
+					notificationdata.put("orderRefNumber", selectPlaceEvent.getOrderId());
 
 					FCMSendData fcmSendData = new FCMSendData(tokenModel.getToken(), notificationdata);
 					compositeDisposable.add(ifcmService.sendNotification(fcmSendData)

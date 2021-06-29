@@ -64,9 +64,12 @@ public class MyFirebaseService extends FirebaseMessagingService {
                 else if (title.equals("TimeOver")){
                     EventBus.getDefault().postSticky(new TimeUp(tripKey));
                 }
+                else if (title.equals("DriverArrived")){
+                    Intent intent = new Intent(this, MyFirebaseService.class);
+                    Common.showNotification(this, new Random().nextInt(), title, body, intent);
+                }
                 else if (title.equals("NewOrder")){
                     Intent intent = new Intent(this, MainActivity.class);
-
                     Common.showNotification(this, new Random().nextInt(), title, body, intent);
                 }
                 else {

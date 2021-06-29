@@ -739,7 +739,6 @@ public class RequestDriverActivity extends FragmentActivity implements OnMapRead
     @Override
     protected void onStop() {
         compositeDisposable.clear();
-        super.onStop();
         if (EventBus.getDefault().hasSubscriberForEvent(SelectPlaceEvent.class)){
             EventBus.getDefault().removeStickyEvent(SelectPlaceEvent.class);
         }
