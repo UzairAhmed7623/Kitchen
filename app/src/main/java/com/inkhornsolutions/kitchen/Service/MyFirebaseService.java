@@ -10,6 +10,7 @@ import com.inkhornsolutions.kitchen.Common.Common;
 import com.inkhornsolutions.kitchen.EventBus.DeclineRequestAndRemoveTripFromDriver;
 import com.inkhornsolutions.kitchen.EventBus.DeclineRequestFromDriver;
 import com.inkhornsolutions.kitchen.EventBus.DriverAcceptTripEvent;
+import com.inkhornsolutions.kitchen.EventBus.DriverArrived;
 import com.inkhornsolutions.kitchen.EventBus.DriverCompleteTripEvent;
 import com.inkhornsolutions.kitchen.EventBus.TimeUp;
 import com.inkhornsolutions.kitchen.MainActivity;
@@ -65,8 +66,7 @@ public class MyFirebaseService extends FirebaseMessagingService {
                     EventBus.getDefault().postSticky(new TimeUp(tripKey));
                 }
                 else if (title.equals("DriverArrived")){
-                    Intent intent = new Intent(this, MyFirebaseService.class);
-                    Common.showNotification(this, new Random().nextInt(), title, body, intent);
+                    EventBus.getDefault().postSticky(new DriverArrived(tripKey));
                 }
                 else if (title.equals("NewOrder")){
                     Intent intent = new Intent(this, MainActivity.class);

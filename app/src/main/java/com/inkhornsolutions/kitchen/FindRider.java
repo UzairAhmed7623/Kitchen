@@ -2,6 +2,7 @@ package com.inkhornsolutions.kitchen;
 
 import android.Manifest;
 import android.animation.ValueAnimator;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -73,8 +74,13 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.maps.android.ui.IconGenerator;
 import com.inkhornsolutions.kitchen.Common.Common;
+import com.inkhornsolutions.kitchen.EventBus.DeclineRequestAndRemoveTripFromDriver;
+import com.inkhornsolutions.kitchen.EventBus.DeclineRequestFromDriver;
 import com.inkhornsolutions.kitchen.EventBus.DriverAcceptTripEvent;
+import com.inkhornsolutions.kitchen.EventBus.DriverArrived;
+import com.inkhornsolutions.kitchen.EventBus.DriverCompleteTripEvent;
 import com.inkhornsolutions.kitchen.EventBus.SelectPlaceEvent;
+import com.inkhornsolutions.kitchen.EventBus.TimeUp;
 import com.inkhornsolutions.kitchen.Utils.UserUtils;
 import com.inkhornsolutions.kitchen.modelclasses.DriverGeoModel;
 import com.inkhornsolutions.kitchen.modelclasses.TripPlanModel;
@@ -88,11 +94,13 @@ import com.karumi.dexter.listener.single.PermissionListener;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Random;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -268,6 +276,169 @@ public class FindRider extends FragmentActivity implements OnMapReadyCallback {
                 });
     }
 
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
+    public void onDeclineRequestEvent(DeclineRequestFromDriver event){
+
+        if (lastDriverCall != null){
+            Common.driverFound.get(lastDriverCall.getKey()).setDecline(true);
+            findingNearByDriver(selectPlaceEvent);
+        }
+    }
+
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
+    public void onDeclineRequestAndRemoveTripEvent(DeclineRequestAndRemoveTripFromDriver event){
+
+        if (lastDriverCall != null){
+            Common.driverFound.get(lastDriverCall.getKey()).setDecline(true);
+            finish();
+        }
+    }
+
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
+    public void onDriverCompleteTrip(DriverCompleteTripEvent event){
+
+        Common.showNotification(this, new Random().nextInt(),
+                "Complete trip",
+                "Your trip: "+event.getTripKey()+"has been completed.",
+                getIntent());
+    }
+
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
+    public void onTimeUp(TimeUp event){
+
+        Common.showNotification(this, new Random().nextInt(),
+                "TimeUp",
+                "Please HarryUp",
+                getIntent());
+    }
+
+    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
+    public void onDriverArrived(DriverArrived event){
+        Common.showNotification(this, new Random().nextInt(),
+                "Driver Arrived",
+                "Your driver has arrived for order pickup.",
+                getIntent());
+
+        mgoogleMap.clear();
+        if (animator != null){
+            animator.cancel();
+        }
+        originMarker.remove();
+
+        drawPathForMovingDriver(event.getTripKey());
+    }
+    private void drawPathForMovingDriver(String tripKey) {
+
+        FirebaseDatabase.getInstance().getReference("Trips")
+                .child(tripKey)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
+                if (snapshot.exists()){
+
+                    TripPlanModel tripPlanModel = snapshot.getValue(TripPlanModel.class);
+
+                    double currentLat = tripPlanModel.getCurrentLat();
+                    double currentLng = tripPlanModel.getCurrentLng();
+
+                    LatLng originLatLng = new LatLng(currentLat, currentLng);
+                    LatLng destinationLatLng = new LatLng(Double.parseDouble(tripPlanModel.getDestination().split(",")[0]),
+                            Double.parseDouble(tripPlanModel.getDestination().split(",")[1]));
+
+                    try {
+                        GoogleDirection.withServerKey(DIRECTION_API_KEY)
+                                .from(originLatLng)
+                                .to(destinationLatLng)
+                                .execute(new DirectionCallback() {
+                                    @Override
+                                    public void onDirectionSuccess(@Nullable Direction direction) {
+                                        Route route = direction.getRouteList().get(0);
+                                        Leg leg = route.getLegList().get(0);
+
+                                        polylineList = new ArrayList<>();
+
+                                        polylineList = leg.getDirectionPoint();
+
+                                        polylineOptions = new PolylineOptions();
+                                        polylineOptions.color(getColor(R.color.red));
+                                        polylineOptions.width(10);
+                                        polylineOptions.startCap(new SquareCap());
+                                        polylineOptions.jointType(JointType.ROUND);
+                                        polylineOptions.addAll(polylineList);
+                                        greyPolyline = mgoogleMap.addPolyline(polylineOptions);
+
+                                        blackPolylineOptions = new PolylineOptions();
+                                        blackPolylineOptions.color(getColor(R.color.myColor));
+                                        blackPolylineOptions.width(5);
+                                        blackPolylineOptions.startCap(new SquareCap());
+                                        blackPolylineOptions.jointType(JointType.ROUND);
+                                        blackPolylineOptions.addAll(polylineList);
+                                        greyPolyline = mgoogleMap.addPolyline(polylineOptions);
+                                        blackPolyLine = mgoogleMap.addPolyline(blackPolylineOptions);
+
+                                        ValueAnimator valueAnimator = ValueAnimator.ofInt(0, 100);
+                                        valueAnimator.setDuration(1500);
+                                        valueAnimator.setRepeatCount(ValueAnimator.INFINITE);
+                                        valueAnimator.setInterpolator(new LinearInterpolator());
+                                        valueAnimator.addUpdateListener(animation -> {
+                                            List<LatLng> points = greyPolyline.getPoints();
+                                            int percentValue = (int) animation.getAnimatedValue();
+                                            int size = points.size();
+                                            int newPoints = (int) (size*(percentValue/100.0f));
+                                            List<LatLng> p = points.subList(0, newPoints);
+                                            blackPolyLine.setPoints(p);
+                                        });
+
+                                        valueAnimator.start();
+
+                                        LatLngBounds latLngBounds = new LatLngBounds.Builder()
+                                                .include(selectPlaceEvent.getOrigin())
+                                                .include(selectPlaceEvent.getDestination())
+                                                .build();
+
+                                        //Add car icon for origin
+
+                                        Info distanceInfo = leg.getDistance();
+                                        Info durationInfo = leg.getDuration();
+                                        String distance = distanceInfo.getText();
+                                        String duration = durationInfo.getText();
+                                        String startAddress = leg.getStartAddress().replace(", Punjab,","").replace("54000,","").replace("Pakistan","");
+                                        String endAddress = leg.getEndAddress().replace(", Punjab,","").replace("54000,","").replace("Pakistan","");
+
+                                        addDestinationMarker(duration ,endAddress);
+                                        addDriverMarker(originLatLng);
+
+                                        mgoogleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(latLngBounds, 160));
+                                        mgoogleMap.moveCamera(CameraUpdateFactory.zoomTo(mgoogleMap.getCameraPosition().zoom - 1));
+
+                                        initDriverForMoving(tripKey, tripPlanModel);;
+
+                                        mgoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(originLatLng, 18f));
+
+
+
+                                    }
+
+                                    @Override
+                                    public void onDirectionFailure(@NonNull Throwable t) {
+
+                                    }
+                                });
+                    }
+                    catch (Exception e){
+                        Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).show();
+                    }
+
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull @NotNull DatabaseError error) {
+
+            }
+        });
+    }
+
     private void addDriverMarker(LatLng driverCurrentLocation) {
         destinationMarker = mgoogleMap.addMarker(new MarkerOptions().position(driverCurrentLocation).flat(true)
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.bike)));
@@ -334,8 +505,10 @@ public class FindRider extends FragmentActivity implements OnMapReadyCallback {
                             String duration = leg.getDuration().getText();
                             String distance = leg.getDistance().getText();
 
-                            Bitmap bitmap = Common.createIconWithDuration(FindRider.this, duration);
-                            originMarker.setIcon(BitmapDescriptorFactory.fromBitmap(bitmap));
+                            if (originMarker == null){
+                                Bitmap bitmap = Common.createIconWithDuration(FindRider.this, duration);
+                                originMarker.setIcon(BitmapDescriptorFactory.fromBitmap(bitmap));
+                            }
 
                             handler = new Handler(Looper.myLooper());
                             index = -1;
@@ -710,7 +883,6 @@ public class FindRider extends FragmentActivity implements OnMapReadyCallback {
                 @Override
                 public void onGeoQueryError(DatabaseError error) {
                     Toast.makeText(FindRider.this, error.getMessage(), Toast.LENGTH_SHORT).show();
-
                 }
             });
 
@@ -728,7 +900,7 @@ public class FindRider extends FragmentActivity implements OnMapReadyCallback {
                             animator.end();
                         }
                         Toast.makeText(FindRider.this, "Driver not found!", Toast.LENGTH_SHORT).show();
-
+                        init();
                     }
                 }
             }, 2000);

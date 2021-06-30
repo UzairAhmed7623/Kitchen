@@ -374,47 +374,47 @@ public class RequestDriverActivity extends FragmentActivity implements OnMapRead
 //        selectPlaceEvent = event;
 //    }
 
-    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
-    public void onDeclineRequestEvent(DeclineRequestFromDriver event){
+//    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
+//    public void onDeclineRequestEvent(DeclineRequestFromDriver event){
+//
+//        if (lastDriverCall != null){
+//            Common.driverFound.get(lastDriverCall.getKey()).setDecline(true);
+//            findNearByDriver(selectPlaceEvent);
+//        }
+//    }
+//
+//    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
+//    public void onDeclineRequestAndRemoveTripEvent(DeclineRequestAndRemoveTripFromDriver event){
+//
+//        if (lastDriverCall != null){
+//            Common.driverFound.get(lastDriverCall.getKey()).setDecline(true);
+//            finish();
+//        }
+//    }
 
-        if (lastDriverCall != null){
-            Common.driverFound.get(lastDriverCall.getKey()).setDecline(true);
-            findNearByDriver(selectPlaceEvent);
-        }
-    }
-
-    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
-    public void onDeclineRequestAndRemoveTripEvent(DeclineRequestAndRemoveTripFromDriver event){
-
-        if (lastDriverCall != null){
-            Common.driverFound.get(lastDriverCall.getKey()).setDecline(true);
-            finish();
-        }
-    }
-
-    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
-    public void onDriverCompleteTrip(DriverCompleteTripEvent event){
-
-        Intent intent = new Intent(RequestDriverActivity.this, Items.class);
-
-        Common.showNotification(this, new Random().nextInt(),
-                "Complete trip",
-                "Your trip: "+event.getTripKey()+"has been completed.",
-                getIntent());
-
-        startActivity(intent);
-
-        finish();
-    }
-
-    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
-    public void onTimeUp(TimeUp event){
-
-        Common.showNotification(this, new Random().nextInt(),
-                "TimeUp",
-                "Please HarryUp",
-                getIntent());
-    }
+//    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
+//    public void onDriverCompleteTrip(DriverCompleteTripEvent event){
+//
+//        Intent intent = new Intent(RequestDriverActivity.this, Items.class);
+//
+//        Common.showNotification(this, new Random().nextInt(),
+//                "Complete trip",
+//                "Your trip: "+event.getTripKey()+"has been completed.",
+//                getIntent());
+//
+//        startActivity(intent);
+//
+//        finish();
+//    }
+//
+//    @Subscribe(sticky = true, threadMode = ThreadMode.MAIN)
+//    public void onTimeUp(TimeUp event){
+//
+//        Common.showNotification(this, new Random().nextInt(),
+//                "TimeUp",
+//                "Please HarryUp",
+//                getIntent());
+//    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
