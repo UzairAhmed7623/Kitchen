@@ -119,7 +119,7 @@ public class FindRider extends FragmentActivity implements OnMapReadyCallback {
     private DriverGeoModel driverGeoModel;
     private static final String DIRECTION_API_KEY = "AIzaSyDl7YXtTZQNBkthV3PjFS0fQOKvL8SIR7k";
     private double orderLat, orderLng;
-    private String orderId="", userId = "VQ9wMobC17getkUTkum0iTILZrb2";
+    private String orderId="", userId = "";
 
 
     private TextView tvOrigin;
@@ -327,6 +327,7 @@ public class FindRider extends FragmentActivity implements OnMapReadyCallback {
 
         drawPathForMovingDriver(event.getTripKey());
     }
+
     private void drawPathForMovingDriver(String tripKey) {
 
         FirebaseDatabase.getInstance().getReference("Trips")
@@ -569,14 +570,10 @@ public class FindRider extends FragmentActivity implements OnMapReadyCallback {
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseFirestore = FirebaseFirestore.getInstance();
 
-//        orderLat = getIntent().getDoubleExtra("lat", 0);
-//        orderLng = getIntent().getDoubleExtra("lng", 0);
-//        orderId = getIntent().getStringExtra("orderId");
-//        userId = getIntent().getStringExtra("userId");
-
-        orderLat = 31.530351;
-        orderLng = 74.4912343;
-        orderId = "12345678";
+        orderLat = getIntent().getDoubleExtra("lat", 0);
+        orderLng = getIntent().getDoubleExtra("lng", 0);
+        orderId = getIntent().getStringExtra("orderId");
+        userId = getIntent().getStringExtra("userId");
 
         tvPickupAddress = (TextView) findViewById(R.id.tvPickupAddress);
         btnConfirmPickup = (Button) findViewById(R.id.btnConfirmPickup);

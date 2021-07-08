@@ -112,7 +112,7 @@
                                     android:textSize="14dp"
                                     android:fontFamily="@font/uber_move_bold"
                                     android:textColor="@color/myColor"
-                                    android:background="@color/fui_transparent" />
+                                    android:background="@android:color/transparent" />
 
                         </LinearLayout>
 
@@ -124,7 +124,7 @@
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/layout2"
                     android:layout_alignParentEnd="true"
-                    android:background="@color/fui_transparent"
+                    android:background="@android:color/transparent"
                     android:text="Done"
                     android:fontFamily="@font/uber_move_bold"
                     android:textColor="@color/myColor"
@@ -137,7 +137,7 @@
                     android:layout_below="@+id/layout2"
                     android:layout_toStartOf="@+id/btnDone"
                     android:fontFamily="@font/uber_move_bold"
-                    android:background="@color/fui_transparent"
+                    android:background="@android:color/transparent"
                     android:text="Cancel"
                     android:textColor="@color/myColor"
                     android:textSize="14sp" />

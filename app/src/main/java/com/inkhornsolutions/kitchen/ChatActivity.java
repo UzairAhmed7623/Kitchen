@@ -48,7 +48,7 @@ public class ChatActivity extends AppCompatActivity {
     private FirebaseFirestore firebaseFirestore;
     private List<Chat> msg = new ArrayList<>();
     private ChatAdapter messagesAdapter;
-    private String myID, senderRoom, receiverRoom;
+    private String myID, chatRoom;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,8 +73,7 @@ public class ChatActivity extends AppCompatActivity {
 
         myID = Objects.requireNonNull(firebaseAuth.getCurrentUser()).getUid();
 
-        senderRoom = myID+"igCh7xT4IVcrnfKBjR4W5hCo8jK2";
-        receiverRoom = "igCh7xT4IVcrnfKBjR4W5hCo8jK2"+myID;
+        chatRoom = "igCh7xT4IVcrnfKBjR4W5hCo8jK2"+myID;
 
         ibSend.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -105,14 +104,14 @@ public class ChatActivity extends AppCompatActivity {
         Map<String, Object> map = new HashMap<>();
         map.put("messages", FieldValue.arrayUnion(chat));
 
-        firebaseFirestore.collection("Chats").document(senderRoom).set(map, SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
+        firebaseFirestore.collection("Chats").document(chatRoom).set(map, SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 Log.w("TAG", "Document created Successfully");
 
             }
         });
-        firebaseFirestore.collection("Chats").document(receiverRoom).set(map, SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
+        firebaseFirestore.collection("Chats").document(chatRoom).set(map, SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 Log.w("TAG", "Document created Successfully");
@@ -123,7 +122,7 @@ public class ChatActivity extends AppCompatActivity {
 
     private void readMessages(){
 
-        firebaseFirestore.collection("Chats").document(senderRoom)
+        firebaseFirestore.collection("Chats").document(chatRoom)
                 .addSnapshotListener(new EventListener<DocumentSnapshot>() {
                     @Override
                     public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException error) {

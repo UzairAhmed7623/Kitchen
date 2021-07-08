@@ -129,7 +129,7 @@ public class RecentOrders extends Fragment {
                         String id = documentSnapshot.getId();
 
                         firebaseFirestore.collection("Users").document(id).collection("Cart")
-                                .whereIn("status", Arrays.asList("Pending", "Rejected", "Dispatched"))
+                                .whereIn("status", Arrays.asList("Pending", "Rejected", "Dispatched","Completed"))
                                 .whereEqualTo("restaurantName", resName)
                                 .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                             @Override

@@ -40,18 +40,18 @@
         <activity
             android:name=".FindRider"
             android:label="@string/title_activity_find_rider" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         <activity android:name=".OrderDetails" />
         <activity android:name=".RequestLocation" />
         <activity android:name=".Verified" />
         <activity android:name=".VerifyPhone" />
         <activity android:name=".Splash">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
 
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
         <activity
             android:name=".ChatActivity"
