@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Wallet">
+
+    <Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/myColorThird"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnBack"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            app:icon="@drawable/arrow_back"
+            app:iconTint="@color/white"
+            app:iconGravity="textStart"
+            android:layout_marginStart="25dp"
+            app:rippleColor="@color/white"
+            android:background="@android:color/transparent"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fontFamily="@font/montserra_regular_bold"
+            android:gravity="center_horizontal"
+            android:layout_marginEnd="35dp"
+            android:text="Payment Detail"
+            android:textAppearance="@style/TextAppearance.AppCompat.Title"
+            android:textColor="@color/white" />
+
+    </Toolbar>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar">
+
+        <TextView
+            android:id="@+id/tvTotalPaymentPlace"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Total Payment"
+            android:textSize="16sp"
+            android:textColor="@color/myColorThird"
+            android:fontFamily="@font/montserra_regular_bold"
+            android:padding="30dp" />
+
+        <TextView
+            android:id="@+id/tvTotalPayment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:text="PKR00"
+            android:textSize="16sp"
+            android:textColor="@color/myColorThird"
+            android:fontFamily="@font/montserra_regular_bold"
+            android:padding="30dp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:layout_below="@+id/tvTotalPayment"
+            android:background="@color/grey_40"
+            android:layout_marginStart="25dp"
+            android:layout_marginEnd="25dp"/>
+
+        <TextView
+            android:id="@+id/tvWithdrawnPlace"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tvTotalPayment"
+            android:text="Withdrawn"
+            android:textSize="16sp"
+            android:textColor="@color/myColorThird"
+            android:fontFamily="@font/montserra_regular_bold"
+            android:padding="30dp" />
+
+        <TextView
+            android:id="@+id/tvWithdrawn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_below="@+id/tvTotalPayment"
+            android:text="PKR00"
+            android:textSize="16sp"
+            android:textColor="@color/myColorThird"
+            android:fontFamily="@font/montserra_regular_bold"
+            android:padding="30dp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:layout_below="@+id/tvWithdrawn"
+            android:background="@color/grey_40"
+            android:layout_marginStart="25dp"
+            android:layout_marginEnd="25dp"/>
+
+        <TextView
+            android:id="@+id/tvRemainingPlace"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tvWithdrawn"
+            android:text="Remaining"
+            android:textSize="16sp"
+            android:textColor="@color/myColorThird"
+            android:fontFamily="@font/montserra_regular_bold"
+            android:padding="30dp" />
+
+        <TextView
+            android:id="@+id/tvRemaining"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_below="@+id/tvWithdrawn"
+            android:text="PKR00"
+            android:textSize="16sp"
+            android:textColor="@color/myColorThird"
+            android:fontFamily="@font/montserra_regular_bold"
+            android:padding="30dp" />
+
+        <View
+            android:id="@+id/view1"
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:layout_below="@+id/tvRemaining"
+            android:background="@color/grey_40"
+            android:layout_marginStart="25dp"
+            android:layout_marginEnd="25dp"/>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/TextInputLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/view1"
+            android:layout_margin="20dp"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            app:boxCornerRadiusBottomStart="50dp"
+            app:boxCornerRadiusTopEnd="50dp"
+            app:boxCornerRadiusTopStart="50dp"
+            app:boxCornerRadiusBottomEnd="50dp"
+            app:boxStrokeColor="@color/profileAccentColor">
+
+            <EditText
+                android:id="@+id/etWithdrawnPayment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:textColor="@color/myColorThird"
+                android:maxLines="1"
+                android:textCursorDrawable="@color/myColorThird"/>
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnWithdrawn"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_below="@+id/TextInputLayout"
+            app:cornerRadius="50dp"
+            android:text="Withdraw"
+            android:textColor="@color/white"
+            app:backgroundTint="@color/myColor"
+            android:layout_margin="20dp"/>
+
+    </RelativeLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

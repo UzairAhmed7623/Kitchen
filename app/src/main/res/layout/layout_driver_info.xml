@@ -8,178 +8,147 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp">
+        android:background="@color/myColorThird">
 
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:clickable="true"
-            android:foreground="?attr/selectableItemBackground"
-            android:orientation="horizontal"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp">
+            android:padding="10dp">
 
-            <FrameLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/ivDriver"
+                android:layout_width="85dp"
+                android:layout_height="85dp"
+                android:padding="5dp"
+                android:src="@drawable/account_circle" />
 
-                <ImageView
-                    android:layout_width="85dp"
-                    android:layout_height="75dp"
-                    android:layout_marginStart="50dp"
-                    android:layout_gravity="center_vertical"
-                    android:src="@drawable/bike_front"/>
-
-                <de.hdodenhof.circleimageview.CircleImageView
-                    android:id="@+id/ivDriver"
-                    android:layout_width="85dp"
-                    android:layout_height="85dp"
-                    app:civ_circle_background_color="@color/white"
-                    app:civ_border_color="@color/white_greyish"
-                    app:civ_border_width="5dp"
-                    android:src="@drawable/account_circle"/>
-
-            </FrameLayout>
-
-            <LinearLayout
-                android:layout_width="wrap_content"
+            <RelativeLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_alignParentEnd="true">
-
-                <TextView
-                    android:id="@+id/tvBikeType"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:text="Honda 70cc"
-                    android:fontFamily="@font/uber_move"
-                    android:textSize="16sp"
-                    android:textColor="#737373"/>
-
-                <TextView
-                    android:id="@+id/tvCarNumber"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:text="ABC 6589"
-                    android:fontFamily="@font/uber_move_bold"
-                    android:textColor="#737373"
-                    android:textSize="20sp"/>
-
-
-            </LinearLayout>
-
-        </RelativeLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:clickable="true"
-                android:foreground="?attr/selectableItemBackground"
-                android:orientation="horizontal"
-                android:layout_gravity="center_horizontal"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"
-                android:paddingTop="8dp"
-                android:paddingBottom="8dp">
+                android:layout_centerVertical="true"
+                android:layout_toEndOf="@+id/ivDriver">
 
                 <TextView
                     android:id="@+id/tvDriverName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:fontFamily="@font/montserra_regular_bold"
                     android:gravity="center_vertical"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
                     android:text="Driver Name"
-                    android:fontFamily="@font/uber_move_bold"
-                    android:textColor="#737373"
-                    android:textSize="14sp"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:layout_marginStart="4dp"
-                    android:layout_marginEnd="4dp"
-                    android:text="■"
-                    android:fontFamily="@font/uber_move_bold"
-                    android:textColor="#737373"
-                    android:textSize="14sp"/>
+                    android:textColor="@color/white"
+                    android:textSize="16sp" />
 
                 <TextView
                     android:id="@+id/tvRating"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_below="@+id/tvDriverName"
+                    android:fontFamily="@font/uber_move_bold"
                     android:gravity="center_vertical"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
                     android:text="4.83"
-                    android:drawableRight="@drawable/star"
-                    android:fontFamily="@font/uber_move_bold"
-                    android:textColor="#737373"
-                    android:textSize="14sp"/>
+                    android:textColor="@color/white"
+                    android:textSize="14sp"
+                    app:drawableStartCompat="@drawable/star" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:layout_marginStart="4dp"
-                    android:layout_marginEnd="4dp"
-                    android:text="■"
-                    android:fontFamily="@font/uber_move_bold"
-                    android:textColor="#737373"
-                    android:textSize="14sp"/>
+            </RelativeLayout>
 
-                <TextView
-                    android:id="@+id/tvForeigLanguage"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:text="Knows Urdu"
-                    android:fontFamily="@font/uber_move"
-                    android:textColor="#737373"
-                    android:textSize="14sp"/>
+        </RelativeLayout>
 
-            </LinearLayout>
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-            <LinearLayout
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/tvBikeNamePlace"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:clickable="true"
-                android:foreground="?attr/selectableItemBackground"
-                android:orientation="horizontal"
                 android:layout_gravity="center_horizontal"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"
-                android:paddingTop="8dp"
-                android:paddingBottom="8dp"
-                android:weightSum="12">
+                android:fontFamily="@font/montserra_regular_bold"
+                android:text="Bike Name"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                android:padding="10dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"/>
 
-                <ImageView
-                    android:id="@+id/ivCallDriver"
-                    android:layout_width="0dp"
-                    android:layout_height="40dp"
-                    android:layout_weight="1"
-                    android:src="@drawable/phone_black"/>
+            <TextView
+                android:id="@+id/tvBikeName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:fontFamily="@font/montserra_regular_bold"
+                android:text="Bike Name"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                android:padding="10dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"/>
 
-                <EditText
-                    android:id="@+id/etNote"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="10"
-                    android:hint="Any Pickup notes?"
-                    android:layout_marginStart="8dp"/>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:layout_below="@+id/tvBikeNamePlace"
+                android:background="@color/grey_40"
+                android:layout_marginStart="35dp"
+                android:layout_marginEnd="35dp"/>
 
-            </LinearLayout>
+            <TextView
+                android:id="@+id/tvBikeNumberPlace"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/tvBikeName"
+                android:fontFamily="@font/montserra_regular_bold"
+                android:text="Honda 70cc"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                android:padding="10dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"/>
 
-        </LinearLayout>
+            <TextView
+                android:id="@+id/tvBikeNumber"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/tvBikeName"
+                android:layout_alignParentEnd="true"
+                android:layout_gravity="center_horizontal"
+                android:fontFamily="@font/montserra_regular_bold"
+                android:text="Bike Number"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                android:padding="10dp"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="20dp"/>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:layout_below="@+id/tvBikeNumberPlace"
+                android:background="@color/grey_40"
+                android:layout_marginStart="35dp"
+                android:layout_marginEnd="35dp"/>
+
+        </RelativeLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnPhone"
+            android:layout_width="100dp"
+            android:layout_height="60dp"
+            app:icon="@drawable/phone"
+            app:iconTint="@color/white"
+            app:iconGravity="textStart"
+            app:iconSize="40dp"
+            android:layout_gravity="center_horizontal"
+            app:backgroundTint="@color/myColor"
+            app:cornerRadius="50dp"
+            android:layout_margin="20dp"/>
 
     </LinearLayout>
 

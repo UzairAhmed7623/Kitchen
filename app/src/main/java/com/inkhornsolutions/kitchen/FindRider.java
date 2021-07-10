@@ -63,6 +63,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -134,8 +135,9 @@ public class FindRider extends FragmentActivity implements OnMapReadyCallback {
     private CardView finding_your_ride_layout;
 
     //driver info layout
-    private TextView tvDriverName;
+    private TextView tvDriverName, tvRating, tvBikeName, tvBikeNumber;
     private CircleImageView ivDriver;
+    private MaterialButton btnPhone;
     private CardView driverInfoLayout;
 
     private Polyline blackPolyLine, greyPolyline;

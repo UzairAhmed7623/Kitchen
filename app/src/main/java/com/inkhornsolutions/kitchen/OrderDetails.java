@@ -144,7 +144,7 @@ public class OrderDetails extends AppCompatActivity {
         btnFindRider.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(OrderDetails.this, FindDriver.class);
+                Intent intent = new Intent(OrderDetails.this, FindRider.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 intent.putExtra("lat", lat);
                 intent.putExtra("lng", lng);

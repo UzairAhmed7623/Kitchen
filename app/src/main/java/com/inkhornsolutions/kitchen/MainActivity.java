@@ -731,8 +731,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
 
-        if (item.getItemId() == R.id.YourItems) {
+        if (item.getItemId() == R.id.yourItems) {
             Intent intent = new Intent(MainActivity.this, Items.class);
+            intent.putExtra("resName", resName);
+            startActivity(intent);
+            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+        }
+        else if (item.getItemId() == R.id.wallet) {
+            Intent intent = new Intent(MainActivity.this, Wallet.class);
             intent.putExtra("resName", resName);
             startActivity(intent);
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
