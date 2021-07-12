@@ -49,22 +49,22 @@
         app:layout_constraintTop_toBottomOf="@+id/toolbar">
 
         <TextView
-            android:id="@+id/tvTotalPaymentPlace"
+            android:id="@+id/tvTotalRevenuePlace"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Total Payment"
-            android:textSize="16sp"
+            android:text="Total Revenue"
+            android:textSize="20sp"
             android:textColor="@color/myColorThird"
             android:fontFamily="@font/montserra_regular_bold"
             android:padding="30dp" />
 
         <TextView
-            android:id="@+id/tvTotalPayment"
+            android:id="@+id/tvTotalRevenue"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:text="PKR00"
-            android:textSize="16sp"
+            android:textSize="20sp"
             android:textColor="@color/myColorThird"
             android:fontFamily="@font/montserra_regular_bold"
             android:padding="30dp" />
@@ -72,7 +72,7 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="0.5dp"
-            android:layout_below="@+id/tvTotalPayment"
+            android:layout_below="@+id/tvTotalRevenue"
             android:background="@color/grey_40"
             android:layout_marginStart="25dp"
             android:layout_marginEnd="25dp"/>
@@ -81,7 +81,7 @@
             android:id="@+id/tvWithdrawnPlace"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/tvTotalPayment"
+            android:layout_below="@+id/tvTotalRevenue"
             android:text="Withdrawn"
             android:textSize="16sp"
             android:textColor="@color/myColorThird"
@@ -93,7 +93,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
-            android:layout_below="@+id/tvTotalPayment"
+            android:layout_below="@+id/tvTotalRevenuePlace"
             android:text="PKR00"
             android:textSize="16sp"
             android:textColor="@color/myColorThird"
@@ -140,11 +140,47 @@
             android:layout_marginStart="25dp"
             android:layout_marginEnd="25dp"/>
 
+        <TextView
+            android:id="@+id/tvPaymentStatusPlace"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/view1"
+            android:layout_marginStart="20dp"
+            android:text="Status : "
+            android:textSize="16sp"
+            android:textColor="@color/myColorThird"
+            android:fontFamily="@font/montserra_regular_bold"
+            android:padding="10dp"
+            android:visibility="gone"/>
+
+        <TextView
+            android:id="@+id/tvPaymentStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/view1"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="20dp"
+            android:text="Pending"
+            android:textSize="16sp"
+            android:textColor="@color/myColorThird"
+            android:fontFamily="@font/montserra_regular_bold"
+            android:padding="10dp"
+            android:visibility="gone"/>
+
+        <View
+            android:id="@+id/view2"
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:layout_below="@+id/tvPaymentStatus"
+            android:background="@color/grey_40"
+            android:layout_marginStart="25dp"
+            android:layout_marginEnd="25dp"/>
+
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/TextInputLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/view1"
+            android:layout_below="@+id/view2"
             android:layout_margin="20dp"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             app:boxCornerRadiusBottomStart="50dp"
@@ -160,6 +196,8 @@
                 android:textAlignment="center"
                 android:textColor="@color/myColorThird"
                 android:maxLines="1"
+                android:inputType="number"
+                android:lines="1"
                 android:textCursorDrawable="@color/myColorThird"/>
 
         </com.google.android.material.textfield.TextInputLayout>
