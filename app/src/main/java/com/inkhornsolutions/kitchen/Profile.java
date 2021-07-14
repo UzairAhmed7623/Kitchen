@@ -143,7 +143,7 @@ public class Profile extends AppCompatActivity {
                     }
                     if (documentSnapshot.getString("ResImageProfile") != null){
                         String dob = documentSnapshot.getString("ResImageProfile");
-                        Glide.with(Profile.this).load(dob).placeholder(ContextCompat.getDrawable(getApplicationContext(), R.drawable.user)).into(ivProfile);
+                        Glide.with(Profile.this).load(dob).placeholder(ContextCompat.getDrawable(getApplicationContext(), R.drawable.account_circle)).into(ivProfile);
                     }
 
                 }

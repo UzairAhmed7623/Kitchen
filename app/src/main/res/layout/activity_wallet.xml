@@ -132,10 +132,41 @@
             android:padding="30dp" />
 
         <View
-            android:id="@+id/view1"
             android:layout_width="match_parent"
             android:layout_height="0.5dp"
             android:layout_below="@+id/tvRemaining"
+            android:background="@color/grey_40"
+            android:layout_marginStart="25dp"
+            android:layout_marginEnd="25dp"/>
+
+        <TextView
+            android:id="@+id/tvPaymentRequestedPlace"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tvRemaining"
+            android:text="Payment Requested"
+            android:textSize="16sp"
+            android:textColor="@color/myColorThird"
+            android:fontFamily="@font/montserra_regular_bold"
+            android:padding="30dp" />
+
+        <TextView
+            android:id="@+id/tvPaymentRequested"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_below="@+id/tvRemaining"
+            android:text="PKR00"
+            android:textSize="16sp"
+            android:textColor="@color/myColorThird"
+            android:fontFamily="@font/montserra_regular_bold"
+            android:padding="30dp" />
+
+        <View
+            android:id="@+id/view1"
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:layout_below="@+id/tvPaymentRequested"
             android:background="@color/grey_40"
             android:layout_marginStart="25dp"
             android:layout_marginEnd="25dp"/>
@@ -161,7 +192,8 @@
             android:layout_alignParentEnd="true"
             android:layout_marginEnd="20dp"
             android:text="Pending"
-            android:textSize="16sp"
+            android:textSize="14sp"
+            android:textAllCaps="true"
             android:textColor="@color/myColorThird"
             android:fontFamily="@font/montserra_regular_bold"
             android:padding="10dp"
@@ -171,7 +203,7 @@
             android:id="@+id/view2"
             android:layout_width="match_parent"
             android:layout_height="0.5dp"
-            android:layout_below="@+id/tvPaymentStatus"
+            android:layout_below="@+id/tvPaymentStatusPlace"
             android:background="@color/grey_40"
             android:layout_marginStart="25dp"
             android:layout_marginEnd="25dp"/>

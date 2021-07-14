@@ -225,24 +225,35 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
-                            if (documentSnapshot.exists()) {
-                                String resNames = documentSnapshot.getString("resName");
+                        if (!(queryDocumentSnapshots.size() <= 0)) {
 
-                                SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences("USER_PREF", Context.MODE_PRIVATE);
-                                SharedPreferences.Editor editor = sharedPreferences.edit();
-                                editor.putString("restaurantName", resNames);
-                                editor.apply();
+                            for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                                if (documentSnapshot.exists()) {
 
-//                                SharedPreferences prefs = getApplicationContext().getSharedPreferences("USER_PREF", Context.MODE_PRIVATE);
-//                                resName = prefs.getString("restaurantName", "");
-//
-//                                if (resName.length() <= 0) {
-//                                    dialog();
-//                                }
-//                                else {
-//                                    loadRestaurant(resName);
-//                                }
+                                    String resNames = documentSnapshot.getString("resName");
+
+                                    SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences("USER_PREF", Context.MODE_PRIVATE);
+                                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                                    editor.putString("restaurantName", resNames);
+                                    editor.apply();
+
+                                    SharedPreferences prefs = getApplicationContext().getSharedPreferences("USER_PREF", Context.MODE_PRIVATE);
+                                    resName = prefs.getString("restaurantName", "");
+                                    loadRestaurant(resName);
+                                }
+                            }
+                        }
+                        else {
+
+                            SharedPreferences prefs = getApplicationContext().getSharedPreferences("USER_PREF", Context.MODE_PRIVATE);
+                            resName = prefs.getString("restaurantName", "");
+
+                            if (resName.length() <= 0) {
+                                dialog();
+                            }
+                            else {
+                                validateRes(resName);
+                                tvResName.setText(resName);
                             }
                         }
                     }
@@ -253,16 +264,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).show();
                     }
                 });
-
-        SharedPreferences prefs = getApplicationContext().getSharedPreferences("USER_PREF", Context.MODE_PRIVATE);
-        resName = prefs.getString("restaurantName", "");
-
-        if (resName.length() <= 0) {
-            dialog();
-        } else {
-            validateRes(resName);
-            tvResName.setText(resName);
-        }
 
         ibChat.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -34,7 +34,7 @@
                 android:orientation="vertical"
                 app:layout_collapseMode="parallax"
                 android:id="@+id/linearLayout"
-                android:background="@drawable/profile_bk">
+                android:background="@color/myColorThird">
 
                 <de.hdodenhof.circleimageview.CircleImageView
                     android:id="@+id/ivProfile"
@@ -53,7 +53,7 @@
                         android:layout_height="wrap_content"
                         android:text="First Name"
                         android:textSize="24dp"
-                        android:fontFamily="@font/poppins_medium"
+                        android:fontFamily="@font/montserra_regular_bold"
                         android:textColor="@color/white"
                         android:textStyle="bold"/>
 
@@ -63,7 +63,7 @@
                         android:layout_height="wrap_content"
                         android:text="Last Name"
                         android:textSize="24dp"
-                        android:fontFamily="@font/poppins_medium"
+                        android:fontFamily="@font/montserra_regular_bold"
                         android:layout_marginStart="4dp"
                         android:layout_toEndOf="@id/tvFirstName"
                         android:textColor="@color/white"
@@ -76,9 +76,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Your email"
-                    android:fontFamily="@font/poppins_medium"
+                    android:fontFamily="@font/montserra_regular_bold"
                     android:layout_marginBottom="10dp"
                     android:textSize="16dp"
+                    android:textColor="@color/white"
                     android:textStyle="bold"/>
 
             </LinearLayout>
@@ -115,27 +116,27 @@
             <TextView
                 style="@style/headerText"
                 android:text="Account Info"
-                android:fontFamily="@font/uber_move_bold"
+                android:fontFamily="@font/montserra_regular_bold"
                 android:layout_marginBottom="10dp"/>
 
             <RelativeLayout style="@style/profileDetailsLayout">
                 <ImageView
                     android:id="@+id/nameImageView"
                     android:src="@drawable/account_circle"
-                    android:background="@color/myColor"
+                    android:background="@color/myColorThird"
                     style="@style/profileDetailsImage" />
 
                 <TextView
                     android:id="@+id/nameTextView"
                     android:text="Name"
-                    android:fontFamily="@font/uber_move_bold"
+                    android:fontFamily="@font/montserra_regular_bold"
                     android:layout_toEndOf="@id/nameImageView"
                     style="@style/profileDetailsTextMain" />
 
                 <TextView
                     android:id="@+id/tvName"
                     android:text="Your name"
-                    android:fontFamily="@font/uber_move"
+                    android:fontFamily="@font/montserra_regular"
                     android:layout_toEndOf="@id/nameImageView"
                     style="@style/profileDetailsMiniText" />
 
@@ -147,19 +148,19 @@
                 <ImageView
                     android:id="@+id/mobileImageView"
                     android:src="@drawable/phone"
-                    android:background="@color/myColor"
+                    android:background="@color/myColorThird"
                     style="@style/profileDetailsImage" />
 
                 <TextView
                     android:text="Mobile"
-                    android:fontFamily="@font/uber_move_bold"
+                    android:fontFamily="@font/montserra_regular_bold"
                     android:layout_toEndOf="@id/mobileImageView"
                     style="@style/profileDetailsTextMain"/>
 
                 <TextView
                     android:id="@+id/tvMobile"
                     android:text="Your mobile number"
-                    android:fontFamily="@font/uber_move"
+                    android:fontFamily="@font/montserra_regular"
                     android:layout_toEndOf="@id/mobileImageView"
                     style="@style/profileDetailsMiniText" />
 
@@ -171,19 +172,19 @@
                 <ImageView
                     android:id="@+id/emailImageView"
                     android:src="@drawable/email"
-                    android:background="@color/myColor"
+                    android:background="@color/myColorThird"
                     style="@style/profileDetailsImage" />
 
                 <TextView
                     android:text="Email"
-                    android:fontFamily="@font/uber_move_bold"
+                    android:fontFamily="@font/montserra_regular_bold"
                     android:layout_toEndOf="@id/emailImageView"
                     style="@style/profileDetailsTextMain" />
 
                 <TextView
                     android:id="@+id/tvEmail"
                     android:text="Your email"
-                    android:fontFamily="@font/uber_move"
+                    android:fontFamily="@font/montserra_regular"
                     android:layout_toEndOf="@id/emailImageView"
                     style="@style/profileDetailsMiniText" />
 
@@ -195,11 +196,11 @@
                 <ImageView
                     android:id="@+id/addressImageView"
                     android:src="@drawable/location"
-                    android:background="@color/myColor"
+                    android:background="@color/myColorThird"
                     style="@style/profileDetailsImage" />
 
                 <TextView
-                    android:fontFamily="@font/uber_move_bold"
+                    android:fontFamily="@font/montserra_regular_bold"
                     android:id="@+id/addressLabel"
                     android:text="Address"
                     android:layout_toEndOf="@id/addressImageView"
@@ -208,7 +209,7 @@
                 <TextView
                     android:id="@+id/tvAddress"
                     android:text="Your address"
-                    android:fontFamily="@font/uber_move"
+                    android:fontFamily="@font/montserra_regular"
                     android:layout_below="@+id/addressLabel"
                     android:layout_toEndOf="@id/addressImageView"
                     style="@style/profileDetailsMiniText" />
@@ -221,19 +222,19 @@
                 <ImageView
                     android:id="@+id/dobImageView"
                     android:src="@drawable/dob"
-                    android:background="@color/myColor"
+                    android:background="@color/myColorThird"
                     style="@style/profileDetailsImage" />
 
                 <TextView
                     android:text="D.O.B"
-                    android:fontFamily="@font/uber_move_bold"
+                    android:fontFamily="@font/montserra_regular_bold"
                     android:layout_toEndOf="@id/dobImageView"
                     style="@style/profileDetailsTextMain" />
 
                 <TextView
                     android:id="@+id/tvDateOfBirth"
                     android:text="Your DOB"
-                    android:fontFamily="@font/uber_move"
+                    android:fontFamily="@font/montserra_regular"
                     android:layout_toEndOf="@id/dobImageView"
                     style="@style/profileDetailsMiniText" />
 

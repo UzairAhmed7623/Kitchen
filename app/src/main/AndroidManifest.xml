@@ -19,7 +19,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Kitchen">
-        <activity android:name=".Wallet"></activity>
+        <activity android:name=".Wallet" />
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
@@ -27,7 +27,7 @@
 
         <activity
             android:name=".FindRider"
-            android:label="@string/title_activity_find_rider"></activity>
+            android:label="@string/title_activity_find_rider" />
         <activity android:name=".OrderDetails" />
         <activity android:name=".RequestLocation" />
         <activity android:name=".Verified" />

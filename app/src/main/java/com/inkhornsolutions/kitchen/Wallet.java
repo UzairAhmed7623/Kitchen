@@ -39,7 +39,7 @@ import java.util.Objects;
 
 public class Wallet extends AppCompatActivity {
 
-    private TextView tvTotalRevenue, tvWithdrawn, tvRemaining, tvPaymentStatusPlace, tvPaymentStatus;
+    private TextView tvTotalRevenue, tvWithdrawn, tvRemaining, tvPaymentRequested, tvPaymentStatusPlace, tvPaymentStatus;
     private MaterialButton btnBack, btnWithdrawn;
     private EditText etWithdrawnPayment;
     private FirebaseAuth firebaseAuth;
@@ -47,7 +47,7 @@ public class Wallet extends AppCompatActivity {
     private FirebaseDatabase firebaseDatabase;
     private DatabaseReference databaseReference;
     private double totalRevenue = 0.0, remaining = 0.0, withdrawn = 0.0;
-    private String resName, withdrawPayment;
+    private String resName, withdrawPayment = "0.0";
     private String withdrawnFromDatabase, paymentStatus;
 
     @Override
@@ -68,6 +68,14 @@ public class Wallet extends AppCompatActivity {
         etWithdrawnPayment = (EditText) findViewById(R.id.etWithdrawnPayment);
         tvPaymentStatusPlace = (TextView) findViewById(R.id.tvPaymentStatusPlace);
         tvPaymentStatus = (TextView) findViewById(R.id.tvPaymentStatus);
+        tvPaymentRequested = (TextView) findViewById(R.id.tvPaymentRequested);
+
+        btnBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
 
         resName = getIntent().getStringExtra("resName");
 
@@ -84,30 +92,40 @@ public class Wallet extends AppCompatActivity {
                     String remaining = value.getString("remaining");
                     withdrawnFromDatabase = value.getString("withdrawn");
                     paymentStatus = value.getString("paymentStatus");
+                    String paymentRequested = value.getString("paymentRequested");
+
+                    if (value.getString("paymentRequested") != null) {
+                        tvPaymentRequested.setText(paymentRequested);
+                    }
+                    else {
+                        tvPaymentRequested.setText("0.0");
+                    }
 
                     tvTotalRevenue.setText(String.valueOf(totalRevenue));
 
-                    if (TextUtils.isEmpty(remaining) || Objects.equals(remaining, "null")) {
-                        tvRemaining.setText(String.valueOf(totalRevenue));
-                    }
-                    else {
+                    if (value.getString("remaining") != null) {
                         tvRemaining.setText(String.valueOf(remaining));
                     }
-                    if (TextUtils.isEmpty(withdrawnFromDatabase) || Objects.equals(withdrawnFromDatabase, "null")) {
-                        tvWithdrawn.setText("0.0");
-                    }
                     else {
+                        tvRemaining.setText(String.valueOf(totalRevenue));
+                    }
+
+                    if (value.getString("withdrawn") != null) {
                         tvWithdrawn.setText(String.valueOf(withdrawnFromDatabase));
                     }
+                    else {
+                        tvWithdrawn.setText("0.0");
+                    }
+
                     if (Objects.equals(paymentStatus, "pending") || Objects.equals(paymentStatus, "inProcess")) {
                         btnWithdrawn.setEnabled(false);
                         tvPaymentStatusPlace.setVisibility(View.VISIBLE);
                         tvPaymentStatus.setVisibility(View.VISIBLE);
                         tvPaymentStatus.setText(paymentStatus);
+                        Toast.makeText(Wallet.this, "You can make a payment request after completing current request. Thanks ", Toast.LENGTH_LONG).show();
                     }
                     else {
                         btnWithdrawn.setEnabled(true);
-                        Toast.makeText(Wallet.this, "You can make a payment request after completing current request. Thanks ", Toast.LENGTH_SHORT).show();
                     }
                 }
             }
@@ -116,17 +134,23 @@ public class Wallet extends AppCompatActivity {
         btnWithdrawn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                withdrawPayment = etWithdrawnPayment.getText().toString().trim();
+                withdrawPayment = etWithdrawnPayment.getText().toString();
 
                 if (!TextUtils.isEmpty(withdrawPayment)) {
                     Toast.makeText(Wallet.this, "Clicked!", Toast.LENGTH_SHORT).show();
 
                     Log.d("payment", withdrawn + " " + withdrawPayment);
 
+                    if (withdrawnFromDatabase != null){
+                        withdrawn = Double.parseDouble(withdrawPayment) + Double.parseDouble(withdrawnFromDatabase);
+                        tvWithdrawn.setText(String.valueOf(withdrawn));
+                    }
+                    else {
+                        withdrawn = Double.parseDouble(withdrawPayment);
+                        tvWithdrawn.setText(String.valueOf(withdrawn));
+                    }
 
-                    withdrawn = Double.parseDouble(withdrawPayment) + Double.parseDouble(withdrawnFromDatabase);
-                    tvWithdrawn.setText(String.valueOf(withdrawn));
-                    Log.d("payment", withdrawn + " " + withdrawPayment);
+                    Log.d("payment", withdrawn + " " + withdrawPayment + " " + withdrawnFromDatabase);
 
                     remaining = Double.parseDouble(tvRemaining.getText().toString()) - Double.parseDouble(withdrawPayment);
                     tvRemaining.setText(String.valueOf(remaining));
@@ -135,11 +159,13 @@ public class Wallet extends AppCompatActivity {
                     paymentData.put("remaining", String.valueOf(remaining));
                     paymentData.put("withdrawn", String.valueOf(withdrawn));
                     paymentData.put("paymentStatus", "pending");
+                    paymentData.put("paymentRequested", withdrawPayment);
 
                     firebaseFirestore.collection("Restaurants").document(resName).set(paymentData, SetOptions.merge())
                             .addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(@NonNull @NotNull Task<Void> task) {
+                                    tvPaymentRequested.setText(withdrawPayment);
                                     Toast.makeText(Wallet.this, "Your request has been submitted successfully.", Toast.LENGTH_SHORT).show();
                                 }
                             })
@@ -165,8 +191,11 @@ public class Wallet extends AppCompatActivity {
                             }
                         }
                     });
+                    etWithdrawnPayment.setText("");
                 }
-                etWithdrawnPayment.setText("");
+                else {
+                    Toast.makeText(Wallet.this, "Please enter some amount.", Toast.LENGTH_SHORT).show();
+                }
 
             }
         });
@@ -185,7 +214,7 @@ public class Wallet extends AppCompatActivity {
                     totalRevenue *= 0.8;
                     tvTotalRevenue.setText(String.valueOf(totalRevenue));
 
-                    String remaining = tvRemaining.getText().toString().trim();
+                    String remaining = tvRemaining.getText().toString();
                     if (TextUtils.isEmpty(remaining) || remaining.equals("null")) {
                         tvRemaining.setText(String.valueOf(totalRevenue));
                     }

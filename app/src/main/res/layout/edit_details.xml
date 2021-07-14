@@ -71,6 +71,7 @@
         android:elevation="5dp"
         android:text="Add"
         android:textSize="16dp"
+        app:backgroundTint="@color/myColor"
         android:textColor="@color/white"
         android:layout_gravity="center"
         app:cornerRadius="10dp"
