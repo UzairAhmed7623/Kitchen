@@ -1,17 +1,12 @@
 package com.inkhornsolutions.kitchen;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
-import androidx.core.content.ContextCompat;
-
 import android.Manifest;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -23,8 +18,16 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.core.content.ContextCompat;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
@@ -57,7 +60,6 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -66,7 +68,8 @@ public class Profile extends AppCompatActivity {
     private static final int ADDRESS_PICKER_REQUEST = 1001;
     public static final int REQUEST_IMAGE = 1002;
     private TextView tvFirstName, tvLastName, tvEmailAddress;
-    private TextView tvName, tvMobile, tvEmail, tvAddress, tvDateOfBirth;
+    private TextView tvName, tvMobile, tvEmail, tvAddress, tvDateOfBirth, tvAccountName, tvAccountNumber;
+    private RelativeLayout layoutName, layoutEmail, layoutAddress, layoutDOB, layoutAccountNumber;
     private Button btnSave;
     private ImageButton ivAddImage;
     private CircleImageView ivProfile;
@@ -99,9 +102,16 @@ public class Profile extends AppCompatActivity {
         tvEmail = (TextView) findViewById(R.id.tvEmail);
         tvAddress = (TextView) findViewById(R.id.tvAddress);
         tvDateOfBirth = (TextView) findViewById(R.id.tvDateOfBirth);
+        tvAccountName = (TextView) findViewById(R.id.tvAccountName);
+        tvAccountNumber = (TextView) findViewById(R.id.tvAccountNumber);
         ivProfile = (CircleImageView) findViewById(R.id.ivProfile);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         rootLayout = (CoordinatorLayout) findViewById(R.id.rootLayout);
+        layoutName = (RelativeLayout) findViewById(R.id.layoutName);
+        layoutEmail = (RelativeLayout) findViewById(R.id.layoutEmail);
+        layoutAddress = (RelativeLayout) findViewById(R.id.layoutAddress);
+        layoutDOB = (RelativeLayout) findViewById(R.id.layoutDOB);
+        layoutAccountNumber = (RelativeLayout) findViewById(R.id.layoutAccountNumber);
 
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("");
@@ -112,50 +122,60 @@ public class Profile extends AppCompatActivity {
         dialog.setCancelable(false);
         dialog.show();
 
-        firebaseFirestore.collection("Users").document(firebaseAuth.getCurrentUser().getUid()).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
+        firebaseFirestore.collection("Users").document(firebaseAuth.getCurrentUser().getUid()).get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
 
-                if (documentSnapshot.exists()){
-                    if (documentSnapshot.getString("firstName") != null && documentSnapshot.getString("lastName") != null){
-                        String fName = documentSnapshot.getString("firstName");
-                        String lName = documentSnapshot.getString("lastName");
-                        tvFirstName.setText(fName);
-                        tvLastName.setText(lName);
-                        tvName.setText(fName+" "+lName);
-                    }
-                    if (documentSnapshot.getString("emailAddress") != null){
-                        String email = documentSnapshot.getString("emailAddress");
-                        tvEmailAddress.setText(email);
-                        tvEmail.setText(email);
-                    }
-                    if (documentSnapshot.getString("phoneNumber") != null){
-                        String mobile = documentSnapshot.getString("phoneNumber");
-                        tvMobile.setText(mobile);
-                    }
-                    if (documentSnapshot.getString("address") != null){
-                        String address = documentSnapshot.getString("address");
-                        tvAddress.setText(address);
-                    }
-                    if (documentSnapshot.getString("DOB") != null){
-                        String dob = documentSnapshot.getString("DOB");
-                        tvDateOfBirth.setText(dob);
-                    }
-                    if (documentSnapshot.getString("ResImageProfile") != null){
-                        String dob = documentSnapshot.getString("ResImageProfile");
-                        Glide.with(Profile.this).load(dob).placeholder(ContextCompat.getDrawable(getApplicationContext(), R.drawable.account_circle)).into(ivProfile);
-                    }
+                        if (documentSnapshot.exists()) {
+                            if (documentSnapshot.getString("firstName") != null && documentSnapshot.getString("lastName") != null) {
+                                String fName = documentSnapshot.getString("firstName");
+                                String lName = documentSnapshot.getString("lastName");
+                                tvFirstName.setText(fName);
+                                tvLastName.setText(lName);
+                                tvName.setText(fName + " " + lName);
+                            }
+                            if (documentSnapshot.getString("emailAddress") != null) {
+                                String email = documentSnapshot.getString("emailAddress");
+                                tvEmailAddress.setText(email);
+                                tvEmail.setText(email);
+                            }
+                            if (documentSnapshot.getString("phoneNumber") != null) {
+                                String mobile = documentSnapshot.getString("phoneNumber");
+                                tvMobile.setText(mobile);
+                            }
+                            if (documentSnapshot.getString("address") != null) {
+                                String address = documentSnapshot.getString("address");
+                                tvAddress.setText(address);
+                            }
+                            if (documentSnapshot.getString("DOB") != null) {
+                                String dob = documentSnapshot.getString("DOB");
+                                tvDateOfBirth.setText(dob);
+                            }
+                            if (documentSnapshot.getString("ResImageProfile") != null) {
+                                String dob = documentSnapshot.getString("ResImageProfile");
+                                Glide.with(Profile.this).load(dob).placeholder(ContextCompat.getDrawable(getApplicationContext(), R.drawable.account_circle)).into(ivProfile);
+                            }
+                            if (documentSnapshot.getString("accountName") != null) {
+                                String accountName = documentSnapshot.getString("accountName");
+                                tvAccountName.setText(accountName);
+                            }
+                            if (documentSnapshot.getString("accountNumber") != null) {
+                                String accountNumber = documentSnapshot.getString("accountNumber");
+                                tvAccountNumber.setText(accountNumber);
+                            }
 
-                }
-                dialog.dismiss();
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Snackbar.make(rootLayout, e.getMessage(), Snackbar.LENGTH_LONG).show();
-                dialog.dismiss();
-            }
-        });
+                        }
+                        dialog.dismiss();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Snackbar.make(rootLayout, e.getMessage(), Snackbar.LENGTH_LONG).show();
+                        dialog.dismiss();
+                    }
+                });
 
         View view = LayoutInflater.from(this).inflate(R.layout.edit_details, null);
         EditText editText = (EditText) view.findViewById(R.id.editText);
@@ -167,9 +187,9 @@ public class Profile extends AppCompatActivity {
         builder.setView(view);
 
         AlertDialog alertDialog = builder.create();
+        alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
-
-        tvName.setOnClickListener(new View.OnClickListener() {
+        layoutName.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
@@ -230,7 +250,7 @@ public class Profile extends AppCompatActivity {
             }
         });
 
-        tvEmail.setOnClickListener(new View.OnClickListener() {
+        layoutEmail.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
@@ -281,55 +301,66 @@ public class Profile extends AppCompatActivity {
             }
         });
 
-//        tvMobile.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//
-//                alertDialog.show();
-//
-//                editText.setHint("Write your phone with +92");
-//
-//                editText.setInputType(InputType.TYPE_CLASS_PHONE);
-//
-//                TextInputLayout2.setVisibility(View.GONE);
-//
-//                editText.setText(tvMobile.getText().toString());
-//
-//                btnAdd.setOnClickListener(new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View v) {
-//                        String phoneNumber = editText.getText().toString();
-//                        if (TextUtils.isEmpty(phoneNumber)){
-//                            editText.setError("Please write your phone");
-//                        }
-//                        else {
-//                            tvMobile.setText(phoneNumber);
-//
-//                            Map<String, Object> addData = new HashMap<>();
-//                            addData.put("phoneNumber", phoneNumber);
-//
-//                            firebaseFirestore.collection("Users").document(firebaseAuth.getCurrentUser().getUid()).set(addData, SetOptions.merge())
-//                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-//                                        @Override
-//                                        public void onSuccess(Void aVoid) {
-//                                            Snackbar.make(rootLayout, "Your phone number is updated successfully!", Snackbar.LENGTH_LONG).show();
-//                                            editText.clearComposingText();
-//                                        }
-//                                    }).addOnFailureListener(new OnFailureListener() {
-//                                @Override
-//                                public void onFailure(@NonNull Exception e) {
-//                                    Snackbar.make(rootLayout, e.getMessage(), Snackbar.LENGTH_LONG).show();
-//                                }
-//                            });
-//
-//                            alertDialog.dismiss();
-//                        }
-//                    }
-//                });
-//            }
-//        });
+        layoutAccountNumber.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
 
-        tvAddress.setOnClickListener(new View.OnClickListener() {
+                alertDialog.show();
+
+                TextInputLayout2.setVisibility(View.VISIBLE);
+                editText2.setVisibility(View.VISIBLE);
+
+                editText.setHint("Write your Bank Account Name");
+                editText2.setHint("Write your Bank Account Number");
+
+                editText.setInputType(InputType.TYPE_CLASS_TEXT);
+                editText2.setInputType(InputType.TYPE_CLASS_NUMBER);
+
+                editText.setText(tvAccountName.getText().toString());
+                editText2.setText(tvAccountNumber.getText().toString());
+
+                btnAdd.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        String accountName = editText.getText().toString();
+                        String accountNumber = editText2.getText().toString();
+
+                        if (TextUtils.isEmpty(accountName) && TextUtils.isEmpty(accountNumber)) {
+                            editText.setError("Please write your account name");
+                            editText2.setError("Please write your account number");
+                        } else {
+
+                            tvAccountName.setText(accountName);
+                            tvAccountNumber.setText(accountNumber);
+
+                            Map<String, Object> addData = new HashMap<>();
+                            addData.put("accountName", accountName);
+                            addData.put("accountNumber", accountNumber);
+
+                            firebaseFirestore.collection("Users").document(firebaseAuth.getCurrentUser().getUid()).set(addData, SetOptions.merge())
+                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                            Snackbar.make(rootLayout, "Your account details has been updated successfully!", Snackbar.LENGTH_LONG).show();
+                                            editText.clearComposingText();
+                                            editText2.clearComposingText();
+                                        }
+                                    }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Snackbar.make(rootLayout, e.getMessage(), Snackbar.LENGTH_LONG).show();
+                                }
+                            });
+
+                            alertDialog.dismiss();
+                        }
+
+                    }
+                });
+            }
+        });
+
+        layoutAddress.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
@@ -337,10 +368,10 @@ public class Profile extends AppCompatActivity {
                 Intent i = new Intent(Profile.this, LocationPickerActivity.class);
                 startActivityForResult(i, ADDRESS_PICKER_REQUEST);
 
-        }
-    });
+            }
+        });
 
-        tvDateOfBirth.setOnClickListener(new View.OnClickListener() {
+        layoutDOB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
