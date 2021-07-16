@@ -18,7 +18,6 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
@@ -32,7 +31,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 
@@ -145,16 +143,19 @@ public class RecentOrders extends Fragment {
                                             String time = documentSnapshot.getString("Time");
                                             String resName = documentSnapshot.getString("restaurantName");
                                             String status = documentSnapshot.getString("status");
-                                            String total = documentSnapshot.getString("total");
                                             Double lat = documentSnapshot.getDouble("latlng.latitude");
                                             Double lng = documentSnapshot.getDouble("latlng.longitude");
+                                            String subTotal = documentSnapshot.getString("subTotal");
+                                            String total = documentSnapshot.getString("total");
 
                                             OrdersModelClass ordersModelClass = new OrdersModelClass();
 
-                                            Double deductedTotal = (Double.parseDouble(total) - 45) * 0.8;
+                                            if (subTotal != null) {
+                                                Double deductedTotal = Double.parseDouble(subTotal) * 0.8;
+                                                ordersModelClass.setSubTotal(String.valueOf(deductedTotal));
+                                            }
 
-
-                                            ordersModelClass.setTotalPrice(String.valueOf(deductedTotal));
+                                            ordersModelClass.setTotalPrice(total);
                                             ordersModelClass.setResId(resId);
                                             ordersModelClass.setDate(time);
                                             ordersModelClass.setResName(resName);

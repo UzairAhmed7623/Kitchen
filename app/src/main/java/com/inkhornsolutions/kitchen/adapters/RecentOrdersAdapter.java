@@ -44,7 +44,7 @@ public class RecentOrdersAdapter extends RecyclerView.Adapter<RecentOrdersAdapte
 
         String resId = ordersModelClass.getResId();
         String resName = ordersModelClass.getResName();
-        String totalPrice = ordersModelClass.getTotalPrice();
+        String subTotal = ordersModelClass.getSubTotal();
         String status = ordersModelClass.getStatus();
         String date = ordersModelClass.getDate();
         Double lat = ordersModelClass.getLat();
@@ -53,7 +53,7 @@ public class RecentOrdersAdapter extends RecyclerView.Adapter<RecentOrdersAdapte
         String userId = ordersModelClass.getUserId();
 
         holder.tvResNameOrders.setText("Order ID: " + orderId);
-        holder.tvGradTotalOrders.setText("Price: " + totalPrice);
+        holder.tvGradTotalOrders.setText("Price: " + subTotal);
         holder.tvDateOrders.setText("Date: " + date);
 
         switch (status) {

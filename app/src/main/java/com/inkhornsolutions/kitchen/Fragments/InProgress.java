@@ -123,19 +123,23 @@ public class InProgress extends Fragment {
                                             String time = documentSnapshot.getString("Time");
                                             String resName = documentSnapshot.getString("restaurantName");
                                             String status = documentSnapshot.getString("status");
-                                            String total = documentSnapshot.getString("total");
                                             Double lat = documentSnapshot.getDouble("latlng.latitude");
                                             Double lng = documentSnapshot.getDouble("latlng.longitude");
-
-                                            double deductedTotal = (Double.parseDouble(total) - 45) * 0.8;
+                                            String subTotal = documentSnapshot.getString("subTotal");
+                                            String total = documentSnapshot.getString("total");
 
                                             OrdersModelClass ordersModelClass = new OrdersModelClass();
+
+                                            if (subTotal != null) {
+                                                Double deductedTotal = Double.parseDouble(subTotal) * 0.8;
+                                                ordersModelClass.setSubTotal(String.valueOf(deductedTotal));
+                                            }
 
                                             ordersModelClass.setResId(resId);
                                             ordersModelClass.setDate(time);
                                             ordersModelClass.setResName(resName);
                                             ordersModelClass.setStatus(status);
-                                            ordersModelClass.setTotalPrice(String.valueOf(deductedTotal));
+                                            ordersModelClass.setTotalPrice(total);
                                             ordersModelClass.setLat(lat);
                                             ordersModelClass.setLng(lng);
                                             ordersModelClass.setOrderId(orderId);

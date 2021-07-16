@@ -124,6 +124,11 @@ public class Wallet extends AppCompatActivity {
                         tvPaymentStatus.setText(paymentStatus);
                         Toast.makeText(Wallet.this, "You can make a payment request after completing current request. Thanks ", Toast.LENGTH_LONG).show();
                     }
+                    else if (Objects.equals(paymentStatus, "completed")){
+                        tvPaymentStatusPlace.setVisibility(View.VISIBLE);
+                        tvPaymentStatus.setVisibility(View.VISIBLE);
+                        tvPaymentStatus.setText(paymentStatus);
+                    }
                     else {
                         btnWithdrawn.setEnabled(true);
                     }

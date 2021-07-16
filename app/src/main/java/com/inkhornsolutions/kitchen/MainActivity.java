@@ -1,16 +1,20 @@
 package com.inkhornsolutions.kitchen;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -32,6 +36,7 @@ import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.core.view.GravityCompat;
@@ -41,6 +46,9 @@ import androidx.viewpager.widget.ViewPager;
 import com.bitvale.switcher.SwitcherX;
 import com.bumptech.glide.Glide;
 import com.github.dhaval2404.imagepicker.ImagePicker;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -88,7 +96,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private SwitcherX statusSwitch;
     private CircleImageView ivProfileImage;
     private ImageView ivProfileSettings;
-    private String getResNamefromEditText = "";
+    private String getResNameFromEditText = "";
     private String resName = "";
     private final List<String> resIdsList = new ArrayList<>();
     private final List<String> resNamesList = new ArrayList<>();
@@ -101,7 +109,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private ImageButton ibChat;
     private TextView tvResName, tvTotalPrice;
     private double sum = 0;
-    Double deductedTotal = 0.0;
+    private Double deductedTotal = 0.0;
+    private FusedLocationProviderClient fusedLocationProviderClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,7 +121,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         firebaseFirestore = FirebaseFirestore.getInstance();
         firebaseStorage = FirebaseStorage.getInstance();
         storageReference = firebaseStorage.getReference();
-//        String resName = getIntent().getStringExtra("resName");
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -140,43 +148,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
 
-        statusSwitch.setOnCheckedChangeListener(new Function1<Boolean, Unit>() {
-            @Override
-            public Unit invoke(Boolean aBoolean) {
-                if (aBoolean) {
-                    tvOnline.setVisibility(View.VISIBLE);
-                    tvOffline.setVisibility(View.GONE);
-
-                    firebaseFirestore.collection("Restaurants").document(resName).update("status", "online").addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            Log.d("status", "online");
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).show();
-                        }
-                    });
-                } else {
-                    tvOffline.setVisibility(View.VISIBLE);
-                    tvOnline.setVisibility(View.GONE);
-
-                    firebaseFirestore.collection("Restaurants").document(resName).update("status", "offline").addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            Log.d("status", "online");
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).show();
-                        }
-                    });
-                }
-                return Unit.INSTANCE;
-            }
-        });
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(MainActivity.this);
 
         drawerLayout = findViewById(R.id.drawerLayout);
         navigationView = findViewById(R.id.navView);
@@ -240,20 +212,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                     SharedPreferences prefs = getApplicationContext().getSharedPreferences("USER_PREF", Context.MODE_PRIVATE);
                                     resName = prefs.getString("restaurantName", "");
                                     loadRestaurant(resName);
+                                    ordersList(resName);
+                                    saveLocation(resName);
                                 }
                             }
-                        }
-                        else {
+                        } else {
 
                             SharedPreferences prefs = getApplicationContext().getSharedPreferences("USER_PREF", Context.MODE_PRIVATE);
                             resName = prefs.getString("restaurantName", "");
 
                             if (resName.length() <= 0) {
                                 dialog();
-                            }
-                            else {
+                            } else {
                                 validateRes(resName);
                                 tvResName.setText(resName);
+                                ordersList(resName);
+                                saveLocation(resName);
                             }
                         }
                     }
@@ -274,7 +248,85 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
 
-        OrdersList(resName);
+        statusSwitch.setOnCheckedChangeListener(new Function1<Boolean, Unit>() {
+            @Override
+            public Unit invoke(Boolean aBoolean) {
+                if (aBoolean) {
+                    tvOnline.setVisibility(View.VISIBLE);
+                    tvOffline.setVisibility(View.GONE);
+
+                    firebaseFirestore.collection("Restaurants").document(resName).update("status", "online").addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Log.d("status", "online");
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).show();
+                        }
+                    });
+                } else {
+                    tvOffline.setVisibility(View.VISIBLE);
+                    tvOnline.setVisibility(View.GONE);
+
+                    firebaseFirestore.collection("Restaurants").document(resName).update("status", "offline").addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Log.d("status", "offline");
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).show();
+                        }
+                    });
+                }
+                return Unit.INSTANCE;
+            }
+        });
+
+    }
+
+    private void saveLocation(String resName){
+        if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        fusedLocationProviderClient.getLastLocation()
+                .addOnCompleteListener(new OnCompleteListener<Location>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Location> task) {
+                        if (task.isSuccessful()){
+                            Location location = task.getResult();
+
+                            LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+
+                            HashMap<String, Object> currentLocation = new HashMap<>();
+                            currentLocation.put("location", latLng);
+
+                            firebaseFirestore.collection("Restaurants").document(resName)
+                                    .set(currentLocation, SetOptions.merge())
+                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+
+                                        }
+                                    })
+                                    .addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull @org.jetbrains.annotations.NotNull Exception e) {
+
+                                        }
+                                    });
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull @org.jetbrains.annotations.NotNull Exception e) {
+                        Toast.makeText(MainActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     @SuppressLint("InflateParams")
@@ -333,7 +385,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 if (etResName.getText().toString().length() <= 0) {
                     Toast.makeText(MainActivity.this, "Please write your restaurant name!", Toast.LENGTH_SHORT).show();
                 } else {
-                    getResNamefromEditText = etResName.getText().toString().trim();
+                    getResNameFromEditText = etResName.getText().toString().trim();
 
                     firebaseFirestore.collection("Restaurants").get()
                             .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
@@ -354,29 +406,30 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                         }
                                     }
                                     //Now compare that data to get results
-                                    if (resNamesList.contains(getResNamefromEditText.toLowerCase().trim().replace(" ", ""))
+                                    if (resNamesList.contains(getResNameFromEditText.toLowerCase().trim().replace(" ", ""))
                                             && !resIdsList.contains(Objects.requireNonNull(firebaseAuth.getCurrentUser()).getUid())) {
                                         Toast.makeText(MainActivity.this, "Restaurant already registered with these credentials!", Toast.LENGTH_SHORT).show();
                                     }
-                                    if (!resNamesList.contains(getResNamefromEditText.toLowerCase().trim().replace(" ", ""))
+                                    if (!resNamesList.contains(getResNameFromEditText.toLowerCase().trim().replace(" ", ""))
                                             && resIdsList.contains(Objects.requireNonNull(firebaseAuth.getCurrentUser()).getUid())) {
                                         Toast.makeText(MainActivity.this, "Restaurant already registered with these credentials!", Toast.LENGTH_SHORT).show();
                                     } else {
                                         SharedPreferences prefs = getApplicationContext().getSharedPreferences("USER_PREF", Context.MODE_PRIVATE);
                                         SharedPreferences.Editor editor = prefs.edit();
-                                        editor.putString("restaurantName", getResNamefromEditText);
+                                        editor.putString("restaurantName", getResNameFromEditText);
                                         editor.apply();
 
-                                        uploadImage(fileUri, getResNamefromEditText);
+                                        uploadImage(fileUri, getResNameFromEditText);
 
                                         HashMap<String, Object> resReg = new HashMap<>();
-                                        resReg.put("resName", getResNamefromEditText);
+                                        resReg.put("resName", getResNameFromEditText);
                                         resReg.put("id", firebaseAuth.getCurrentUser().getUid());
                                         resReg.put("type", type);
                                         resReg.put("approved", "no");
                                         resReg.put("status", "offline");
+                                        resReg.put("notification", "0");
 
-                                        firebaseFirestore.collection("Restaurants").document(getResNamefromEditText).set(resReg, SetOptions.merge())
+                                        firebaseFirestore.collection("Restaurants").document(getResNameFromEditText).set(resReg, SetOptions.merge())
                                                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                                                     @Override
                                                     public void onSuccess(Void aVoid) {
@@ -402,7 +455,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                                 });
 
                                         HashMap<String, Object> resReg1 = new HashMap<>();
-                                        resReg.put("resName", getResNamefromEditText);
+                                        resReg.put("resName", getResNameFromEditText);
                                         resReg.put("id", Objects.requireNonNull(firebaseAuth.getCurrentUser()).getUid());
 
                                         firebaseFirestore.collection("Users").document(firebaseAuth.getCurrentUser().getUid()).set(resReg1, SetOptions.merge())
@@ -607,17 +660,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    private void OrdersList(String resName) {
+    private void ordersList(String resName) {
         firebaseFirestore.collection("Users").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
             @Override
             public void onSuccess(QuerySnapshot value) {
 
-                for (QueryDocumentSnapshot documentSnapshot : value){
-                    if (documentSnapshot.exists()){
+                for (QueryDocumentSnapshot documentSnapshot : value) {
+                    if (documentSnapshot.exists()) {
                         String id = documentSnapshot.getId();
 
                         firebaseFirestore.collection("Users").document(id).collection("Cart")
-                                .whereEqualTo("status", "Dispatched")
+                                .whereEqualTo("status", "Completed")
                                 .whereEqualTo("restaurantName", resName)
                                 .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                             @Override

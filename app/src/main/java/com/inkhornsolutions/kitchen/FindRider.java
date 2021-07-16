@@ -914,9 +914,6 @@ public class FindRider extends FragmentActivity implements OnMapReadyCallback {
 
     private void findDriver() {
 
-        Toast.makeText(FindRider.this, "Chala", Toast.LENGTH_SHORT).show();
-
-
         float min_distace = 0;
             DriverGeoModel driverGeoModel = null;
             Location currentRiderLocation = new Location("");
@@ -1048,7 +1045,7 @@ public class FindRider extends FragmentActivity implements OnMapReadyCallback {
                     super.onLocationResult(locationResult);
 
                     LatLng newPosition = new LatLng(locationResult.getLastLocation().getLatitude(), locationResult.getLastLocation().getLongitude());
-                    mgoogleMap.moveCamera(CameraUpdateFactory.newLatLng(newPosition));
+//                    mgoogleMap.moveCamera(CameraUpdateFactory.newLatLng(newPosition));
                 }
             };
         }
