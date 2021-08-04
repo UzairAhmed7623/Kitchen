@@ -2,7 +2,7 @@ package com.inkhornsolutions.kitchen;
 
 import android.Manifest;
 import android.animation.ValueAnimator;
-import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -37,7 +37,6 @@ import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
 import com.firebase.geofire.GeoQuery;
 import com.firebase.geofire.GeoQueryEventListener;
-import com.google.android.datatransport.Event;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -395,8 +394,8 @@ public class FindRider extends FragmentActivity implements OnMapReadyCallback {
                                         valueAnimator.start();
 
                                         LatLngBounds latLngBounds = new LatLngBounds.Builder()
-                                                .include(selectPlaceEvent.getOrigin())
-                                                .include(selectPlaceEvent.getDestination())
+                                                .include(originLatLng)
+                                                .include(destinationLatLng)
                                                 .build();
 
                                         //Add car icon for origin
@@ -592,6 +591,32 @@ public class FindRider extends FragmentActivity implements OnMapReadyCallback {
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(FindRider.this);
 
         init();
+
+        SharedPreferences sharedPreferences = getSharedPreferences("tripKey", MODE_PRIVATE);
+        String tripKey = sharedPreferences.getString("tripKey", "");
+
+        if (!tripKey.equals("")) {
+            FirebaseDatabase.getInstance().getReference("Trips").child(tripKey).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
+
+                    if (snapshot.exists()) {
+                        String done = snapshot.child("done").getValue(String.class);
+                        String cancel = snapshot.child("cancel").getValue(String.class);
+
+                        if (done.equals("false") && cancel.equals("false")) {
+
+                            drawPathForMovingDriver(tripKey);
+                        }
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull @NotNull DatabaseError error) {
+
+                }
+            });
+        }
     }
 
     private void updateFirebaseToken() {

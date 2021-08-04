@@ -51,6 +51,7 @@ public class RecentOrdersAdapter extends RecyclerView.Adapter<RecentOrdersAdapte
         Double lng = ordersModelClass.getLng();
         String orderId = ordersModelClass.getOrderId();
         String userId = ordersModelClass.getUserId();
+        String promotedOrder = ordersModelClass.getPromotedOrder();
 
         holder.tvResNameOrders.setText("Order ID: " + orderId);
         holder.tvGradTotalOrders.setText("Price: " + subTotal);
@@ -87,6 +88,7 @@ public class RecentOrdersAdapter extends RecyclerView.Adapter<RecentOrdersAdapte
                 intent.putExtra("userId", userId);
                 intent.putExtra("lat", lat);
                 intent.putExtra("lng", lng);
+                intent.putExtra("promotedOrder", promotedOrder);
 
                 v.getContext().startActivity(intent);
             }

@@ -147,12 +147,27 @@ public class RecentOrders extends Fragment {
                                             Double lng = documentSnapshot.getDouble("latlng.longitude");
                                             String subTotal = documentSnapshot.getString("subTotal");
                                             String total = documentSnapshot.getString("total");
+                                            String promotedOrder = documentSnapshot.getString("promotedOrder");
 
                                             OrdersModelClass ordersModelClass = new OrdersModelClass();
 
-                                            if (subTotal != null) {
-                                                Double deductedTotal = Double.parseDouble(subTotal) * 0.8;
-                                                ordersModelClass.setSubTotal(String.valueOf(deductedTotal));
+                                            if (promotedOrder != null && promotedOrder.equals("yes")){
+                                                if (subTotal != null) {
+                                                    Double deductedTotal = Double.parseDouble(subTotal);
+                                                    ordersModelClass.setSubTotal(String.valueOf(deductedTotal));
+                                                }
+                                                else {
+                                                    ordersModelClass.setSubTotal(String.valueOf(total));
+                                                }
+                                            }
+                                            else {
+                                                if (subTotal != null) {
+                                                    Double deductedTotal = Double.parseDouble(subTotal) * 0.8;
+                                                    ordersModelClass.setSubTotal(String.valueOf(deductedTotal));
+                                                }
+                                                else {
+                                                    ordersModelClass.setSubTotal(String.valueOf(total));
+                                                }
                                             }
 
                                             ordersModelClass.setTotalPrice(total);
@@ -164,6 +179,12 @@ public class RecentOrders extends Fragment {
                                             ordersModelClass.setLng(lng);
                                             ordersModelClass.setOrderId(orderId);
                                             ordersModelClass.setUserId(id);
+                                            if (promotedOrder != null){
+                                                ordersModelClass.setPromotedOrder(promotedOrder);
+                                            }
+                                            else {
+                                                ordersModelClass.setPromotedOrder("no");
+                                            }
 
                                             Orders.add(ordersModelClass);
                                             adapter.notifyDataSetChanged();

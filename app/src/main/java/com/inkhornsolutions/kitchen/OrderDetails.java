@@ -34,7 +34,7 @@ import java.util.ArrayList;
 public class OrderDetails extends AppCompatActivity {
 
     private FirebaseFirestore firebaseFirestore;
-    private String resName, resId, orderID, userId;
+    private String resName, resId, orderID, userId, promotedOrder;
     private ArrayList<OrdersModelClass> ordersDetails = new ArrayList<>();
     private RecyclerView rvOrdersDetails;
     private TextView tvTotalPrice;
@@ -56,6 +56,7 @@ public class OrderDetails extends AppCompatActivity {
         userId = getIntent().getStringExtra("userId");
         lat = getIntent().getDoubleExtra("lat", 0);
         lng = getIntent().getDoubleExtra("lng", 0);
+        promotedOrder = getIntent().getStringExtra("promotedOrder");
 
         rvOrdersDetails = (RecyclerView) findViewById(R.id.rvOrdersDetails);
         tvTotalPrice = (TextView) findViewById(R.id.tvTotalPrice);
@@ -96,17 +97,18 @@ public class OrderDetails extends AppCompatActivity {
         });
 
         firebaseFirestore.collection("Users").document(userId)
-                .collection("Cart").document(resId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull @NotNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot documentSnapshot = task.getResult();
-                    if (documentSnapshot.exists()) {
-                        String status = documentSnapshot.getString("status");
-                        if (status.equals("Pending")) {
-                            layoutAcceptReject.setVisibility(View.VISIBLE);
-                            layoutFindRiderDispatch.setVisibility(View.GONE);
-                        }
+                .collection("Cart").document(resId).get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull @NotNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot documentSnapshot = task.getResult();
+                            if (documentSnapshot.exists()) {
+                                String status = documentSnapshot.getString("status");
+                                if (status.equals("Pending")) {
+                                    layoutAcceptReject.setVisibility(View.VISIBLE);
+                                    layoutFindRiderDispatch.setVisibility(View.GONE);
+                                }
                         else if (status.equals("In progress")) {
                             layoutAcceptReject.setVisibility(View.GONE);
                             layoutFindRiderDispatch.setVisibility(View.VISIBLE);
@@ -191,8 +193,18 @@ public class OrderDetails extends AppCompatActivity {
                                 String finalPrice = documentSnapshot.getString("final_price");
                                 String pId = documentSnapshot.getString("pId");
 
-                                double deductedPrice = Double.parseDouble(price) * 0.8;
-                                double deductedTotal = Double.parseDouble(finalPrice) * 0.8;
+                                double deductedPrice;
+                                double deductedTotal;
+
+                                if (promotedOrder.equals("yes")){
+                                    deductedPrice = Double.parseDouble(price);
+                                    deductedTotal = Double.parseDouble(finalPrice);
+                                }
+                                else {
+                                    deductedPrice = Double.parseDouble(price) * 0.8;
+                                    deductedTotal = Double.parseDouble(finalPrice) * 0.8;
+                                }
+
 
                                 OrdersModelClass ordersModelClass1 = new OrdersModelClass();
 

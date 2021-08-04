@@ -1,7 +1,7 @@
 package com.inkhornsolutions.kitchen.modelclasses;
 
 public class OrdersModelClass {
-    private String resId, id, pId, itemName, finalPrice, price,  Items_Count, status, resName, totalPrice, date, orderId, userId, subTotal;
+    private String resId, id, pId, itemName, finalPrice, price,  items_Count, status, resName, totalPrice, date, orderId, userId, subTotal, promotedOrder;
     private Double lat, lng;
     private boolean expanded;
 
@@ -16,14 +16,14 @@ public class OrdersModelClass {
     public OrdersModelClass() {
     }
 
-    public OrdersModelClass(String resId, String id, String pId, String itemName, String finalPrice, String price, String items_Count, String status, String resName, String totalPrice, String date, String orderId, String userId, String subTotal, Double lat, Double lng, boolean expanded) {
+    public OrdersModelClass(String resId, String id, String pId, String itemName, String finalPrice, String price, String items_Count, String status, String resName, String totalPrice, String date, String orderId, String userId, String subTotal, String promotedOrder, Double lat, Double lng, boolean expanded) {
         this.resId = resId;
         this.id = id;
         this.pId = pId;
         this.itemName = itemName;
         this.finalPrice = finalPrice;
         this.price = price;
-        Items_Count = items_Count;
+        this.items_Count = items_Count;
         this.status = status;
         this.resName = resName;
         this.totalPrice = totalPrice;
@@ -31,9 +31,18 @@ public class OrdersModelClass {
         this.orderId = orderId;
         this.userId = userId;
         this.subTotal = subTotal;
+        this.promotedOrder = promotedOrder;
         this.lat = lat;
         this.lng = lng;
         this.expanded = expanded;
+    }
+
+    public String getPromotedOrder() {
+        return promotedOrder;
+    }
+
+    public void setPromotedOrder(String promotedOrder) {
+        this.promotedOrder = promotedOrder;
     }
 
     public String getSubTotal() {
@@ -109,11 +118,11 @@ public class OrdersModelClass {
     }
 
     public String getItems_Count() {
-        return Items_Count;
+        return items_Count;
     }
 
     public void setItems_Count(String items_Count) {
-        Items_Count = items_Count;
+        this.items_Count = items_Count;
     }
 
     public String getStatus() {

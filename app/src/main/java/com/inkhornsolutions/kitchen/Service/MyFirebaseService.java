@@ -1,6 +1,8 @@
 package com.inkhornsolutions.kitchen.Service;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.util.Log;
 
@@ -66,6 +68,12 @@ public class MyFirebaseService extends FirebaseMessagingService {
                     EventBus.getDefault().postSticky(new TimeUp(tripKey));
                 }
                 else if (title.equals("DriverArrived")){
+
+                    SharedPreferences sharedPreferences = getSharedPreferences("tripKey", Context.MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putString("tripKey", tripKey);
+                    editor.apply();
+
                     EventBus.getDefault().postSticky(new DriverArrived(tripKey));
                 }
                 else if (title.equals("NewOrder")){

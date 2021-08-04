@@ -12,6 +12,8 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -83,7 +85,8 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import kotlin.Unit;
 import kotlin.jvm.functions.Function1;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
+,LocationListener{
 
     private FirebaseAuth firebaseAuth;
     private FirebaseFirestore firebaseFirestore;
@@ -111,6 +114,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private double sum = 0;
     private Double deductedTotal = 0.0;
     private FusedLocationProviderClient fusedLocationProviderClient;
+
+    private LocationManager locationManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -286,47 +291,41 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
 
+
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
+
     }
 
     private void saveLocation(String resName){
         if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
-        fusedLocationProviderClient.getLastLocation()
-                .addOnCompleteListener(new OnCompleteListener<Location>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Location> task) {
-                        if (task.isSuccessful()){
-                            Location location = task.getResult();
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+        if (locationManager != null) {
+            Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
 
-                            LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+            if (location != null) {
+                LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+                HashMap<String, Object> currentLocation = new HashMap<>();
+                currentLocation.put("location", latLng);
 
-                            HashMap<String, Object> currentLocation = new HashMap<>();
-                            currentLocation.put("location", latLng);
+                firebaseFirestore.collection("Restaurants").document(resName)
+                        .set(currentLocation, SetOptions.merge())
+                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
 
-                            firebaseFirestore.collection("Restaurants").document(resName)
-                                    .set(currentLocation, SetOptions.merge())
-                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<Void> task) {
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull @org.jetbrains.annotations.NotNull Exception e) {
 
-                                        }
-                                    })
-                                    .addOnFailureListener(new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull @org.jetbrains.annotations.NotNull Exception e) {
-
-                                        }
-                                    });
-                        }
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull @org.jetbrains.annotations.NotNull Exception e) {
-                        Toast.makeText(MainActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
+                            }
+                        });
+            }
+        }
     }
 
     @SuppressLint("InflateParams")
@@ -800,5 +799,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         drawerLayout.closeDrawer(GravityCompat.START);
 
         return true;
+    }
+
+    @Override
+    public void onLocationChanged(@NonNull Location location) {
+
     }
 }
