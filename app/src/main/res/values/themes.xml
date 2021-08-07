@@ -2,11 +2,11 @@
     <!-- Base application theme. -->
     <style name="Theme.Kitchen" parent="Theme.MaterialComponents.Light.NoActionBar">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/myColorSecond</item>
+        <item name="colorPrimary">@color/myColor</item>
         <item name="colorPrimaryVariant">@color/purple_700</item>
         <item name="colorOnPrimary">@color/Shehri_ka_bataya_huwa_color</item>
         <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/myColorSecond</item>
+        <item name="colorSecondary">@color/myColor</item>
         <item name="colorSecondaryVariant">@color/myColor</item>
         <item name="colorOnSecondary">@color/white</item>
         <!-- Status bar color. -->

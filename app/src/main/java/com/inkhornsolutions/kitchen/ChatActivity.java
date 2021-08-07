@@ -48,7 +48,7 @@ public class ChatActivity extends AppCompatActivity {
     private FirebaseFirestore firebaseFirestore;
     private List<Chat> msg = new ArrayList<>();
     private ChatAdapter messagesAdapter;
-    private String myID, chatRoom;
+    private String myID, chatRoom, resName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +65,8 @@ public class ChatActivity extends AppCompatActivity {
 
         setSupportActionBar(toolbarChat);
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+
+        resName = getIntent().getStringExtra("resName");
 
         rvMessages.setHasFixedSize(true);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(ChatActivity.this);

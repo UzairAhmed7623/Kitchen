@@ -6,6 +6,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -16,7 +17,6 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -48,8 +48,13 @@ import androidx.viewpager.widget.ViewPager;
 import com.bitvale.switcher.SwitcherX;
 import com.bumptech.glide.Glide;
 import com.github.dhaval2404.imagepicker.ImagePicker;
+import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResponse;
+import com.google.android.gms.location.SettingsClient;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -85,8 +90,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import kotlin.Unit;
 import kotlin.jvm.functions.Function1;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
-,LocationListener{
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, LocationListener {
 
     private FirebaseAuth firebaseAuth;
     private FirebaseFirestore firebaseFirestore;
@@ -216,9 +220,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                                     SharedPreferences prefs = getApplicationContext().getSharedPreferences("USER_PREF", Context.MODE_PRIVATE);
                                     resName = prefs.getString("restaurantName", "");
-                                    loadRestaurant(resName);
-                                    ordersList(resName);
+                                    validateRes(resName);
+                                    tvResName.setText(resName);
+//                                    ordersList(resName);
                                     saveLocation(resName);
+                                    makeChatRome(resName);
+
                                 }
                             }
                         } else {
@@ -231,8 +238,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             } else {
                                 validateRes(resName);
                                 tvResName.setText(resName);
-                                ordersList(resName);
+//                                ordersList(resName);
                                 saveLocation(resName);
+                                makeChatRome(resName);
+
                             }
                         }
                     }
@@ -248,6 +257,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, ChatActivity.class);
+                intent.putExtra("resName", resName);
                 startActivity(intent);
                 overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
             }
@@ -291,17 +301,57 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
 
-
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-
 
     }
 
-    private void saveLocation(String resName){
+    private void isGPSOn() {
+        LocationRequest locationRequest = LocationRequest.create();
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder().addLocationRequest(locationRequest);
+
+        SettingsClient client = LocationServices.getSettingsClient(this);
+        Task<LocationSettingsResponse> task = client.checkLocationSettings(builder.build());
+
+        task.addOnSuccessListener(this, new OnSuccessListener<LocationSettingsResponse>() {
+            @Override
+            public void onSuccess(LocationSettingsResponse locationSettingsResponse) {
+                Log.d("TAG", locationSettingsResponse.toString());
+
+                LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+                boolean providerEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+                if (providerEnabled) {
+                    if (!resName.equals("")) {
+
+                        saveLocation(resName);
+                    }
+                } else {
+                    isGPSOn();
+                }
+            }
+        });
+        task.addOnFailureListener(this, new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                if (e instanceof ResolvableApiException) {
+                    try {
+                        ResolvableApiException resolvableApiException = (ResolvableApiException) e;
+                        resolvableApiException.startResolutionForResult(MainActivity.this, 1003);
+                    } catch (IntentSender.SendIntentException sendEx) {
+                        Log.d("TAG", "Error : " + sendEx);
+                    }
+                }
+            }
+        });
+    }
+
+    private void saveLocation(String resName) {
+
         if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 900000, 100, this);
         if (locationManager != null) {
             Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
 
@@ -636,6 +686,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void loadRestaurant(String resName) {
 
+        firebaseFirestore.collection("Restaurants").document(resName).get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        if (documentSnapshot.exists()) {
+                            String status = documentSnapshot.getString("status");
+
+                            if (status != null && status.equals("online")) {
+                                statusSwitch.setChecked(true, true);
+                            }
+                        }
+                    }
+                });
+
         FragmentPagerItemAdapter adapter = new FragmentPagerItemAdapter(
                 getSupportFragmentManager(), FragmentPagerItems.with(this)
                 .add("Recent Orders", RecentOrders.class)
@@ -649,7 +713,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         viewPagerTab.setViewPager(viewPager);
     }
 
-    public String sendData(){
+    public String sendData() {
         return resName;
     }
 
@@ -668,28 +732,26 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     if (documentSnapshot.exists()) {
                         String id = documentSnapshot.getId();
 
-                        firebaseFirestore.collection("Users").document(id).collection("Cart")
+                        firebaseFirestore.collection("Users").document().collection("Cart")
                                 .whereEqualTo("status", "Completed")
                                 .whereEqualTo("restaurantName", resName)
                                 .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                             @Override
                             public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                for (QueryDocumentSnapshot documentSnapshot : task.getResult()){
-                                    if (documentSnapshot.exists()){
+                                for (QueryDocumentSnapshot documentSnapshot : task.getResult()) {
+                                    if (documentSnapshot.exists()) {
 
                                         String total = documentSnapshot.getString("total");
 
                                         ArrayList<Double> totalPrice = new ArrayList<>();
-                                        totalPrice.add(Double.parseDouble(total)-45);
+                                        totalPrice.add(Double.parseDouble(total) - 45);
 
-                                        for (int i = 0; i < totalPrice.size(); i++)
-                                        {
+                                        for (int i = 0; i < totalPrice.size(); i++) {
                                             sum = sum + totalPrice.get(i);
                                         }
-                                        deductedTotal = sum* 0.8;
+                                        deductedTotal = sum * 0.8;
 
-                                    }
-                                    else {
+                                    } else {
                                         Snackbar.make(getParent().findViewById(android.R.id.content), "Data not found!", Snackbar.LENGTH_LONG).show();
                                     }
                                 }
@@ -789,8 +851,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             intent.putExtra("resName", resName);
             startActivity(intent);
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-        }
-        else if (item.getItemId() == R.id.wallet) {
+        } else if (item.getItemId() == R.id.wallet) {
             Intent intent = new Intent(MainActivity.this, Wallet.class);
             intent.putExtra("resName", resName);
             startActivity(intent);
@@ -804,5 +865,82 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public void onLocationChanged(@NonNull Location location) {
 
+        if (!resName.equals("")) {
+
+            saveLocation(resName);
+        }
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+        if (!resName.equals("")) {
+
+            saveLocation(resName);
+        }
+    }
+
+    @Override
+    public void onProviderEnabled(@NonNull String provider) {
+        if (!resName.equals("")) {
+
+            saveLocation(resName);
+        }
+    }
+
+    @Override
+    public void onProviderDisabled(@NonNull String provider) {
+
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
+        alertDialogBuilder
+                .setTitle("Location Required!")
+                .setMessage("Location is disabled in your device. Enable it?")
+                .setCancelable(false)
+                .setPositiveButton("Enable", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        isGPSOn();
+
+                    }
+                });
+
+        AlertDialog alert = alertDialogBuilder.create();
+        alert.show();
+
+    }
+
+    private void makeChatRome(String resName) {
+        String chatRoom = "igCh7xT4IVcrnfKBjR4W5hCo8jK2" + firebaseAuth.getCurrentUser().getUid();
+
+        HashMap<String, Object> chatroomMap = new HashMap<>();
+        chatroomMap.put("kitchenName", resName);
+
+        boolean firstTime;
+
+        SharedPreferences preferences = getApplicationContext().getSharedPreferences("USER_PREF", Context.MODE_PRIVATE);
+        firstTime = preferences.getBoolean("firstTime", true);
+
+        if (firstTime) {
+
+            firebaseFirestore.collection("Chats").document(chatRoom).set(chatroomMap, SetOptions.merge()).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void unused) {
+
+                    boolean firstTime = false;
+
+                    SharedPreferences prefs = getApplicationContext().getSharedPreferences("USER_PREF", Context.MODE_PRIVATE);
+                    SharedPreferences.Editor editor = prefs.edit();
+                    editor.putBoolean("firstTime", firstTime);
+                    editor.apply();
+
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+
+                }
+            });
+
+        }
     }
 }

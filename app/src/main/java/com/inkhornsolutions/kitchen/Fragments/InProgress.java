@@ -108,7 +108,7 @@ public class InProgress extends Fragment {
                         String id = documentSnapshot.getId();
 
                         firebaseFirestore.collection("Users").document(id).collection("Cart")
-                                .whereIn("status", Arrays.asList("In progress"))
+                                .whereEqualTo("status", "In progress")
                                 .whereEqualTo("restaurantName", resName)
                                 .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                             @Override
@@ -159,7 +159,12 @@ public class InProgress extends Fragment {
                                             ordersModelClass.setLng(lng);
                                             ordersModelClass.setOrderId(orderId);
                                             ordersModelClass.setUserId(id);
-                                            ordersModelClass.setPromotedOrder(promotedOrder);
+                                            if (promotedOrder != null){
+                                                ordersModelClass.setPromotedOrder(promotedOrder);
+                                            }
+                                            else {
+                                                ordersModelClass.setPromotedOrder("no");
+                                            }
 
                                             Orders.add(ordersModelClass);
                                             adapter.notifyDataSetChanged();

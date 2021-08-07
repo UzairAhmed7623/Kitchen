@@ -1,5 +1,6 @@
 package com.inkhornsolutions.kitchen;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -101,17 +102,17 @@ public class Wallet extends AppCompatActivity {
                         tvPaymentRequested.setText("0.0");
                     }
 
-                    tvTotalRevenue.setText(String.valueOf(totalRevenue));
+                    tvTotalRevenue.setText(totalRevenue);
 
                     if (value.getString("remaining") != null) {
-                        tvRemaining.setText(String.valueOf(remaining));
+                        tvRemaining.setText(remaining);
                     }
                     else {
-                        tvRemaining.setText(String.valueOf(totalRevenue));
+                        tvRemaining.setText(totalRevenue);
                     }
 
                     if (value.getString("withdrawn") != null) {
-                        tvWithdrawn.setText(String.valueOf(withdrawnFromDatabase));
+                        tvWithdrawn.setText(withdrawnFromDatabase);
                     }
                     else {
                         tvWithdrawn.setText("0.0");
@@ -146,13 +147,16 @@ public class Wallet extends AppCompatActivity {
 
                     Log.d("payment", withdrawn + " " + withdrawPayment);
 
-                    if (withdrawnFromDatabase != null){
+                    if (Double.parseDouble(withdrawPayment) > Double.parseDouble(tvRemaining.getText().toString())){
+                        Toast.makeText(Wallet.this, "You have insufficient balance to withdraw this amount.", Toast.LENGTH_SHORT).show();
+                    }
+                    else if (withdrawnFromDatabase != null){
                         withdrawn = Double.parseDouble(withdrawPayment) + Double.parseDouble(withdrawnFromDatabase);
-                        tvWithdrawn.setText(String.valueOf(withdrawn));
+                        tvWithdrawn.setText(String.format("%.2f", withdrawn));
                     }
                     else {
                         withdrawn = Double.parseDouble(withdrawPayment);
-                        tvWithdrawn.setText(String.valueOf(withdrawn));
+                        tvWithdrawn.setText(String.format("%.2f", withdrawn));
                     }
 
                     Log.d("payment", withdrawn + " " + withdrawPayment + " " + withdrawnFromDatabase);
@@ -161,8 +165,8 @@ public class Wallet extends AppCompatActivity {
                     tvRemaining.setText(String.valueOf(remaining));
 
                     HashMap<String, String> paymentData = new HashMap<>();
-                    paymentData.put("remaining", String.valueOf(remaining));
-                    paymentData.put("withdrawn", String.valueOf(withdrawn));
+                    paymentData.put("remaining", String.format("%.2f", remaining));
+                    paymentData.put("withdrawn", String.format("%.2f", withdrawn));
                     paymentData.put("paymentStatus", "pending");
                     paymentData.put("paymentRequested", withdrawPayment);
 
@@ -189,9 +193,9 @@ public class Wallet extends AppCompatActivity {
                                 String remaining = value.getString("remaining");
                                 String withdrawn = value.getString("withdrawn");
 
-                                tvTotalRevenue.setText(String.valueOf(totalRevenue));
-                                tvRemaining.setText(String.valueOf(remaining));
-                                tvWithdrawn.setText(String.valueOf(withdrawn));
+                                tvTotalRevenue.setText(String.format("%.2f", totalRevenue));
+                                tvRemaining.setText(String.format("%.2f", remaining));
+                                tvWithdrawn.setText(String.format("%.2f", withdrawn));
 
                             }
                         }
@@ -217,11 +221,11 @@ public class Wallet extends AppCompatActivity {
                         totalRevenue = totalRevenue + (Double.parseDouble(total) - 45);
                     }
                     totalRevenue *= 0.8;
-                    tvTotalRevenue.setText(String.valueOf(totalRevenue));
+                    tvTotalRevenue.setText(String.format("%.2f", totalRevenue));
 
                     String remaining = tvRemaining.getText().toString();
                     if (TextUtils.isEmpty(remaining) || remaining.equals("null")) {
-                        tvRemaining.setText(String.valueOf(totalRevenue));
+                        tvRemaining.setText(String.format("%.2f", totalRevenue));
                     }
 
                     saveTotalInDatabase(totalRevenue);
@@ -237,7 +241,7 @@ public class Wallet extends AppCompatActivity {
 
     private void saveTotalInDatabase(double totalRevenue) {
         HashMap<String, String> paymentData = new HashMap<>();
-        paymentData.put("totalRevenue", String.valueOf(totalRevenue));
+        paymentData.put("totalRevenue", String.format("%.2f", totalRevenue));
 
         firebaseFirestore.collection("Restaurants").document(resName).set(paymentData, SetOptions.merge())
                 .addOnCompleteListener(new OnCompleteListener<Void>() {

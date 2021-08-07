@@ -3,9 +3,11 @@ package com.inkhornsolutions.kitchen.Fragments;
 import android.app.ProgressDialog;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -17,6 +19,8 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -113,8 +117,6 @@ public class RecentOrders extends Fragment {
 
     private void ordersList(String resName) {
 
-//        Toast.makeText(getActivity(), "resName1"+resName, Toast.LENGTH_SHORT).show();
-
         firebaseFirestore.collection("Users").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
             @Override
             public void onSuccess(QuerySnapshot value) {
@@ -126,7 +128,8 @@ public class RecentOrders extends Fragment {
                     if (documentSnapshot.exists()) {
                         String id = documentSnapshot.getId();
 
-                        firebaseFirestore.collection("Users").document(id).collection("Cart")
+                        firebaseFirestore.collection("Users").document(id)
+                                .collection("Cart")
                                 .whereIn("status", Arrays.asList("Pending", "Rejected", "Dispatched","Completed"))
                                 .whereEqualTo("restaurantName", resName)
                                 .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
