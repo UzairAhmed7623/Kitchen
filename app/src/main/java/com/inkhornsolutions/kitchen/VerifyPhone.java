@@ -50,21 +50,24 @@ public class VerifyPhone extends AppCompatActivity {
     private FirebaseFirestore firebaseFirestore;
 
     private String verificationId;
+    private static final String KEY_VERIFICATION_ID = "key_verification_id";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_verify_phone);
 
+        if (verificationId == null && savedInstanceState != null) {
+            onRestoreInstanceState(savedInstanceState);
+        }
+
         phonePlace = (TextView) findViewById(R.id.phonePlace);
         resend_code = (TextView) findViewById(R.id.resend_code);
         otp = (PinView) findViewById(R.id.otp);
         buttonSignIn = (Button) findViewById(R.id.buttonSignIn);
 
-
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseFirestore = FirebaseFirestore.getInstance();
-
 
         String number = getIntent().getStringExtra("phone");
 
@@ -110,6 +113,18 @@ public class VerifyPhone extends AppCompatActivity {
         });
     }
 
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString(KEY_VERIFICATION_ID, verificationId);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        verificationId = savedInstanceState.getString(KEY_VERIFICATION_ID);
+    }
+
     private void verifyCode(String code) {
         PhoneAuthCredential credential = PhoneAuthProvider.getCredential(verificationId, code);
         signInWithCredential(credential);
@@ -136,7 +151,7 @@ public class VerifyPhone extends AppCompatActivity {
                                     }).addOnFailureListener(new OnFailureListener() {
                                 @Override
                                 public void onFailure(@NonNull @NotNull Exception e) {
-                                    Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).show();
+                                    Toast.makeText(VerifyPhone.this, task.getException().getMessage(), Toast.LENGTH_LONG).show();
                                 }
                             });
 

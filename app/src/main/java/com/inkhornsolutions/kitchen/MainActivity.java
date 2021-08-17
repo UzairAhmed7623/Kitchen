@@ -87,10 +87,13 @@ import java.util.List;
 import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import io.nlopez.smartlocation.OnLocationUpdatedListener;
+import io.nlopez.smartlocation.SmartLocation;
 import kotlin.Unit;
 import kotlin.jvm.functions.Function1;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, LocationListener {
+public class MainActivity extends AppCompatActivity
+        implements NavigationView.OnNavigationItemSelectedListener, LocationListener, OnLocationUpdatedListener {
 
     private FirebaseAuth firebaseAuth;
     private FirebaseFirestore firebaseFirestore;
@@ -133,6 +136,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        Objects.requireNonNull(getSupportActionBar()).setTitle("");
 
         tvOnline = (TextView) findViewById(R.id.tvOnline);
         tvOffline = (TextView) findViewById(R.id.tvOffline);
@@ -172,6 +176,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         toggle.syncState();
         navigationView.setNavigationItemSelectedListener(MainActivity.this);
         navigationView.setCheckedItem(R.id.navView);
+
+        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 900000, 100, this);
+        if (locationManager != null) {
+            Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+        }
+
+        boolean providerAvailable = SmartLocation.with(this).location().state().isAnyProviderAvailable();
+        boolean locationServices = SmartLocation.with(this).location().state().locationServicesEnabled();
+
+
         toggle.setToolbarNavigationClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -301,8 +319,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
 
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-
     }
 
     private void isGPSOn() {
@@ -323,15 +339,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 boolean providerEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
                 if (providerEnabled) {
                     if (!resName.equals("")) {
-
                         saveLocation(resName);
                     }
-                } else {
+                }
+                else {
                     isGPSOn();
                 }
             }
-        });
-        task.addOnFailureListener(this, new OnFailureListener() {
+        }).addOnFailureListener(this, new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
                 if (e instanceof ResolvableApiException) {
@@ -348,34 +363,33 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void saveLocation(String resName) {
 
-        if (ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 900000, 100, this);
-        if (locationManager != null) {
-            Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+        SmartLocation.with(this).location()
+                .oneFix()
+                .start(new OnLocationUpdatedListener() {
+                    @Override
+                    public void onLocationUpdated(Location location) {
+                        if (location != null) {
+                            LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+                            HashMap<String, Object> currentLocation = new HashMap<>();
+                            currentLocation.put("location", latLng);
 
-            if (location != null) {
-                LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-                HashMap<String, Object> currentLocation = new HashMap<>();
-                currentLocation.put("location", latLng);
+                            firebaseFirestore.collection("Restaurants").document(resName)
+                                    .set(currentLocation, SetOptions.merge())
+                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
 
-                firebaseFirestore.collection("Restaurants").document(resName)
-                        .set(currentLocation, SetOptions.merge())
-                        .addOnCompleteListener(new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
+                                        }
+                                    })
+                                    .addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull @org.jetbrains.annotations.NotNull Exception e) {
 
-                            }
-                        })
-                        .addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull @org.jetbrains.annotations.NotNull Exception e) {
-
-                            }
-                        });
-            }
-        }
+                                        }
+                                    });
+                        }
+                    }
+                });
     }
 
     @SuppressLint("InflateParams")
@@ -851,12 +865,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             intent.putExtra("resName", resName);
             startActivity(intent);
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-        } else if (item.getItemId() == R.id.wallet) {
-            Intent intent = new Intent(MainActivity.this, Wallet.class);
-            intent.putExtra("resName", resName);
-            startActivity(intent);
-            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         }
+//        else if (item.getItemId() == R.id.wallet) {
+//            Intent intent = new Intent(MainActivity.this, Wallet.class);
+//            intent.putExtra("resName", resName);
+//            startActivity(intent);
+//            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+//        }
         drawerLayout.closeDrawer(GravityCompat.START);
 
         return true;
@@ -941,6 +956,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
             });
 
+        }
+    }
+
+    @Override
+    public void onLocationUpdated(Location location) {
+        if (!resName.equals("")){
+
+        saveLocation(resName);
         }
     }
 }

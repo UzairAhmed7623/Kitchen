@@ -45,19 +45,27 @@
                 app:titleTextAppearance="@style/TextAppearance.AppCompat.Medium"
                 app:titleTextColor="@android:color/white"/>
 
+            <ImageView
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:src="@drawable/kitchen_icon"
+                android:layout_gravity="end"
+                android:layout_marginEnd="10dp"
+                android:layout_marginTop="10dp"/>
+
             <TextView
                 android:id="@+id/tvResName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:layout_gravity="end|bottom"
-                android:layout_marginEnd="10dp"
-                android:layout_marginBottom="13dp"
+                android:layout_gravity="start|bottom"
+                android:layout_marginStart="50dp"
+                android:layout_marginBottom="17dp"
                 android:textColor="@color/white"
                 android:fontFamily="@font/montserra_regular_bold"
                 android:textSize="16sp"
                 android:letterSpacing="0.05"
-                app:titleTextAppearance="@style/TextAppearance.AppCompat.Medium"
+                app:titleTextAppearance="@style/TextAppearance.AppCompat.Title"
                 android:text="Res Name" />
 
         </FrameLayout>

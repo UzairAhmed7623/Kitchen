@@ -9,6 +9,7 @@ import androidx.core.content.ContextCompat;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
+import android.content.ClipData;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
@@ -18,11 +19,13 @@ import android.os.Handler;
 import android.text.TextUtils;
 import android.text.format.DateFormat;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -32,9 +35,11 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
@@ -51,6 +56,7 @@ import java.util.Objects;
 
 public class AddItem extends AppCompatActivity {
 
+    private static final int REQUEST_CODE = 1002;
     private EditText etItemName, etItemPrice, etItemDes, etItemQuantity;
     private TextView tvFrom, tvTo;
     private TextView  tvAvailable, tvNotAvailable;
@@ -65,11 +71,13 @@ public class AddItem extends AppCompatActivity {
     private FirebaseStorage firebaseStorage;
     private StorageReference storageReference;
     private ProgressDialog dialog;
-    private Toolbar toolbar;
+    private TextView toolbar;
     private String isAvailable = "No";
     private ImageView ivCategories;
     private String selectedCategory;
     private TextView tvSpinnerHead;
+    private RelativeLayout spinnerLayout;
+    private MaterialButton backButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,13 +89,10 @@ public class AddItem extends AppCompatActivity {
         firebaseStorage = FirebaseStorage.getInstance();
         storageReference = firebaseStorage.getReference();
 
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        Objects.requireNonNull(getSupportActionBar()).setTitle("Add new product");
+        toolbar = (TextView) findViewById(R.id.toolbar);
 
         resName = getIntent().getStringExtra("resName");
-
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        Toast.makeText(AddItem.this, resName+"Chala1", Toast.LENGTH_SHORT).show();
 
         etItemName = (EditText) findViewById(R.id.etItemName);
         etItemQuantity = (EditText) findViewById(R.id.etItemQuantity);
@@ -103,6 +108,18 @@ public class AddItem extends AppCompatActivity {
         switchAvailable = (SwitchMaterial) findViewById(R.id.switchAvailable);
         ivCategories = (ImageView) findViewById(R.id.ivCategories);
         tvSpinnerHead = (TextView) findViewById(R.id.tvSpinnerHead);
+        spinnerLayout = (RelativeLayout) findViewById(R.id.spinnerLayout);
+        backButton = (MaterialButton) findViewById(R.id.backButton);
+
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(AddItem.this, Items.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                intent.putExtra("resName", resName);
+                startActivity(intent);
+            }
+        });
 
         switchAvailable.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -123,7 +140,7 @@ public class AddItem extends AppCompatActivity {
 
         //Code for copy document data.
 //        DocumentReference copyFrom = FirebaseFirestore.getInstance().collection("Restaurants").document("asd").collection("Items").document("Honey");
-        DocumentReference copyTo = FirebaseFirestore.getInstance().collection("Restaurants").document("Organic Shop").collection("Items").document("Honey");
+//        DocumentReference copyTo = FirebaseFirestore.getInstance().collection("Restaurants").document("Organic Shop").collection("Items").document("Honey");
 //
 //        copyFrom.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
 //            @Override
@@ -136,9 +153,7 @@ public class AddItem extends AppCompatActivity {
 //        });
 
 
-
-
-        ivCategories.setOnClickListener(new View.OnClickListener() {
+        spinnerLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
@@ -189,8 +204,8 @@ public class AddItem extends AppCompatActivity {
 
                 ImagePicker.Companion.with(AddItem.this)
                         .crop(3f, 2f)	    			//Crop image(Optional), Check Customization for more option
-                        .compress(1024)			//Final image size will be less than 1 MB(Optional)
-                        .start(1002);
+                        .compress(500)			//Final image size will be less than 1 MB(Optional)
+                        .start(REQUEST_CODE);
             }
         });
 
@@ -279,7 +294,7 @@ public class AddItem extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == 1002 || resultCode == RESULT_OK && data!= null && data.getData() != null) {
+        if (requestCode == REQUEST_CODE || resultCode == RESULT_OK && data!= null && data.getData() != null) {
             //Image Uri will not be null for RESULT_OK
             fileUri = data.getData();
             etItemImage.setImageURI(fileUri);
@@ -401,4 +416,15 @@ public class AddItem extends AppCompatActivity {
         return date;
     }
 
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//
+//        if (item.getItemId() == android.R.id.home) {
+//            Toast.makeText(AddItem.this, "Clicked!", Toast.LENGTH_SHORT).show();
+//            Intent intent = new Intent(AddItem.this, Items.class);
+//            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+//            intent.putExtra("resName", resName);
+//            startActivity(intent);        }
+//        return false;
+//    }
 }

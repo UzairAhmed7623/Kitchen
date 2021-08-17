@@ -128,7 +128,9 @@ public class ChatActivity extends AppCompatActivity {
                 .addSnapshotListener(new EventListener<DocumentSnapshot>() {
                     @Override
                     public void onEvent(DocumentSnapshot documentSnapshot, FirebaseFirestoreException error) {
-                        msg.clear();
+                        if (msg != null){
+                            msg.clear();
+                        }
 
                         if (error != null) {
                             return;
@@ -137,7 +139,7 @@ public class ChatActivity extends AppCompatActivity {
                         if (documentSnapshot != null && documentSnapshot.exists()) {
                             msg = Objects.requireNonNull(documentSnapshot.toObject(ChatList.class)).messages;
 
-                            Log.d("TAG", msg.get(0).getMessage());
+//                            Log.d("TAG", msg.get(0).getMessage());
 
                             messagesAdapter = new ChatAdapter(ChatActivity.this, msg);
                             rvMessages.setAdapter(messagesAdapter);

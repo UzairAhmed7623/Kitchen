@@ -11,24 +11,37 @@
         android:layout_height="0dp"
         android:orientation="vertical">
 
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/myColor"
-            app:titleTextColor="@android:color/white"
-            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
+            android:layout_height="wrap_content">
 
-        <TextView
-            android:id="@+id/textView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/uber_move_bold"
-            android:padding="10dp"
-            android:text="Add new product:"
-            android:textColor="@color/black"
-            android:textSize="20sp"
-            app:layout_constraintTop_toBottomOf="@+id/toolbar" />
+            <TextView
+                android:id="@+id/toolbar"
+                style="@style/TextAppearance.AppCompat.Title"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:background="@color/myColor"
+                android:paddingStart="50dp"
+                android:paddingTop="10dp"
+                android:text="Add new product"
+                android:textColor="@color/white" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/backButton"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="8dp"
+                android:layout_centerVertical="true"
+                app:cornerRadius="50dp"
+                app:icon="@drawable/arrow_back"
+                app:iconGravity="start"
+                app:iconTint="@color/white"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:rippleColor="#20000000" />
+
+        </RelativeLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -218,6 +231,7 @@
                 android:layout_marginTop="10dp" >
 
                 <RelativeLayout
+                    android:id="@+id/spinnerLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical">
@@ -227,24 +241,24 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentStart="true"
-                        android:text="@string/select_category"
                         android:layout_centerVertical="true"
                         android:layout_marginStart="10dp"
+                        android:includeFontPadding="false"
+                        android:text="@string/select_category"
                         android:textColor="@color/black"
-                        android:visibility="visible"
-                        android:textStyle="bold"
                         android:textSize="16sp"
-                        android:includeFontPadding="false"/>
+                        android:textStyle="bold"
+                        android:visibility="visible" />
 
                     <ImageView
                         android:id="@+id/ivCategories"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:src="@drawable/arrow_down"
                         android:layout_alignParentEnd="true"
                         android:layout_marginEnd="10dp"
+                        android:background="@android:color/transparent"
                         android:foreground="@drawable/ripple"
-                        android:background="@android:color/transparent"/>
+                        android:src="@drawable/arrow_down" />
 
                 </RelativeLayout>
 

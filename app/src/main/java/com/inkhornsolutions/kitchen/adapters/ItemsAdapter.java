@@ -1,6 +1,7 @@
 package com.inkhornsolutions.kitchen.adapters;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,12 +9,16 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.SimpleTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.inkhornsolutions.kitchen.R;
 import com.inkhornsolutions.kitchen.modelclasses.ItemsModelClass;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -53,7 +58,9 @@ public class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.ViewHolder> 
 
 
         holder.tvItem.setText(itemName);
-        Glide.with(context).load(imageUri).placeholder(R.drawable.food_placeholder).fitCenter().into(holder.ivItem);
+//        Glide.with(context).load(imageUri).placeholder(R.drawable.food_placeholder).fitCenter().into(holder.ivItem);
+        Picasso.get().load(imageUri).placeholder(R.drawable.food_placeholder).fit().into(holder.ivItem);
+
         holder.tvItemPrice.setText("PKR"+price);
         holder.tvItemDescription.setText(description);
         holder.tvItemSchedule.setText("Available: "+ schedule);

@@ -2,6 +2,8 @@ package com.inkhornsolutions.kitchen;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -14,6 +16,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -27,6 +31,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -42,15 +47,16 @@ import jp.co.recruit_lifestyle.android.widget.WaveSwipeRefreshLayout;
 
 public class Items extends AppCompatActivity {
 
-    private Toolbar toolbarItems;
+    private TextView toolbarItems;
     private RecyclerView rvItems;
     private FirebaseAuth firebaseAuth;
     private FirebaseFirestore firebaseFirestore;
     private WaveSwipeRefreshLayout layoutItems;
     private final ArrayList<ItemsModelClass> items = new ArrayList<>();
     private final Paint p = new Paint();
-    private String resName;
+    private String resName = "";
     private ItemsAdapter adapter;
+    private MaterialButton backButton, btnAddItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,9 +66,30 @@ public class Items extends AppCompatActivity {
         firebaseAuth = FirebaseAuth.getInstance();
         firebaseFirestore = FirebaseFirestore.getInstance();
 
-        toolbarItems = (Toolbar) findViewById(R.id.toolbarItems);
-        setSupportActionBar(toolbarItems);
-        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+        toolbarItems = (TextView) findViewById(R.id.toolbar);
+        backButton = (MaterialButton) findViewById(R.id.backButton);
+        btnAddItem = (MaterialButton) findViewById(R.id.btnAddItem);
+
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Items.this, MainActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                intent.putExtra("resName", resName);
+                startActivity(intent);
+            }
+        });
+
+        btnAddItem.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Items.this, AddItem.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                intent.putExtra("resName", resName);
+                startActivity(intent);
+                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+            }
+        });
 
         resName = getIntent().getStringExtra("resName");
 
@@ -88,6 +115,7 @@ public class Items extends AppCompatActivity {
             }
         });
     }
+
     private void loadRestaurant(String resName) {
 
         firebaseFirestore.collection("Restaurants").document(resName).collection("Items")
@@ -244,6 +272,7 @@ public class Items extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.addItem) {
+
             Intent intent = new Intent(Items.this, AddItem.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             intent.putExtra("resName", resName);
