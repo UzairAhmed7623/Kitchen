@@ -118,4 +118,10 @@ dependencies {
 
     implementation 'io.nlopez.smartlocation:library:3.3.3'
 
+    implementation 'com.nex3z:notification-badge:1.0.5'
+
+    implementation 'com.etiya.etiyabadgetablib:etiyabadgetablib:0.0.3'
+
+    implementation 'com.github.rahimlis:badgedtablayout:v1.2'
+
 }

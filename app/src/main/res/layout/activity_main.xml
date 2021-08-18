@@ -126,43 +126,66 @@
 
         </RelativeLayout>
 
-        <com.ogaclejapan.smarttablayout.SmartTabLayout
+<!--        <com.ogaclejapan.smarttablayout.SmartTabLayout-->
+<!--            android:id="@+id/viewpagerta"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="48dp"-->
+<!--            android:layout_marginTop="10dp"-->
+<!--            android:background="@color/myColor"-->
+<!--            app:layout_constraintBottom_toBottomOf="parent"-->
+<!--            app:layout_constraintEnd_toEndOf="parent"-->
+<!--            app:layout_constraintHorizontal_bias="0.0"-->
+<!--            app:layout_constraintStart_toStartOf="parent"-->
+<!--            app:layout_constraintTop_toBottomOf="@+id/layout2"-->
+<!--            app:layout_constraintVertical_bias="0.0"-->
+<!--            app:stl_clickable="true"-->
+<!--            app:stl_defaultTabBackground="?attr/selectableItemBackground"-->
+<!--            app:stl_defaultTabTextAllCaps="false"-->
+<!--            app:stl_defaultTabTextColor="@color/white"-->
+<!--            app:stl_defaultTabTextHorizontalPadding="14dp"-->
+<!--            app:stl_defaultTabTextMinWidth="0dp"-->
+<!--            app:stl_defaultTabTextSize="14sp"-->
+<!--            app:stl_distributeEvenly="true"-->
+<!--            app:stl_dividerColor="#4D000000"-->
+<!--            app:stl_dividerThickness="1dp"-->
+<!--            app:stl_drawDecorationAfterTab="true"-->
+<!--            app:stl_indicatorAlwaysInCenter="false"-->
+<!--            app:stl_indicatorColor="@color/white"-->
+<!--            app:stl_indicatorCornerRadius="2dp"-->
+<!--            app:stl_indicatorGravity="bottom"-->
+<!--            app:stl_indicatorInFront="false"-->
+<!--            app:stl_indicatorInterpolation="smart"-->
+<!--            app:stl_indicatorThickness="4dp"-->
+<!--            app:stl_indicatorWidth="110dp"-->
+<!--            app:stl_indicatorWithoutPadding="false"-->
+<!--            app:stl_overlineColor="@color/myColor"-->
+<!--            app:stl_overlineThickness="0dp"-->
+<!--            app:stl_titleOffset="2dp"-->
+<!--            app:stl_underlineColor="@color/myColor"-->
+<!--            app:stl_underlineThickness="1dp" />-->
+
+        <com.rahimlis.badgedtablayout.BadgedTabLayout
             android:id="@+id/viewpagertab"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:layout_marginTop="10dp"
+            android:layout_height="wrap_content"
             android:background="@color/myColor"
+            app:badgeBackgroundColor="@color/white"
+            app:badgeTextColor="@color/black"
+            app:badgeTextSize="11sp"
+            app:tabIndicatorColor="@color/white"
+            app:tabMode="auto"
+            app:tabGravity="center"
+            app:tabSelectedTextColor="@color/white"
+            app:tabTextSize="4sp"
+            app:tabTextColor="@color/white"
+
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/layout2"
             app:layout_constraintVertical_bias="0.0"
-            app:stl_clickable="true"
-            app:stl_defaultTabBackground="?attr/selectableItemBackground"
-            app:stl_defaultTabTextAllCaps="false"
-            app:stl_defaultTabTextColor="@color/white"
-            app:stl_defaultTabTextHorizontalPadding="14dp"
-            app:stl_defaultTabTextMinWidth="0dp"
-            app:stl_defaultTabTextSize="14sp"
-            app:stl_distributeEvenly="true"
-            app:stl_dividerColor="#4D000000"
-            app:stl_dividerThickness="1dp"
-            app:stl_drawDecorationAfterTab="true"
-            app:stl_indicatorAlwaysInCenter="false"
-            app:stl_indicatorColor="@color/white"
-            app:stl_indicatorCornerRadius="2dp"
-            app:stl_indicatorGravity="bottom"
-            app:stl_indicatorInFront="false"
-            app:stl_indicatorInterpolation="smart"
-            app:stl_indicatorThickness="4dp"
-            app:stl_indicatorWidth="110dp"
-            app:stl_indicatorWithoutPadding="false"
-            app:stl_overlineColor="@color/myColor"
-            app:stl_overlineThickness="0dp"
-            app:stl_titleOffset="2dp"
-            app:stl_underlineColor="@color/myColor"
-            app:stl_underlineThickness="1dp" />
+            />
 
         <RelativeLayout
             android:id="@+id/layoutTotal"
