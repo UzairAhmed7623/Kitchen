@@ -45,7 +45,9 @@ import androidx.core.content.res.ResourcesCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.viewpager.widget.ViewPager;
+import androidx.viewpager2.widget.ViewPager2;
 
+import com.athbk.ultimatetablayout.UltimateTabLayout;
 import com.bitvale.switcher.SwitcherX;
 import com.bumptech.glide.Glide;
 import com.github.dhaval2404.imagepicker.ImagePicker;
@@ -65,6 +67,7 @@ import com.google.android.material.badge.BadgeDrawable;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.annotations.NotNull;
 import com.google.firebase.firestore.DocumentReference;
@@ -78,12 +81,10 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.inkhornsolutions.kitchen.Fragments.InProgress;
+import com.inkhornsolutions.kitchen.Fragments.OrdersPagerAdapter;
 import com.inkhornsolutions.kitchen.Fragments.RecentOrders;
 import com.inkhornsolutions.kitchen.Utils.UserUtils;
-import com.ogaclejapan.smarttablayout.SmartTabLayout;
-import com.ogaclejapan.smarttablayout.utils.v4.FragmentPagerItemAdapter;
-import com.ogaclejapan.smarttablayout.utils.v4.FragmentPagerItems;
-import com.rahimlis.badgedtablayout.BadgedTabLayout;
+import com.inkhornsolutions.kitchen.adapters.RecentOrdersAdapter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -718,21 +719,57 @@ public class MainActivity extends AppCompatActivity
                     }
                 });
 
-        FragmentPagerItemAdapter adapter = new FragmentPagerItemAdapter(
-                getSupportFragmentManager(), FragmentPagerItems.with(this)
-                .add("Recent Orders", RecentOrders.class)
-                .add("In Progress", InProgress.class)
-                .create());
 
-        ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
-        viewPager.setAdapter(adapter);
+        ViewPager2 viewPager2 = (ViewPager2) findViewById(R.id.viewpager);
+        viewPager2.setAdapter(new OrdersPagerAdapter(this));
 
-        BadgedTabLayout viewPagerTab = (BadgedTabLayout) findViewById(R.id.viewpagertab);
-        viewPagerTab.setupWithViewPager(viewPager);
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabLayout);
+        TabLayoutMediator tabLayoutMediator = new TabLayoutMediator(
+                tabLayout, viewPager2, new TabLayoutMediator.TabConfigurationStrategy() {
+            @Override
+            public void onConfigureTab(@NonNull TabLayout.Tab tab, int position) {
+                switch (position) {
+                    case 0:
+                        tab.setText("Recent");
+                        tab.setIcon(R.drawable.recent_orders);
 
-        viewPagerTab.setBadgeText(0, String.valueOf(1));
+                        BadgeDrawable recent = tab.getOrCreateBadge();
+                        recent.setBackgroundColor(
+                                ContextCompat.getColor(getApplicationContext(),R.color.colorAccent));
+                        recent.setVisible(true);
+                        recent.setNumber(2);
+                        recent.setMaxCharacterCount(2);
 
-        viewPagerTab.setBadgeText(1, "10");
+
+
+                        break;
+
+                    case 1:
+                        tab.setText("In Progress");
+                        tab.setIcon(R.drawable.in_progress);
+
+                        BadgeDrawable inProgress = tab.getOrCreateBadge();
+                        inProgress.setBackgroundColor(
+                                ContextCompat.getColor(getApplicationContext(),R.color.colorAccent));
+                        inProgress.setVisible(true);
+                        inProgress.setNumber(viewPager2.getAdapter().getItemCount());
+                        inProgress.setMaxCharacterCount(2);
+
+                        break;
+                }
+            }
+        });
+
+        tabLayoutMediator.attach();
+
+        viewPager2.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position) {
+                super.onPageSelected(position);
+                BadgeDrawable badgeDrawable = tabLayout.getTabAt(position).getOrCreateBadge();
+                badgeDrawable.setVisible(true);
+            }
+        });
     }
 
     public String sendData() {
@@ -974,4 +1011,5 @@ public class MainActivity extends AppCompatActivity
         saveLocation(resName);
         }
     }
+
 }

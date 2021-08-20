@@ -37,8 +37,8 @@
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
-                android:layout_height="80dp"
-                android:background="@drawable/add_details_back"
+                android:layout_height="60dp"
+                android:background="@color/myColor"
                 android:gravity="bottom"
                 app:buttonGravity="bottom"
                 app:titleMarginBottom="15dp"
@@ -49,9 +49,8 @@
                 android:layout_width="35dp"
                 android:layout_height="35dp"
                 android:src="@drawable/kitchen_icon"
-                android:layout_gravity="end"
-                android:layout_marginEnd="10dp"
-                android:layout_marginTop="10dp"/>
+                android:layout_gravity="end|center_vertical"
+                android:layout_marginEnd="10dp" />
 
             <TextView
                 android:id="@+id/tvResName"
@@ -74,8 +73,7 @@
             android:id="@+id/layout2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:background="#ebebeb"
+            android:background="@color/white"
             android:padding="10dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -126,107 +124,85 @@
 
         </RelativeLayout>
 
-<!--        <com.ogaclejapan.smarttablayout.SmartTabLayout-->
-<!--            android:id="@+id/viewpagerta"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="48dp"-->
-<!--            android:layout_marginTop="10dp"-->
-<!--            android:background="@color/myColor"-->
-<!--            app:layout_constraintBottom_toBottomOf="parent"-->
-<!--            app:layout_constraintEnd_toEndOf="parent"-->
-<!--            app:layout_constraintHorizontal_bias="0.0"-->
-<!--            app:layout_constraintStart_toStartOf="parent"-->
-<!--            app:layout_constraintTop_toBottomOf="@+id/layout2"-->
-<!--            app:layout_constraintVertical_bias="0.0"-->
-<!--            app:stl_clickable="true"-->
-<!--            app:stl_defaultTabBackground="?attr/selectableItemBackground"-->
-<!--            app:stl_defaultTabTextAllCaps="false"-->
-<!--            app:stl_defaultTabTextColor="@color/white"-->
-<!--            app:stl_defaultTabTextHorizontalPadding="14dp"-->
-<!--            app:stl_defaultTabTextMinWidth="0dp"-->
-<!--            app:stl_defaultTabTextSize="14sp"-->
-<!--            app:stl_distributeEvenly="true"-->
-<!--            app:stl_dividerColor="#4D000000"-->
-<!--            app:stl_dividerThickness="1dp"-->
-<!--            app:stl_drawDecorationAfterTab="true"-->
-<!--            app:stl_indicatorAlwaysInCenter="false"-->
-<!--            app:stl_indicatorColor="@color/white"-->
-<!--            app:stl_indicatorCornerRadius="2dp"-->
-<!--            app:stl_indicatorGravity="bottom"-->
-<!--            app:stl_indicatorInFront="false"-->
-<!--            app:stl_indicatorInterpolation="smart"-->
-<!--            app:stl_indicatorThickness="4dp"-->
-<!--            app:stl_indicatorWidth="110dp"-->
-<!--            app:stl_indicatorWithoutPadding="false"-->
-<!--            app:stl_overlineColor="@color/myColor"-->
-<!--            app:stl_overlineThickness="0dp"-->
-<!--            app:stl_titleOffset="2dp"-->
-<!--            app:stl_underlineColor="@color/myColor"-->
-<!--            app:stl_underlineThickness="1dp" />-->
-
-        <com.rahimlis.badgedtablayout.BadgedTabLayout
-            android:id="@+id/viewpagertab"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/myColor"
-            app:badgeBackgroundColor="@color/white"
-            app:badgeTextColor="@color/black"
-            app:badgeTextSize="11sp"
-            app:tabIndicatorColor="@color/white"
-            app:tabMode="auto"
-            app:tabGravity="center"
-            app:tabSelectedTextColor="@color/white"
-            app:tabTextSize="4sp"
-            app:tabTextColor="@color/white"
-
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/layout2"
-            app:layout_constraintVertical_bias="0.0"
-            />
-
         <RelativeLayout
             android:id="@+id/layoutTotal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/myColor"
-            android:padding="10dp"
-            app:layout_constraintTop_toBottomOf="@+id/viewpagertab">
+            android:paddingTop="10dp"
+            android:paddingStart="22dp"
+            android:paddingEnd="22dp"
+            android:paddingBottom="10dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/layout2">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="3.5"
-                    android:fontFamily="@font/montserra_regular_bold"
-                    android:text="Total"
-                    android:textColor="@color/white"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="3.5"
+                android:fontFamily="@font/montserra_regular_bold"
+                android:text="Total"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                android:textStyle="bold" />
 
-                <TextView
-                    android:id="@+id/tvTotalPrice"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:layout_weight="0.5"
-                    android:fontFamily="@font/montserra_regular_bold"
-                    android:text="0.0"
-                    android:textColor="@color/white"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
+            <TextView
+                android:id="@+id/tvTotalPrice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_weight="0.5"
+                android:fontFamily="@font/montserra_regular_bold"
+                android:text="0.0"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                android:textStyle="bold" />
 
         </RelativeLayout>
 
-        <androidx.viewpager.widget.ViewPager
+        <View
+            android:id="@+id/view"
+            android:layout_width="match_parent"
+            android:layout_height="5dp"
+            android:background="#ECECEC"
+            app:layout_constraintTop_toBottomOf="@+id/layoutTotal" />
+
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tabLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/activity_back"
+            app:tabIndicatorHeight="3dp"
+            app:tabMode="fixed"
+            app:tabIndicatorFullWidth="false"
+            app:tabIndicatorAnimationDuration="500"
+            app:tabIndicatorAnimationMode="elastic"
+            app:tabTextAppearance="@style/fragmentTitle"
+            app:tabRippleColor="@color/grey_40"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/view"
+            app:layout_constraintVertical_bias="0.0"/>
+
+        <View
+            android:id="@+id/view2"
+            android:layout_width="match_parent"
+            android:layout_height="5dp"
+            android:background="#ECECEC"
+            app:layout_constraintTop_toBottomOf="@+id/tabLayout" />
+
+        <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/viewpager"
             android:layout_width="match_parent"
             android:layout_height="0dp"
+            android:layout_marginTop="5dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/layoutTotal" />
+            app:layout_constraintTop_toBottomOf="@+id/view2" />
 
         <ImageButton
             android:id="@+id/ibChat"

@@ -51,6 +51,13 @@
         <item name="android:layout_height">wrap_content</item>
     </style>
 
+    <style name="fragmentTitle" parent="parent">
+        <item name="textAllCaps">true</item>
+        <item name="fontFamily">@font/montserrat_semi_bold</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+    
     <style name="headerText" parent="parent">
         <item name="android:textSize">@dimen/headerTextSize</item>
         <item name="android:textColor">@color/blackTextColor</item>
