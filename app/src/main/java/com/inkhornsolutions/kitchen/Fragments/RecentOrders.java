@@ -10,11 +10,14 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
@@ -22,10 +25,12 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.inkhornsolutions.kitchen.Common.Common;
 import com.inkhornsolutions.kitchen.MainActivity;
 import com.inkhornsolutions.kitchen.R;
 import com.inkhornsolutions.kitchen.adapters.RecentOrdersAdapter;
@@ -37,6 +42,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Objects;
 
 import jp.co.recruit_lifestyle.android.widget.WaveSwipeRefreshLayout;
 
@@ -46,12 +52,13 @@ public class RecentOrders extends Fragment {
     private FirebaseFirestore firebaseFirestore;
     private FirebaseStorage firebaseStorage;
     private StorageReference storageReference;
-    private WaveSwipeRefreshLayout layoutOrderFrag;
+    private SwipeRefreshLayout layoutOrderFrag;
     private RecyclerView rvOrdersFrag;
     private RecentOrdersAdapter adapter;
     private String resName;
-    private ArrayList<OrdersModelClass> Orders = new ArrayList<>();
+    private ArrayList<OrdersModelClass> Orders = new ArrayList<>();;
     private ProgressDialog progressDialog;
+    boolean hasBeenPaused = false;
 
     public RecentOrders() {
         // Required empty public constructor
@@ -72,22 +79,11 @@ public class RecentOrders extends Fragment {
         firebaseStorage = FirebaseStorage.getInstance();
         storageReference = firebaseStorage.getReference();
 
-        layoutOrderFrag = (WaveSwipeRefreshLayout) view.findViewById(R.id.layoutOrderFrag);
+        layoutOrderFrag = (SwipeRefreshLayout) view.findViewById(R.id.layoutOrderFrag);
+        layoutOrderFrag.setProgressBackgroundColorSchemeColor(ContextCompat.getColor(getContext(), R.color.myColor));
         layoutOrderFrag.setColorSchemeColors(Color.WHITE, Color.WHITE);
-        layoutOrderFrag.setWaveColor(getContext().getColor(R.color.myColor));
-        layoutOrderFrag.setMaxDropHeight(750);
-        layoutOrderFrag.setMinimumHeight(750);
-
-        Collections.sort(Orders, new Comparator<OrdersModelClass>() {
-            @Override
-            public int compare(OrdersModelClass o1, OrdersModelClass o2) {
-                return o1.getDate().compareTo(o2.getDate());
-            }
-        });
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
-        linearLayoutManager.setReverseLayout(true);
-        linearLayoutManager.setStackFromEnd(true);
         rvOrdersFrag.setLayoutManager(linearLayoutManager);
         adapter = new RecentOrdersAdapter(getActivity(), Orders);
         rvOrdersFrag.setAdapter(adapter);
@@ -95,20 +91,21 @@ public class RecentOrders extends Fragment {
         MainActivity activity = (MainActivity) getActivity();
         resName = activity.sendData();
 
-
         progressDialog = new ProgressDialog(getActivity());
-        progressDialog.setTitle("Please wait...");
-        progressDialog.setMessage("Results are loading");
+        progressDialog.setTitle("Loading");
+        progressDialog.setMessage("Please wait...");
         progressDialog.setCancelable(false);
         progressDialog.show();
 
-//        ordersList(resName);
-
-        layoutOrderFrag.setOnRefreshListener(new WaveSwipeRefreshLayout.OnRefreshListener() {
+        layoutOrderFrag.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-
-                onStart();
+                if(!hasBeenPaused){
+                    ordersList(resName);
+                }
+                else {
+                    ordersList(resName);
+                }
             }
         });
 
@@ -117,21 +114,16 @@ public class RecentOrders extends Fragment {
 
     private void ordersList(String resName) {
 
-        firebaseFirestore.collection("Users").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-            @Override
-            public void onSuccess(QuerySnapshot value) {
+        Orders.clear();
+        adapter.notifyDataSetChanged();
 
-                Orders.clear();
-                adapter.notifyDataSetChanged();
+        for (int i = 0; i < Common.id.size(); i++){
 
-                for (QueryDocumentSnapshot documentSnapshot : value) {
-                    if (documentSnapshot.exists()) {
-                        String id = documentSnapshot.getId();
-
-                        firebaseFirestore.collection("Users").document(id)
-                                .collection("Cart")
-                                .whereIn("status", Arrays.asList("Pending", "Rejected", "Dispatched","Completed"))
+            int finalI = i;
+            firebaseFirestore.collection("Users").document(Common.id.get(i)).collection("Cart")
                                 .whereEqualTo("restaurantName", resName)
+                                .whereIn("status", Arrays.asList("Pending", "Rejected", "Dispatched","Completed"))
+                                .orderBy("Time", Query.Direction.ASCENDING)
                                 .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                             @Override
                             public void onComplete(@NonNull @NotNull Task<QuerySnapshot> task) {
@@ -181,7 +173,7 @@ public class RecentOrders extends Fragment {
                                             ordersModelClass.setLat(lat);
                                             ordersModelClass.setLng(lng);
                                             ordersModelClass.setOrderId(orderId);
-                                            ordersModelClass.setUserId(id);
+                                            ordersModelClass.setUserId(Common.id.get(finalI));
                                             if (promotedOrder != null){
                                                 ordersModelClass.setPromotedOrder(promotedOrder);
                                             }
@@ -200,17 +192,41 @@ public class RecentOrders extends Fragment {
                                 progressDialog.dismiss();
                                 layoutOrderFrag.setRefreshing(false);
                             }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+                                Log.d("firebase", e.getMessage());
+                            }
                         });
-                    }
-                }
             }
-
-        });
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        ordersList(resName);
+        Log.d("methods", "onStart");
+        if(!hasBeenPaused){
+            ordersList(resName);
+            Log.d("methods", "onStart inside");
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        hasBeenPaused = true;
+        Log.d("methods", "onPause");
+
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d("methods", "onResume");
+        if(hasBeenPaused){
+            ordersList(resName);
+            Log.d("methods", "onResume inside");
+        }
     }
 }

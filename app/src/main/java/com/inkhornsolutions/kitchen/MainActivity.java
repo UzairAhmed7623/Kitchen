@@ -70,9 +70,12 @@ import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.annotations.NotNull;
+import com.google.firebase.firestore.DocumentId;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
@@ -80,6 +83,8 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.google.firestore.v1.Document;
+import com.inkhornsolutions.kitchen.Common.Common;
 import com.inkhornsolutions.kitchen.Fragments.InProgress;
 import com.inkhornsolutions.kitchen.Fragments.OrdersPagerAdapter;
 import com.inkhornsolutions.kitchen.Fragments.RecentOrders;
@@ -87,6 +92,7 @@ import com.inkhornsolutions.kitchen.Utils.UserUtils;
 import com.inkhornsolutions.kitchen.adapters.RecentOrdersAdapter;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
@@ -129,6 +135,8 @@ public class MainActivity extends AppCompatActivity
 
     private LocationManager locationManager;
 
+    private int recentNum = 0, inProgressNum = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -151,6 +159,19 @@ public class MainActivity extends AppCompatActivity
         tvTotalPrice = (TextView) findViewById(R.id.tvTotalPrice);
 
 //        layoutOrder.setWaveColor(0xFF000000+new Random().nextInt(0xFFFFFF)); // Random color assign
+
+        firebaseFirestore.collection("Users").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot value) {
+                for (QueryDocumentSnapshot documentSnapshot : value) {
+                    if (documentSnapshot.exists()) {
+                        String id = documentSnapshot.getId();
+                        Common.id.add(id);
+                        Log.d("ids", id);
+                    }
+                }
+            }
+        });
 
         FirebaseMessaging.getInstance().getToken().addOnCompleteListener(new OnCompleteListener<String>() {
             @Override
@@ -190,10 +211,6 @@ public class MainActivity extends AppCompatActivity
         if (locationManager != null) {
             Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
         }
-
-        boolean providerAvailable = SmartLocation.with(this).location().state().isAnyProviderAvailable();
-        boolean locationServices = SmartLocation.with(this).location().state().locationServicesEnabled();
-
 
         toggle.setToolbarNavigationClickListener(new View.OnClickListener() {
             @Override
@@ -719,7 +736,6 @@ public class MainActivity extends AppCompatActivity
                     }
                 });
 
-
         ViewPager2 viewPager2 = (ViewPager2) findViewById(R.id.viewpager);
         viewPager2.setAdapter(new OrdersPagerAdapter(this));
 
@@ -737,10 +753,26 @@ public class MainActivity extends AppCompatActivity
                         recent.setBackgroundColor(
                                 ContextCompat.getColor(getApplicationContext(),R.color.colorAccent));
                         recent.setVisible(true);
-                        recent.setNumber(2);
+                        recentNum = 0;
+                        firebaseFirestore.collectionGroup("Cart")
+                                    .whereEqualTo("restaurantName", resName)
+                                    .whereEqualTo("status", "Pending")
+                                    .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                                        @Override
+                                        public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                                            if (error != null){
+                                                if (value != null) {
+                                                    recentNum = value.size();
+                                                    Log.d("resName3", "" + recentNum);
+                                                    recent.setNumber(recentNum);
+                                                }
+                                            }
+                                            else {
+                                                Toast.makeText(MainActivity.this, error.getMessage(), Toast.LENGTH_SHORT).show();
+                                            }
+                                        }
+                                    });
                         recent.setMaxCharacterCount(2);
-
-
 
                         break;
 
@@ -752,7 +784,26 @@ public class MainActivity extends AppCompatActivity
                         inProgress.setBackgroundColor(
                                 ContextCompat.getColor(getApplicationContext(),R.color.colorAccent));
                         inProgress.setVisible(true);
-                        inProgress.setNumber(viewPager2.getAdapter().getItemCount());
+                        inProgressNum = 0;
+                        firebaseFirestore.collectionGroup("Cart")
+                                .whereEqualTo("restaurantName", resName)
+                                .whereEqualTo("status", "In progress")
+                                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                                    @Override
+                                    public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                                        if (error != null){
+                                            if (value != null) {
+                                                inProgressNum = value.size();
+                                                Log.d("resName3", "" + inProgressNum);
+                                                inProgress.setNumber(inProgressNum);
+                                            }
+                                        }
+                                        else {
+                                            Toast.makeText(MainActivity.this, error.getMessage(), Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                });
+
                         inProgress.setMaxCharacterCount(2);
 
                         break;

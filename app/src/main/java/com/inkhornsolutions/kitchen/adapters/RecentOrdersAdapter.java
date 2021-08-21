@@ -59,19 +59,19 @@ public class RecentOrdersAdapter extends RecyclerView.Adapter<RecentOrdersAdapte
 
         switch (status) {
             case "Pending":
-                holder.tvStatusOrders.setTextColor(Color.BLACK);
+                holder.tvStatusOrders.setTextColor(context.getColor(R.color.pending));
                 break;
             case "In progress":
-                holder.tvStatusOrders.setTextColor(context.getColor(R.color.Green));
+                holder.tvStatusOrders.setTextColor(context.getColor(R.color.inProgress));
                 break;
             case "Rejected":
-                holder.tvStatusOrders.setTextColor(Color.RED);
+                holder.tvStatusOrders.setTextColor(context.getColor(R.color.rejected));
                 break;
             case "Dispatched":
-                holder.tvStatusOrders.setTextColor(context.getColor(R.color.Green));
+                holder.tvStatusOrders.setTextColor(context.getColor(R.color.dispatched));
                 break;
             case "Completed":
-                holder.tvStatusOrders.setTextColor(context.getColor(R.color.Green));
+                holder.tvStatusOrders.setTextColor(context.getColor(R.color.completed));
                 break;
         }
 

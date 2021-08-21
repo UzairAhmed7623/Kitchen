@@ -38,5 +38,11 @@
     <color name="grey_90">#263238</color>
     
     <color name="editTextBack">#f3f3f3</color>
+    
+    <color name="pending">#F3A638</color>
+    <color name="inProgress">#54B7D3</color>
+    <color name="rejected">#E3503E</color>
+    <color name="dispatched">#1E91CF</color>
+    <color name="completed">#4CB64C</color>
 
 </resources>
