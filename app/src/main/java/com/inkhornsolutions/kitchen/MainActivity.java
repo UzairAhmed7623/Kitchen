@@ -760,7 +760,7 @@ public class MainActivity extends AppCompatActivity
                                     .addSnapshotListener(new EventListener<QuerySnapshot>() {
                                         @Override
                                         public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-                                            if (error != null){
+                                            if (error == null){
                                                 if (value != null) {
                                                     recentNum = value.size();
                                                     Log.d("resName3", "" + recentNum);
@@ -791,7 +791,7 @@ public class MainActivity extends AppCompatActivity
                                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                                     @Override
                                     public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
-                                        if (error != null){
+                                        if (error == null){
                                             if (value != null) {
                                                 inProgressNum = value.size();
                                                 Log.d("resName3", "" + inProgressNum);
