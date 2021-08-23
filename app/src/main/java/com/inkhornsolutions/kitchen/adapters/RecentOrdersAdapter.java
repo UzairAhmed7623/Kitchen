@@ -81,7 +81,7 @@ public class RecentOrdersAdapter extends RecyclerView.Adapter<RecentOrdersAdapte
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(context, OrderDetails.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 intent.putExtra("resName", resName);
                 intent.putExtra("resId", resId);
                 intent.putExtra("orderId", orderId);

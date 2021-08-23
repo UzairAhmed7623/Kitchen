@@ -130,10 +130,10 @@ public class UserUtils {
 							.subscribe(fcmResponse -> {
 								if (fcmResponse.getSuccess() == 0){
 									compositeDisposable.clear();
-									Snackbar.make(view, "Order message send failed!", Snackbar.LENGTH_LONG).show();
+									Snackbar.make(view, "Order accepted message send failed!", Snackbar.LENGTH_LONG).show();
 								}
 								else {
-									Snackbar.make(view, "Order placed!", Snackbar.LENGTH_LONG).show();
+									Snackbar.make(view, "Order Accepted!", Snackbar.LENGTH_LONG).show();
 								}
 
 							}, throwable -> {
@@ -178,10 +178,10 @@ public class UserUtils {
 							.subscribe(fcmResponse -> {
 								if (fcmResponse.getSuccess() == 0){
 									compositeDisposable.clear();
-									Snackbar.make(view, "Order message send failed!", Snackbar.LENGTH_LONG).show();
+									Snackbar.make(view, "Order rejected message send failed!", Snackbar.LENGTH_LONG).show();
 								}
 								else {
-									Snackbar.make(view, "Order placed!", Snackbar.LENGTH_LONG).show();
+									Snackbar.make(view, "Order Rejected!", Snackbar.LENGTH_LONG).show();
 								}
 
 							}, throwable -> {
@@ -226,10 +226,10 @@ public class UserUtils {
 							.subscribe(fcmResponse -> {
 								if (fcmResponse.getSuccess() == 0){
 									compositeDisposable.clear();
-									Snackbar.make(view, "Order message send failed!", Snackbar.LENGTH_LONG).show();
+									Snackbar.make(view, "Order dispatched send failed!", Snackbar.LENGTH_LONG).show();
 								}
 								else {
-									Snackbar.make(view, "Order placed!", Snackbar.LENGTH_LONG).show();
+									Snackbar.make(view, "Order Dispatched!", Snackbar.LENGTH_LONG).show();
 								}
 
 							}, throwable -> {

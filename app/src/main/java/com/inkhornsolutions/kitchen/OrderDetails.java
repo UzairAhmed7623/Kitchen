@@ -88,9 +88,7 @@ public class OrderDetails extends AppCompatActivity {
 
                         UserUtils.acceptOrderNotificationToCustomer(layoutAcceptReject, OrderDetails.this, userId);
 
-                        Intent intent = new Intent(OrderDetails.this, MainActivity.class);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                        startActivity(intent);
+                        onBackPressed();
                     }
                 });
             }
@@ -135,9 +133,7 @@ public class OrderDetails extends AppCompatActivity {
 
                         UserUtils.rejectOrderNotificationToCustomer(layoutAcceptReject, OrderDetails.this, userId);
 
-                        Intent intent = new Intent(OrderDetails.this, MainActivity.class);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                        startActivity(intent);
+                        onBackPressed();
                     }
                 });
             }
@@ -169,9 +165,7 @@ public class OrderDetails extends AppCompatActivity {
 
                         UserUtils.dispatchOrderNotificationToCustomer(layoutAcceptReject, OrderDetails.this, userId);
 
-                        Intent intent = new Intent(OrderDetails.this, MainActivity.class);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                        startActivity(intent);
+                        onBackPressed();
                     }
                 });
             }
