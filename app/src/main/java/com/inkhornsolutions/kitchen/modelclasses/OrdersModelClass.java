@@ -1,5 +1,9 @@
 package com.inkhornsolutions.kitchen.modelclasses;
 
+import com.google.firebase.Timestamp;
+
+import java.util.Comparator;
+
 public class OrdersModelClass {
     private String resId, id, pId, itemName, finalPrice, price,  items_Count, status, resName, totalPrice, date, orderId, userId, subTotal, promotedOrder;
     private Double lat, lng;
@@ -172,4 +176,5 @@ public class OrdersModelClass {
     public void setOrderId(String orderId) {
         this.orderId = orderId;
     }
+
 }

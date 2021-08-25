@@ -31,6 +31,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 
+import es.dmoral.toasty.Toasty;
+
 public class OrderDetails extends AppCompatActivity {
 
     private FirebaseFirestore firebaseFirestore;
@@ -57,6 +59,8 @@ public class OrderDetails extends AppCompatActivity {
         lat = getIntent().getDoubleExtra("lat", 0);
         lng = getIntent().getDoubleExtra("lng", 0);
         promotedOrder = getIntent().getStringExtra("promotedOrder");
+
+        Toasty.info(this, userId, Toasty.LENGTH_SHORT).show();
 
         rvOrdersDetails = (RecyclerView) findViewById(R.id.rvOrdersDetails);
         tvTotalPrice = (TextView) findViewById(R.id.tvTotalPrice);

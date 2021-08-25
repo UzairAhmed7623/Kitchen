@@ -3,25 +3,34 @@ package com.inkhornsolutions.kitchen.Fragments;
 import android.app.ProgressDialog;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.inkhornsolutions.kitchen.Common.Common;
 import com.inkhornsolutions.kitchen.MainActivity;
 import com.inkhornsolutions.kitchen.R;
 import com.inkhornsolutions.kitchen.adapters.RecentOrdersAdapter;
@@ -31,6 +40,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 
 import jp.co.recruit_lifestyle.android.widget.WaveSwipeRefreshLayout;
 
@@ -40,12 +51,14 @@ public class InProgress extends Fragment {
     private FirebaseFirestore firebaseFirestore;
     private FirebaseStorage firebaseStorage;
     private StorageReference storageReference;
-    private WaveSwipeRefreshLayout layoutInProgress;
+    private SwipeRefreshLayout layoutInProgress;
     private RecyclerView rvItemsInProgress;
     private RecentOrdersAdapter adapter;
     private String resName;
-    private ArrayList<OrdersModelClass> Orders = new ArrayList<>();
+    private ArrayList<OrdersModelClass> Orders;
     private ProgressDialog progressDialog;
+    boolean hasBeenPaused = false;
+
 
     public InProgress() {
         // Required empty public constructor
@@ -61,20 +74,17 @@ public class InProgress extends Fragment {
         firebaseStorage = FirebaseStorage.getInstance();
         storageReference = firebaseStorage.getReference();
 
-        layoutInProgress = (WaveSwipeRefreshLayout) view.findViewById(R.id.layoutInProgress);
+        layoutInProgress = (SwipeRefreshLayout) view.findViewById(R.id.layoutInProgress);
+        layoutInProgress.setProgressBackgroundColorSchemeColor(ContextCompat.getColor(getContext(), R.color.myColor));
         layoutInProgress.setColorSchemeColors(Color.WHITE, Color.WHITE);
-        layoutInProgress.setWaveColor(getContext().getColor(R.color.myColor));
-        layoutInProgress.setMaxDropHeight(750);
-        layoutInProgress.setMinimumHeight(750);
 
+        Orders = new ArrayList<>();
         rvItemsInProgress.setLayoutManager(new LinearLayoutManager(view.getContext()));
-
         adapter = new RecentOrdersAdapter(getActivity(), Orders);
         rvItemsInProgress.setAdapter(adapter);
 
         MainActivity activity = (MainActivity) getActivity();
         resName = activity.sendData();
-
 
         progressDialog = new ProgressDialog(getActivity());
         progressDialog.setTitle("Please wait...");
@@ -82,11 +92,11 @@ public class InProgress extends Fragment {
         progressDialog.setCancelable(false);
         progressDialog.show();
 
-        layoutInProgress.setOnRefreshListener(new WaveSwipeRefreshLayout.OnRefreshListener() {
+        layoutInProgress.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
 
-                onStart();
+                ordersList(resName);
             }
         });
 
@@ -95,100 +105,128 @@ public class InProgress extends Fragment {
 
     private void ordersList(String resName) {
 
-//        Toast.makeText(getActivity(), "resName1"+resName, Toast.LENGTH_SHORT).show();
+        Orders.clear();
 
-        firebaseFirestore.collection("Users").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-            @Override
-            public void onSuccess(QuerySnapshot value) {
+        for (String id : Common.id) {
 
-                Orders.clear();
-
-                for (QueryDocumentSnapshot documentSnapshot : value) {
-                    if (documentSnapshot.exists()) {
-                        String id = documentSnapshot.getId();
-
-                        firebaseFirestore.collection("Users").document(id).collection("Cart")
+            firebaseFirestore.collection("Users").document(id).collection("Cart")
                                 .whereEqualTo("status", "In progress")
                                 .whereEqualTo("restaurantName", resName)
-                                .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull @NotNull Task<QuerySnapshot> task) {
+                    .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                        @Override
+                        public void onEvent(@Nullable QuerySnapshot snapshots, @Nullable FirebaseFirestoreException error) {
+                            if (error == null) {
+                                for (DocumentSnapshot documentSnapshot : snapshots.getDocuments()) {
+                                    if (documentSnapshot.exists()) {
+                                        String resId = documentSnapshot.getId();
+                                        String orderId = documentSnapshot.getString("ID");
+                                        String time = documentSnapshot.getString("Time");
+                                        String resName = documentSnapshot.getString("restaurantName");
+                                        String status = documentSnapshot.getString("status");
+                                        Double lat = documentSnapshot.getDouble("latlng.latitude");
+                                        Double lng = documentSnapshot.getDouble("latlng.longitude");
+                                        String subTotal = documentSnapshot.getString("subTotal");
+                                        String total = documentSnapshot.getString("total");
+                                        String promotedOrder = documentSnapshot.getString("promotedOrder");
 
-                                if (task.isSuccessful()) {
-                                    for (QueryDocumentSnapshot documentSnapshot : task.getResult()) {
-                                        if (documentSnapshot.exists()) {
+                                        OrdersModelClass ordersModelClass = new OrdersModelClass();
 
-                                            String resId = documentSnapshot.getId();
-                                            String orderId = documentSnapshot.getString("ID");
-                                            String time = documentSnapshot.getString("Time");
-                                            String resName = documentSnapshot.getString("restaurantName");
-                                            String status = documentSnapshot.getString("status");
-                                            Double lat = documentSnapshot.getDouble("latlng.latitude");
-                                            Double lng = documentSnapshot.getDouble("latlng.longitude");
-                                            String subTotal = documentSnapshot.getString("subTotal");
-                                            String total = documentSnapshot.getString("total");
-                                            String promotedOrder = documentSnapshot.getString("promotedOrder");
-
-                                            OrdersModelClass ordersModelClass = new OrdersModelClass();
-
-                                            if (promotedOrder != null && promotedOrder.equals("yes")){
-                                                if (subTotal != null) {
-                                                    Double deductedTotal = Double.parseDouble(subTotal);
-                                                    ordersModelClass.setSubTotal(String.valueOf(deductedTotal));
-                                                }
-                                                else {
-                                                    ordersModelClass.setSubTotal(String.valueOf(total));
-                                                }
+                                        if (promotedOrder != null && promotedOrder.equals("yes")){
+                                            if (subTotal != null) {
+                                                Double deductedTotal = Double.parseDouble(subTotal);
+                                                ordersModelClass.setSubTotal(String.valueOf(deductedTotal));
                                             }
                                             else {
-                                                if (subTotal != null) {
-                                                    Double deductedTotal = Double.parseDouble(subTotal) * 0.8;
-                                                    ordersModelClass.setSubTotal(String.valueOf(deductedTotal));
-                                                }
-                                                else {
-                                                    ordersModelClass.setSubTotal(String.valueOf(total));
-                                                }
+                                                ordersModelClass.setSubTotal(String.valueOf(total));
                                             }
-
-                                            ordersModelClass.setResId(resId);
-                                            ordersModelClass.setDate(time);
-                                            ordersModelClass.setResName(resName);
-                                            ordersModelClass.setStatus(status);
-                                            ordersModelClass.setTotalPrice(total);
-                                            ordersModelClass.setLat(lat);
-                                            ordersModelClass.setLng(lng);
-                                            ordersModelClass.setOrderId(orderId);
-                                            ordersModelClass.setUserId(id);
-                                            if (promotedOrder != null){
-                                                ordersModelClass.setPromotedOrder(promotedOrder);
-                                            }
-                                            else {
-                                                ordersModelClass.setPromotedOrder("no");
-                                            }
-
-                                            Orders.add(ordersModelClass);
-                                            adapter.notifyDataSetChanged();
-
-                                        } else {
-                                            Snackbar.make(getActivity().findViewById(android.R.id.content), "Data not found!", Snackbar.LENGTH_LONG).show();
                                         }
+                                        else {
+                                            if (subTotal != null) {
+                                                Double deductedTotal = Double.parseDouble(subTotal) * 0.8;
+                                                ordersModelClass.setSubTotal(String.valueOf(deductedTotal));
+                                            }
+                                            else {
+                                                ordersModelClass.setSubTotal(String.valueOf(total));
+                                            }
+                                        }
+
+                                        ordersModelClass.setResId(resId);
+                                        ordersModelClass.setDate(time);
+                                        ordersModelClass.setResName(resName);
+                                        ordersModelClass.setStatus(status);
+                                        ordersModelClass.setTotalPrice(total);
+                                        ordersModelClass.setLat(lat);
+                                        ordersModelClass.setLng(lng);
+                                        ordersModelClass.setOrderId(orderId);
+                                        ordersModelClass.setUserId(id);
+                                        if (promotedOrder != null){
+                                            ordersModelClass.setPromotedOrder(promotedOrder);
+                                        }
+                                        else {
+                                            ordersModelClass.setPromotedOrder("no");
+                                        }
+
+                                        Orders.add(ordersModelClass);
+                                        adapter.notifyDataSetChanged();
                                     }
-
+                                    else {
+                                        Snackbar.make(getActivity().findViewById(android.R.id.content), "Data not found!", Snackbar.LENGTH_LONG).show();
+                                    }
                                 }
-                            }
-                        });
-                    }
-                }
-                progressDialog.dismiss();
-                layoutInProgress.setRefreshing(false);
-            }
+                                Collections.sort(Orders, new Comparator<OrdersModelClass>() {
+                                    @Override
+                                    public int compare(OrdersModelClass o1, OrdersModelClass o2) {
+                                        return o2.getDate().compareTo(o1.getDate());
+                                    }
+                                });
+                                progressDialog.dismiss();
+                                layoutInProgress.setRefreshing(false);
+                                adapter.notifyDataSetChanged();
 
-        });
+                            }
+                            else {
+                                Toast.makeText(getContext(), error.getMessage(), Toast.LENGTH_LONG).show();
+                                Log.d("firebase", error.getMessage());
+                            }
+                        }
+                    });
+        }
+
+
+
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        ordersList(resName);
+        Log.d("methods", "onStart");
+
+        if (!hasBeenPaused) {
+            Orders.clear();
+//            adapter.notifyDataSetChanged();
+            ordersList(resName);
+            Log.d("methods", "onStart inside");
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        hasBeenPaused = true;
+
+        Log.d("methods", "onPause");
+
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d("methods", "onResume");
+
+        if(hasBeenPaused){
+
+            ordersList(resName);
+            Log.d("methods", "onResume inside");
+        }
     }
 }
