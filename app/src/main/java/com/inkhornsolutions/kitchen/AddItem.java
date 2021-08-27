@@ -92,7 +92,6 @@ public class AddItem extends AppCompatActivity {
         toolbar = (TextView) findViewById(R.id.toolbar);
 
         resName = getIntent().getStringExtra("resName");
-        Toast.makeText(AddItem.this, resName+"Chala1", Toast.LENGTH_SHORT).show();
 
         etItemName = (EditText) findViewById(R.id.etItemName);
         etItemQuantity = (EditText) findViewById(R.id.etItemQuantity);
