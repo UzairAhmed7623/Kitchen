@@ -10,4 +10,8 @@
         android:id="@+id/wallet"
         android:title="Wallet" />
 
+    <item
+        android:id="@+id/logout"
+        android:title="Logout" />
+
 </menu>

@@ -239,8 +239,9 @@ public class RecentOrders extends Fragment {
 
         if(hasBeenPaused){
 
-            ordersList(resName);
+//            ordersList(resName);
             Log.d("methods", "onResume inside");
         }
     }
+
 }
