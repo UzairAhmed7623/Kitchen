@@ -8,6 +8,7 @@ public class OrdersModelClass {
     private String resId, id, pId, itemName, finalPrice, price,  items_Count, status, resName, totalPrice, date, orderId, userId, subTotal, promotedOrder;
     private Double lat, lng;
     private boolean expanded;
+    private Timestamp timestamp;
 
     public boolean isExpanded() {
         return expanded;
@@ -39,6 +40,18 @@ public class OrdersModelClass {
         this.lat = lat;
         this.lng = lng;
         this.expanded = expanded;
+    }
+
+    public OrdersModelClass(Timestamp timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    public Timestamp getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(Timestamp timestamp) {
+        this.timestamp = timestamp;
     }
 
     public String getPromotedOrder() {

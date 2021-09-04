@@ -21,6 +21,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
@@ -80,8 +81,7 @@ public class InProgress extends Fragment {
 
         Orders = new ArrayList<>();
         rvItemsInProgress.setLayoutManager(new LinearLayoutManager(view.getContext()));
-        adapter = new RecentOrdersAdapter(getActivity(), Orders);
-        rvItemsInProgress.setAdapter(adapter);
+
 
         MainActivity activity = (MainActivity) getActivity();
         resName = activity.sendData();
@@ -121,6 +121,7 @@ public class InProgress extends Fragment {
                                         String resId = documentSnapshot.getId();
                                         String orderId = documentSnapshot.getString("ID");
                                         String time = documentSnapshot.getString("Time");
+                                        Timestamp timestamp = documentSnapshot.getTimestamp("timeStamp");
                                         String resName = documentSnapshot.getString("restaurantName");
                                         String status = documentSnapshot.getString("status");
                                         Double lat = documentSnapshot.getDouble("latlng.latitude");
@@ -152,6 +153,7 @@ public class InProgress extends Fragment {
 
                                         ordersModelClass.setResId(resId);
                                         ordersModelClass.setDate(time);
+                                        ordersModelClass.setTimestamp(timestamp);
                                         ordersModelClass.setResName(resName);
                                         ordersModelClass.setStatus(status);
                                         ordersModelClass.setTotalPrice(total);
@@ -167,22 +169,24 @@ public class InProgress extends Fragment {
                                         }
 
                                         Orders.add(ordersModelClass);
-                                        adapter.notifyDataSetChanged();
+
+                                        Collections.sort(Orders, new Comparator<OrdersModelClass>() {
+                                            @Override
+                                            public int compare(OrdersModelClass o1, OrdersModelClass o2) {
+                                                return o2.getTimestamp().compareTo(o1.getTimestamp());
+                                            }
+                                        });
                                     }
                                     else {
                                         Snackbar.make(getActivity().findViewById(android.R.id.content), "Data not found!", Snackbar.LENGTH_LONG).show();
                                     }
                                 }
-                                Collections.sort(Orders, new Comparator<OrdersModelClass>() {
-                                    @Override
-                                    public int compare(OrdersModelClass o1, OrdersModelClass o2) {
-                                        return o2.getDate().compareTo(o1.getDate());
-                                    }
-                                });
+
+                                adapter = new RecentOrdersAdapter(getActivity(), Orders);
+                                rvItemsInProgress.setAdapter(adapter);
+
                                 progressDialog.dismiss();
                                 layoutInProgress.setRefreshing(false);
-                                adapter.notifyDataSetChanged();
-
                             }
                             else {
                                 Toast.makeText(getContext(), error.getMessage(), Toast.LENGTH_LONG).show();

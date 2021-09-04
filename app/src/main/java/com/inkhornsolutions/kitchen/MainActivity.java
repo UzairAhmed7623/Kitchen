@@ -513,6 +513,11 @@ public class MainActivity extends AppCompatActivity
                                         resReg.put("approved", "no");
                                         resReg.put("status", "offline");
                                         resReg.put("notification", "0");
+                                        resReg.put("totalRevenue", "0");
+                                        resReg.put("remaining", "0");
+                                        resReg.put("withdrawn", "0");
+                                        resReg.put("paymentStatus", "");
+                                        resReg.put("paymentRequested", "0");
 
                                         firebaseFirestore.collection("Restaurants").document(getResNameFromEditText).set(resReg, SetOptions.merge())
                                                 .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -540,8 +545,8 @@ public class MainActivity extends AppCompatActivity
                                                 });
 
                                         HashMap<String, Object> resReg1 = new HashMap<>();
-                                        resReg.put("resName", getResNameFromEditText);
-                                        resReg.put("id", Objects.requireNonNull(firebaseAuth.getCurrentUser()).getUid());
+                                        resReg1.put("resName", getResNameFromEditText);
+                                        resReg1.put("id", Objects.requireNonNull(firebaseAuth.getCurrentUser()).getUid());
 
                                         firebaseFirestore.collection("Users").document(firebaseAuth.getCurrentUser().getUid()).set(resReg1, SetOptions.merge())
                                                 .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -962,12 +967,12 @@ public class MainActivity extends AppCompatActivity
             startActivity(intent);
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         }
-//        else if (item.getItemId() == R.id.wallet) {
-//            Intent intent = new Intent(MainActivity.this, Wallet.class);
-//            intent.putExtra("resName", resName);
-//            startActivity(intent);
-//            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-//        }
+        else if (item.getItemId() == R.id.wallet) {
+            Intent intent = new Intent(MainActivity.this, Wallet.class);
+            intent.putExtra("resName", resName);
+            startActivity(intent);
+            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+        }
         if (item.getItemId() == R.id.logout) {
             if (firebaseAuth != null){
                 firebaseAuth.signOut();

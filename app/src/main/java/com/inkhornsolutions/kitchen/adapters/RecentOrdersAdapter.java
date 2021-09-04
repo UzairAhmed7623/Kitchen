@@ -21,12 +21,12 @@ import java.util.ArrayList;
 public class RecentOrdersAdapter extends RecyclerView.Adapter<RecentOrdersAdapter.ViewHolder> {
 
     private Context context;
-    private ArrayList<OrdersModelClass> Orders = new ArrayList<>();
+    private ArrayList<OrdersModelClass> orders = new ArrayList<>();
     private FirebaseFirestore firebaseFirestore;
 
     public RecentOrdersAdapter(Context context, ArrayList<OrdersModelClass> orders) {
         this.context = context;
-        Orders = orders;
+        this.orders = orders;
     }
 
     @NonNull
@@ -39,8 +39,7 @@ public class RecentOrdersAdapter extends RecyclerView.Adapter<RecentOrdersAdapte
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-
-        OrdersModelClass ordersModelClass = Orders.get(position);
+        OrdersModelClass ordersModelClass = orders.get(position);
 
         String resId = ordersModelClass.getResId();
         String resName = ordersModelClass.getResName();
@@ -98,7 +97,7 @@ public class RecentOrdersAdapter extends RecyclerView.Adapter<RecentOrdersAdapte
 
     @Override
     public int getItemCount() {
-        return Orders.size();
+        return orders.size();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {

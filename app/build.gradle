@@ -11,8 +11,8 @@ android {
         applicationId "com.inkhornsolutions.kitchen"
         minSdkVersion 23
         targetSdkVersion 30
-        versionCode 23
-        versionName "2.2"
+        versionCode 24
+        versionName "3.0"
         multiDexEnabled true
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"

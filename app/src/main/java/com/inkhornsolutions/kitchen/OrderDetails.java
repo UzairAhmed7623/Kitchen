@@ -60,8 +60,6 @@ public class OrderDetails extends AppCompatActivity {
         lng = getIntent().getDoubleExtra("lng", 0);
         promotedOrder = getIntent().getStringExtra("promotedOrder");
 
-        Toasty.info(this, userId, Toasty.LENGTH_SHORT).show();
-
         rvOrdersDetails = (RecyclerView) findViewById(R.id.rvOrdersDetails);
         tvTotalPrice = (TextView) findViewById(R.id.tvTotalPrice);
         btnAccept = (MaterialButton) findViewById(R.id.btnAccept);
