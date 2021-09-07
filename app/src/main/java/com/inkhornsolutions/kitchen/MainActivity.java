@@ -777,7 +777,7 @@ public class MainActivity extends AppCompatActivity
                                             }
                                         }
                                     });
-                        recent.setMaxCharacterCount(2);
+                        recent.setMaxCharacterCount(3);
 
                         break;
 
@@ -809,7 +809,7 @@ public class MainActivity extends AppCompatActivity
                                     }
                                 });
 
-                        inProgress.setMaxCharacterCount(2);
+                        inProgress.setMaxCharacterCount(3);
 
                         break;
                 }

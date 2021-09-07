@@ -1,6 +1,7 @@
 package com.inkhornsolutions.kitchen;
 
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -16,7 +17,6 @@ import androidx.core.content.ContextCompat;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
 import com.google.firebase.auth.FirebaseAuth;
@@ -26,16 +26,12 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
-import com.inkhornsolutions.kitchen.Common.Common;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Objects;
-
-import es.dmoral.toasty.Toasty;
 
 public class Wallet extends AppCompatActivity {
 
@@ -50,6 +46,7 @@ public class Wallet extends AppCompatActivity {
     private Double totalRevenueWithoutDiscount = 0.0;
     private String resName, withdrawPayment = "0.0";
     private String withdrawnFromDatabase, paymentStatus;
+    private String remainingPayment = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,22 +87,95 @@ public class Wallet extends AppCompatActivity {
             public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException error) {
                 if (documentSnapshot.exists()) {
                     String totalRevenue = documentSnapshot.getString("totalRevenue");
-                    String remaining = documentSnapshot.getString("remaining");
+                    remainingPayment = documentSnapshot.getString("remaining");
                     withdrawnFromDatabase = documentSnapshot.getString("withdrawn");
                     paymentStatus = documentSnapshot.getString("paymentStatus");
                     String paymentRequested = documentSnapshot.getString("paymentRequested");
 
                     if (documentSnapshot.getString("paymentRequested") != null) {
                         tvPaymentRequested.setText(paymentRequested);
-                    }
-                    else {
+                    } else {
                         tvPaymentRequested.setText("0.0");
                     }
+                    if (Objects.equals(documentSnapshot.getString("remaining"), "0")){
+                        remainingPayment = totalRevenue;
+                    }
 
-                    tvTotalRevenue.setText(totalRevenue);
+                    if (documentSnapshot.getString("totalRevenue") != null) {
+                        tvTotalRevenue.setText(totalRevenue);
+
+                        btnWithdrawn.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                withdrawPayment = etWithdrawnPayment.getText().toString();
+
+                                if (!TextUtils.isEmpty(withdrawPayment)) {
+
+                                    Log.d("payment", withdrawn + " " + withdrawPayment);
+
+                                    if (Double.parseDouble(withdrawPayment) > Double.parseDouble(remainingPayment)) {
+                                        Toast.makeText(Wallet.this, "You have insufficient balance to withdraw this amount.", Toast.LENGTH_SHORT).show();
+                                    }
+                                    else {
+                                        withdrawn = Double.parseDouble(withdrawPayment) + Double.parseDouble(withdrawnFromDatabase);
+                                        tvWithdrawn.setText(String.format("%.2f", withdrawn));
+
+                                        Log.d("payment", withdrawn + " " + withdrawPayment + " " + withdrawnFromDatabase);
+
+                                        remaining = Double.parseDouble(remainingPayment) - Double.parseDouble(withdrawPayment);
+                                        tvRemaining.setText(String.valueOf(remaining));
+
+                                        HashMap<String, String> paymentData = new HashMap<>();
+                                        paymentData.put("remaining", String.format("%.2f", remaining));
+                                        paymentData.put("withdrawn", String.format("%.2f", withdrawn));
+                                        paymentData.put("paymentStatus", "pending");
+                                        paymentData.put("paymentRequested", withdrawPayment);
+
+                                        firebaseFirestore.collection("Restaurants").document(resName)
+                                                .set(paymentData, SetOptions.merge())
+                                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                    @Override
+                                                    public void onComplete(@NonNull @NotNull Task<Void> task) {
+                                                        tvPaymentRequested.setText(withdrawPayment);
+                                                        Toast.makeText(Wallet.this, "Your request has been submitted successfully.", Toast.LENGTH_SHORT).show();
+                                                    }
+                                                })
+                                                .addOnFailureListener(new OnFailureListener() {
+                                                    @Override
+                                                    public void onFailure(@NonNull @NotNull Exception e) {
+
+                                                    }
+                                                });
+
+                                        firebaseFirestore.collection("Restaurants").document(resName).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+                                            @Override
+                                            public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+                                                if (value.exists()) {
+                                                    String totalRevenue = value.getString("totalRevenue");
+                                                    String remaining = value.getString("remaining");
+                                                    String withdrawn = value.getString("withdrawn");
+
+                                                    tvTotalRevenue.setText(totalRevenue);
+                                                    tvRemaining.setText(remaining);
+                                                    tvWithdrawn.setText(withdrawn);
+
+                                                }
+                                            }
+                                        });
+                                        etWithdrawnPayment.setText("");
+
+                                    }
+                                } else {
+                                    Toast.makeText(Wallet.this, "Please enter some amount.", Toast.LENGTH_SHORT).show();
+                                }
+
+                            }
+                        });
+
+                    }
 
                     if (documentSnapshot.getString("remaining") != null) {
-                        tvRemaining.setText(remaining);
+                        tvRemaining.setText(remainingPayment);
                     }
                     else {
                         tvRemaining.setText(totalRevenue);
@@ -125,7 +195,7 @@ public class Wallet extends AppCompatActivity {
                         tvPaymentStatus.setText(paymentStatus);
                         Toast.makeText(Wallet.this, "You can make a payment request after completing current request. Thanks ", Toast.LENGTH_LONG).show();
                     }
-                    else if (Objects.equals(paymentStatus, "completed")){
+                    else if (Objects.equals(paymentStatus, "completed")) {
                         tvPaymentStatusPlace.setVisibility(View.VISIBLE);
                         tvPaymentStatus.setVisibility(View.VISIBLE);
                         tvPaymentStatus.setText(paymentStatus);
@@ -137,175 +207,6 @@ public class Wallet extends AppCompatActivity {
             }
         });
 
-//        btnWithdrawn.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                withdrawPayment = etWithdrawnPayment.getText().toString();
-//
-//                if (!TextUtils.isEmpty(withdrawPayment)) {
-//                    Toast.makeText(Wallet.this, "Clicked!", Toast.LENGTH_SHORT).show();
-//
-//                    Log.d("payment", withdrawn + " " + withdrawPayment);
-//
-//                    if (Double.parseDouble(withdrawPayment) > Double.parseDouble(tvRemaining.getText().toString())){
-//                        Toast.makeText(Wallet.this, "You have insufficient balance to withdraw this amount.", Toast.LENGTH_SHORT).show();
-//                    }
-//                    else if (withdrawnFromDatabase != null){
-//                        withdrawn = Double.parseDouble(withdrawPayment) + Double.parseDouble(withdrawnFromDatabase);
-//                        tvWithdrawn.setText(String.format("%.2f", withdrawn));
-//                    }
-//                    else {
-//                        withdrawn = Double.parseDouble(withdrawPayment);
-//                        tvWithdrawn.setText(String.format("%.2f", withdrawn));
-//                    }
-//
-//                    Log.d("payment", withdrawn + " " + withdrawPayment + " " + withdrawnFromDatabase);
-//
-//                    remaining = Double.parseDouble(tvRemaining.getText().toString()) - Double.parseDouble(withdrawPayment);
-//                    tvRemaining.setText(String.valueOf(remaining));
-//
-//                    HashMap<String, String> paymentData = new HashMap<>();
-//                    paymentData.put("remaining", String.format("%.2f", remaining));
-//                    paymentData.put("withdrawn", String.format("%.2f", withdrawn));
-//                    paymentData.put("paymentStatus", "pending");
-//                    paymentData.put("paymentRequested", withdrawPayment);
-//
-//                    firebaseFirestore.collection("Restaurants").document(resName).set(paymentData, SetOptions.merge())
-//                            .addOnCompleteListener(new OnCompleteListener<Void>() {
-//                                @Override
-//                                public void onComplete(@NonNull @NotNull Task<Void> task) {
-//                                    tvPaymentRequested.setText(withdrawPayment);
-//                                    Toast.makeText(Wallet.this, "Your request has been submitted successfully.", Toast.LENGTH_SHORT).show();
-//                                }
-//                            })
-//                            .addOnFailureListener(new OnFailureListener() {
-//                                @Override
-//                                public void onFailure(@NonNull @NotNull Exception e) {
-//
-//                                }
-//                            });
-//
-//                    firebaseFirestore.collection("Restaurants").document(resName).addSnapshotListener(new EventListener<DocumentSnapshot>() {
-//                        @Override
-//                        public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
-//                            if (value.exists()) {
-//                                String totalRevenue = value.getString("totalRevenue");
-//                                String remaining = value.getString("remaining");
-//                                String withdrawn = value.getString("withdrawn");
-//
-//                                tvTotalRevenue.setText(String.format("%.2f", totalRevenue));
-//                                tvRemaining.setText(String.format("%.2f", remaining));
-//                                tvWithdrawn.setText(String.format("%.2f", withdrawn));
-//
-//                            }
-//                        }
-//                    });
-//                    etWithdrawnPayment.setText("");
-//                }
-//                else {
-//                    Toast.makeText(Wallet.this, "Please enter some amount.", Toast.LENGTH_SHORT).show();
-//                }
-//
-//            }
-//        });
-
-        String kitchenKey = firebaseAuth.getCurrentUser().getUid();
-        String userId = "JvGrrrZUcmQAWyfBrCtfLxlYQZx1";
-        String orderId = "s1jz51zxkoj9";
-
-        String subTotal1 = "250";
-
-
-        btnWithdrawn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                firebaseFirestore.collection("Users").document(userId)
-                        .collection("Cart").whereEqualTo("ID", orderId)
-                        .get()
-                        .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                            @Override
-                            public void onSuccess(QuerySnapshot querySnapshot) {
-                                for (DocumentSnapshot documentSnapshot : querySnapshot) {
-
-                                    String promotedOrder = documentSnapshot.getString("promotedOrder");
-                                    String CHJPercentage = documentSnapshot.getString("CHJPercentage");
-                                    String discountPercentage = documentSnapshot.getString("discountPercentage");
-                                    String subTotal = documentSnapshot.getString("subTotal");
-                                    String actualPrice = documentSnapshot.getString("actualPrice");
-
-                                    if (promotedOrder.equals("yes")){
-                                        if (CHJPercentage != null && discountPercentage != null &&
-                                                Double.parseDouble(CHJPercentage) == Double.parseDouble(discountPercentage)){
-
-                                            Log.d("wallet", "totalRevenuewithoutDiscount: "+subTotal);
-
-                                        }
-                                        else if (CHJPercentage != null && discountPercentage != null && actualPrice != null &&
-                                                Double.parseDouble(CHJPercentage) > Double.parseDouble(discountPercentage)){
-                                            Log.d("CHJRevenue1", ""+actualPrice);
-
-                                            double difference = Double.parseDouble(CHJPercentage) - Double.parseDouble(discountPercentage);
-                                            Log.d("CHJRevenue2", ""+difference);
-
-                                            double CHJRevenue = (Double.parseDouble(actualPrice) / 100) * difference;
-                                            Log.d("CHJRevenue3", ""+CHJRevenue);
-
-                                            double resRevenuePer = (Double.parseDouble(actualPrice) / 100) * Double.parseDouble(CHJPercentage);
-                                            double resRevenue = Double.parseDouble(actualPrice) - resRevenuePer;
-                                            Log.d("CHJRevenue4", ""+resRevenue);
-
-                                        }
-                                        else if (CHJPercentage != null && discountPercentage != null && actualPrice != null &&
-                                                Double.parseDouble(CHJPercentage) < Double.parseDouble(discountPercentage)){
-                                            Log.d("CHJRevenue1", ""+actualPrice);
-
-                                            double difference = Double.parseDouble(discountPercentage) - Double.parseDouble(CHJPercentage);
-                                            Log.d("CHJRevenue2", ""+difference);
-
-                                            double CHJRevenueMinus = (Double.parseDouble(actualPrice) / 100) * difference;
-                                            Log.d("CHJRevenue3", ""+CHJRevenueMinus);
-
-                                            double resRevenuePer = (Double.parseDouble(actualPrice) / 100) * Double.parseDouble(CHJPercentage);
-                                            double resRevenue = Double.parseDouble(actualPrice) - resRevenuePer;
-                                            Log.d("CHJRevenue4", ""+resRevenue);
-
-                                        }
-                                    }
-
-//                                firebaseFirestore.collection("Restaurants").whereEqualTo("id", kitchenKey).get()
-//                                        .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-//                                            @Override
-//                                            public void onSuccess(QuerySnapshot querySnapshot) {
-//
-//                                                for (DocumentSnapshot documentSnapshot1 : querySnapshot) {
-//
-//                                                    String kitchenId = documentSnapshot1.getId();
-//                                                    String totalRevenue = documentSnapshot1.getString("totalRevenue");
-//
-//                                                    Log.d("total", subTotal + " " + totalRevenue + " " + kitchenId);
-//
-//                                                    Double total = Double.parseDouble(subTotal) + Double.parseDouble(totalRevenue);
-//
-//                                                    HashMap<String, Object> revenue = new HashMap<>();
-//                                                    revenue.put("totalRevenue", String.valueOf(total));
-//
-//                                                    firebaseFirestore.collection("Restaurants").document(kitchenId)
-//                                                            .update(revenue)
-//                                                            .addOnSuccessListener(new OnSuccessListener<Void>() {
-//                                                                @Override
-//                                                                public void onSuccess(Void unused) {
-//
-//                                                                }
-//                                                            });
-//                                                }
-//                                            }
-//                                        });
-                            }
-                            }
-                        });
-            }
-        });
 
 //        for (String id : Common.id) {
 //
