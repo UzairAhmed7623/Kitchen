@@ -44,11 +44,11 @@ public class Wallet extends AppCompatActivity {
     private FirebaseFirestore firebaseFirestore;
     private FirebaseDatabase firebaseDatabase;
     private DatabaseReference databaseReference;
-    private double totalRevenue = 0.0, remaining = 0.0, withdrawn = 0.0;
+    private double totalRevenue2 = 0.0, remaining = 0.0, withdrawn = 0.0;
     private Double totalRevenueWithoutDiscount = 0.0;
     private String resName, withdrawPayment = "0.0";
     private String withdrawnFromDatabase, paymentStatus;
-    private String remainingPayment = "";
+    private String remainingPayment = "", totalRevenue = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,7 +88,7 @@ public class Wallet extends AppCompatActivity {
             @Override
             public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException error) {
                 if (documentSnapshot.exists()) {
-                    String totalRevenue = documentSnapshot.getString("totalRevenue");
+                    totalRevenue = documentSnapshot.getString("totalRevenue");
                     remainingPayment = documentSnapshot.getString("remaining");
                     withdrawnFromDatabase = documentSnapshot.getString("withdrawn");
                     paymentStatus = documentSnapshot.getString("paymentStatus");
@@ -96,12 +96,12 @@ public class Wallet extends AppCompatActivity {
 
                     if (documentSnapshot.getString("paymentRequested") != null) {
                         tvPaymentRequested.setText(paymentRequested);
-                    } else {
+                    }
+                    else {
                         tvPaymentRequested.setText("0.0");
                     }
-                    if (Objects.equals(documentSnapshot.getString("remaining"), "0")){
-                        remainingPayment = totalRevenue;
-                    }
+                    remaining = Double.parseDouble(totalRevenue) - Double.parseDouble(withdrawnFromDatabase);
+                    tvRemaining.setText(String.valueOf(remaining));
 
                     if (documentSnapshot.getString("totalRevenue") != null) {
                         tvTotalRevenue.setText(totalRevenue);
@@ -115,8 +115,11 @@ public class Wallet extends AppCompatActivity {
 
                                     Log.d("payment", withdrawn + " " + withdrawPayment);
 
-                                    if (Double.parseDouble(withdrawPayment) > Double.parseDouble(remainingPayment)) {
-                                        Toasty.error(Wallet.this, "You have insufficient balance to withdraw this amount.", Toasty.LENGTH_SHORT).show();
+                                    if (Double.parseDouble(withdrawPayment) > remaining) {
+                                        Toasty.error(Wallet.this, "You have insufficient balance to withdraw this amount.", Toasty.LENGTH_LONG).show();
+                                    }
+                                    else if (withdrawPayment.equals("") || Double.parseDouble(withdrawPayment) <= 0) {
+                                        Toasty.error(Wallet.this, "You cannot send payment request with no amount.", Toasty.LENGTH_LONG).show();
                                     }
                                     else {
                                         withdrawn = Double.parseDouble(withdrawPayment) + Double.parseDouble(withdrawnFromDatabase);
@@ -124,7 +127,7 @@ public class Wallet extends AppCompatActivity {
 
                                         Log.d("payment", withdrawn + " " + withdrawPayment + " " + withdrawnFromDatabase);
 
-                                        remaining = Double.parseDouble(remainingPayment) - Double.parseDouble(withdrawPayment);
+                                        remaining = Double.parseDouble(totalRevenue) - withdrawn;
                                         tvRemaining.setText(String.valueOf(remaining));
 
                                         HashMap<String, String> paymentData = new HashMap<>();
@@ -177,12 +180,12 @@ public class Wallet extends AppCompatActivity {
 
                     }
 
-                    if (documentSnapshot.getString("remaining") != null) {
-                        tvRemaining.setText(remainingPayment);
-                    }
-                    else {
-                        tvRemaining.setText(totalRevenue);
-                    }
+//                    if (documentSnapshot.getString("remaining") != null) {
+//                        tvRemaining.setText(remainingPayment);
+//                    }
+//                    else {
+//                        tvRemaining.setText(totalRevenue);
+//                    }
 
                     if (documentSnapshot.getString("withdrawn") != null) {
                         tvWithdrawn.setText(withdrawnFromDatabase);
@@ -202,6 +205,7 @@ public class Wallet extends AppCompatActivity {
                         tvPaymentStatusPlace.setVisibility(View.VISIBLE);
                         tvPaymentStatus.setVisibility(View.VISIBLE);
                         tvPaymentStatus.setText(paymentStatus);
+                        tvPaymentRequested.setText("0.0");
                         btnWithdrawn.setEnabled(true);
                     }
                     else {

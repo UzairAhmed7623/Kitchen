@@ -52,22 +52,22 @@
             android:id="@+id/tvTotalRevenuePlace"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Total Revenue"
-            android:textSize="20sp"
-            android:textColor="@color/myColorThird"
             android:fontFamily="@font/montserra_regular_bold"
-            android:padding="30dp" />
+            android:padding="20dp"
+            android:text="Total Revenue"
+            android:textColor="@color/myColorThird"
+            android:textSize="20sp" />
 
         <TextView
             android:id="@+id/tvTotalRevenue"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
-            android:text="PKR00"
-            android:textSize="20sp"
-            android:textColor="@color/myColorThird"
             android:fontFamily="@font/montserra_regular_bold"
-            android:padding="30dp" />
+            android:padding="20dp"
+            android:text="PKR00"
+            android:textColor="@color/myColorThird"
+            android:textSize="20sp" />
 
         <View
             android:layout_width="match_parent"
@@ -82,11 +82,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/tvTotalRevenue"
-            android:text="Withdrawn"
-            android:textSize="16sp"
-            android:textColor="@color/myColorThird"
             android:fontFamily="@font/montserra_regular_bold"
-            android:padding="30dp" />
+            android:padding="20dp"
+            android:text="Withdrawn"
+            android:textColor="@color/myColorThird"
+            android:textSize="16sp" />
 
         <TextView
             android:id="@+id/tvWithdrawn"
@@ -98,7 +98,7 @@
             android:textSize="16sp"
             android:textColor="@color/myColorThird"
             android:fontFamily="@font/montserra_regular_bold"
-            android:padding="30dp" />
+            android:padding="20dp" />
 
         <View
             android:layout_width="match_parent"
@@ -117,7 +117,7 @@
             android:textSize="16sp"
             android:textColor="@color/myColorThird"
             android:fontFamily="@font/montserra_regular_bold"
-            android:padding="30dp" />
+            android:padding="20dp" />
 
         <TextView
             android:id="@+id/tvRemaining"
@@ -129,7 +129,7 @@
             android:textSize="16sp"
             android:textColor="@color/myColorThird"
             android:fontFamily="@font/montserra_regular_bold"
-            android:padding="30dp" />
+            android:padding="20dp" />
 
         <View
             android:layout_width="match_parent"
@@ -148,7 +148,7 @@
             android:textSize="16sp"
             android:textColor="@color/myColorThird"
             android:fontFamily="@font/montserra_regular_bold"
-            android:padding="30dp" />
+            android:padding="20dp" />
 
         <TextView
             android:id="@+id/tvPaymentRequested"
@@ -160,7 +160,7 @@
             android:textSize="16sp"
             android:textColor="@color/myColorThird"
             android:fontFamily="@font/montserra_regular_bold"
-            android:padding="30dp" />
+            android:padding="20dp" />
 
         <View
             android:id="@+id/view1"
@@ -219,7 +219,7 @@
             app:boxCornerRadiusTopEnd="50dp"
             app:boxCornerRadiusTopStart="50dp"
             app:boxCornerRadiusBottomEnd="50dp"
-            app:boxStrokeColor="@color/profileAccentColor">
+            app:boxStrokeColor="@color/grey_40">
 
             <EditText
                 android:id="@+id/etWithdrawnPayment"
@@ -230,6 +230,8 @@
                 android:maxLines="1"
                 android:inputType="number"
                 android:lines="1"
+                android:hint="Write withdraw amount"
+                android:gravity="center"
                 android:textCursorDrawable="@color/myColorThird"/>
 
         </com.google.android.material.textfield.TextInputLayout>

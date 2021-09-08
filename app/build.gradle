@@ -11,7 +11,7 @@ android {
         applicationId "com.inkhornsolutions.kitchen"
         minSdkVersion 23
         targetSdkVersion 30
-        versionCode 24
+        versionCode 26
         versionName "3.0"
         multiDexEnabled true
 
