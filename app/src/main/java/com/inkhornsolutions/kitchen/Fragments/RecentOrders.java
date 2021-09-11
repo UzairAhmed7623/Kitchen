@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -96,6 +97,8 @@ public class RecentOrders extends Fragment {
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         rvOrdersFrag.setLayoutManager(linearLayoutManager);
+        adapter = new RecentOrdersAdapter(getActivity(), Orders);
+        rvOrdersFrag.setAdapter(adapter);
 
         progressDialog = new ProgressDialog(getActivity());
         progressDialog.setTitle("Loading");
@@ -117,178 +120,169 @@ public class RecentOrders extends Fragment {
     private void ordersList(String resName) {
 
         Orders.clear();
+        adapter.notifyDataSetChanged();
 
         for (String id : Common.id) {
 
-//            firebaseFirestore.collection("Users").document(id).collection("Cart")
-//                    .whereEqualTo("restaurantName", resName)
-//                    .whereIn("status", Arrays.asList("Pending", "Rejected", "Dispatched", "Completed"))
-//                    .get()
-//                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-//                        @Override
-//                        public void onSuccess(QuerySnapshot querySnapshot) {
-//                            for (QueryDocumentSnapshot documentSnapshot : querySnapshot){
-//                                if (documentSnapshot.exists()){
-//
-//                                    String resId = documentSnapshot.getId();
-//                                    String orderId = documentSnapshot.getString("ID");
-//                                    String time = documentSnapshot.getString("Time");
-//                                    Timestamp timestamp = documentSnapshot.getTimestamp("timeStamp");
-//                                    String resName = documentSnapshot.getString("restaurantName");
-//                                    String status = documentSnapshot.getString("status");
-//                                    Double lat = documentSnapshot.getDouble("latlng.latitude");
-//                                    Double lng = documentSnapshot.getDouble("latlng.longitude");
-//                                    String subTotal = documentSnapshot.getString("subTotal");
-//                                    String total = documentSnapshot.getString("total");
-//                                    String promotedOrder = documentSnapshot.getString("promotedOrder");
-//                                    //actual total add krna ha or us mn se chj ka commision kat kr baqi pese show krwane hn orderk kitchen ko.
-//
-//                                    OrdersModelClass ordersModelClass = new OrdersModelClass();
-//
-//                                    if (promotedOrder != null && promotedOrder.equals("yes")){
-//                                        if (subTotal != null) {
-//                                            Double deductedTotal = Double.parseDouble(subTotal);
-//                                            ordersModelClass.setSubTotal(String.valueOf(deductedTotal));
-//                                        } else {
-//                                            ordersModelClass.setSubTotal(String.valueOf(total));
-//                                        }
-//                                    } else {
-//                                        if (subTotal != null) {
-//                                            Double deductedTotal = Double.parseDouble(subTotal) * 0.8;
-//                                            ordersModelClass.setSubTotal(String.valueOf(deductedTotal));
-//                                        } else {
-//                                            ordersModelClass.setSubTotal(String.valueOf(total));
-//                                        }
-//                                    }
-//
-//                                    ordersModelClass.setTotalPrice(total);
-//                                    ordersModelClass.setResId(resId);
-//                                    ordersModelClass.setDate(time);
-//                                    ordersModelClass.setTimestamp(timestamp);
-//                                    ordersModelClass.setResName(resName);
-//                                    ordersModelClass.setStatus(status);
-//                                    ordersModelClass.setLat(lat);
-//                                    ordersModelClass.setLng(lng);
-//                                    ordersModelClass.setOrderId(orderId);
-//                                    ordersModelClass.setUserId(id);
-//
-//                                    if (promotedOrder != null) {
-//                                        ordersModelClass.setPromotedOrder(promotedOrder);
-//                                    } else {
-//                                        ordersModelClass.setPromotedOrder("no");
-//                                    }
-//
-//                                    Orders.add(ordersModelClass);
-//
-//
-//                                }
-//                            }
-//
-//                            Collections.sort(Orders, new Comparator<OrdersModelClass>() {
-//                                @Override
-//                                public int compare(OrdersModelClass o1, OrdersModelClass o2) {
-//                                    return o2.getTimestamp().compareTo(o1.getTimestamp());
-//                                }
-//                            });
-//
-//                            new Handler().postDelayed(new Runnable() {
-//                                @Override
-//                                public void run() {
-//                                    adapter = new RecentOrdersAdapter(getActivity(), Orders);
-//                                    rvOrdersFrag.setAdapter(adapter);
-//
-//                                    progressDialog.dismiss();
-//                                    layoutOrderFrag.setRefreshing(false);
-//                                }
-//                            }, 1000);
-//                        }
-//                    });
-
-            eventListener = new EventListener<QuerySnapshot>() {
-                @Override
-                public void onEvent(@Nullable QuerySnapshot querySnapshot, @Nullable FirebaseFirestoreException error) {
-
-                    if (error == null) {
-                        for (QueryDocumentSnapshot documentSnapshot : querySnapshot) {
-                            if (documentSnapshot.exists()){
-
-                                String resId = documentSnapshot.getId();
-                                String orderId = documentSnapshot.getString("ID");
-                                String time = documentSnapshot.getString("Time");
-                                String resName = documentSnapshot.getString("restaurantName");
-                                Timestamp timestamp = documentSnapshot.getTimestamp("timeStamp");
-                                String status = documentSnapshot.getString("status");
-                                Double lat = documentSnapshot.getDouble("latlng.latitude");
-                                Double lng = documentSnapshot.getDouble("latlng.longitude");
-                                String subTotal = documentSnapshot.getString("subTotal");
-                                String total = documentSnapshot.getString("total");
-                                String promotedOrder = documentSnapshot.getString("promotedOrder");
-
-                                OrdersModelClass ordersModelClass = new OrdersModelClass();
-
-                                if (promotedOrder != null && promotedOrder.equals("yes")){
-                                    if (subTotal != null) {
-                                        Double deductedTotal = Double.parseDouble(subTotal);
-                                        ordersModelClass.setSubTotal(String.valueOf(deductedTotal));
-                                    } else {
-                                        ordersModelClass.setSubTotal(String.valueOf(total));
-                                    }
-                                } else {
-                                    if (subTotal != null) {
-                                        Double deductedTotal = Double.parseDouble(subTotal) * 0.8;
-                                        ordersModelClass.setSubTotal(String.valueOf(deductedTotal));
-                                    } else {
-                                        ordersModelClass.setSubTotal(String.valueOf(total));
-                                    }
-                                }
-
-                                ordersModelClass.setTotalPrice(total);
-                                ordersModelClass.setResId(resId);
-                                ordersModelClass.setDate(time);
-                                ordersModelClass.setTimestamp(timestamp);
-                                ordersModelClass.setResName(resName);
-                                ordersModelClass.setStatus(status);
-                                ordersModelClass.setLat(lat);
-                                ordersModelClass.setLng(lng);
-                                ordersModelClass.setOrderId(orderId);
-                                ordersModelClass.setUserId(id);
-
-                                if (promotedOrder != null) {
-                                    ordersModelClass.setPromotedOrder(promotedOrder);
-                                } else {
-                                    ordersModelClass.setPromotedOrder("no");
-                                }
-
-                                Orders.add(ordersModelClass);
-                            }
-                        }
-
-                        Collections.sort(Orders, new Comparator<OrdersModelClass>() {
-                            @Override
-                            public int compare(OrdersModelClass o1, OrdersModelClass o2) {
-                                return o2.getTimestamp().compareTo(o1.getTimestamp());
-                            }
-                        });
-
-
-                        adapter = new RecentOrdersAdapter(getActivity(), Orders);
-                        rvOrdersFrag.setAdapter(adapter);
-
-
-                        progressDialog.dismiss();
-                        layoutOrderFrag.setRefreshing(false);
-                    }
-                    else {
-                        Toast.makeText(getContext(), error.getMessage(), Toast.LENGTH_LONG).show();
-                        Log.d("firebase", error.getMessage());
-                    }
-                }
-            };
-
-            listenerRegistration = firebaseFirestore.collection("Users").document(id).collection("Cart")
+            firebaseFirestore.collection("Users").document(id).collection("Cart")
                     .whereEqualTo("restaurantName", resName)
                     .whereIn("status", Arrays.asList("Pending", "Rejected", "Dispatched", "Completed"))
-                    .addSnapshotListener(eventListener);
+                    .get()
+                    .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                        @Override
+                        public void onSuccess(QuerySnapshot querySnapshot) {
+                            for (QueryDocumentSnapshot documentSnapshot : querySnapshot){
+                                if (documentSnapshot.exists()){
+
+                                    String resId = documentSnapshot.getId();
+                                    String orderId = documentSnapshot.getString("ID");
+                                    String time = documentSnapshot.getString("Time");
+                                    Timestamp timestamp = documentSnapshot.getTimestamp("timeStamp");
+                                    String resName = documentSnapshot.getString("restaurantName");
+                                    String status = documentSnapshot.getString("status");
+                                    Double lat = documentSnapshot.getDouble("latlng.latitude");
+                                    Double lng = documentSnapshot.getDouble("latlng.longitude");
+                                    String subTotal = documentSnapshot.getString("subTotal");
+                                    String total = documentSnapshot.getString("total");
+                                    String promotedOrder = documentSnapshot.getString("promotedOrder");
+                                    //actual total add krna ha or us mn se chj ka commision kat kr baqi pese show krwane hn orderk kitchen ko.
+
+                                    OrdersModelClass ordersModelClass = new OrdersModelClass();
+
+                                    if (promotedOrder != null && promotedOrder.equals("yes")){
+                                        if (subTotal != null) {
+                                            Double deductedTotal = Double.parseDouble(subTotal);
+                                            ordersModelClass.setSubTotal(String.valueOf(deductedTotal));
+                                        } else {
+                                            ordersModelClass.setSubTotal(String.valueOf(total));
+                                        }
+                                    } else {
+                                        if (subTotal != null) {
+                                            Double deductedTotal = Double.parseDouble(subTotal) * 0.8;
+                                            ordersModelClass.setSubTotal(String.valueOf(deductedTotal));
+                                        } else {
+                                            ordersModelClass.setSubTotal(String.valueOf(total));
+                                        }
+                                    }
+
+                                    ordersModelClass.setTotalPrice(total);
+                                    ordersModelClass.setResId(resId);
+                                    ordersModelClass.setDate(time);
+                                    ordersModelClass.setTimestamp(timestamp);
+                                    ordersModelClass.setResName(resName);
+                                    ordersModelClass.setStatus(status);
+                                    ordersModelClass.setLat(lat);
+                                    ordersModelClass.setLng(lng);
+                                    ordersModelClass.setOrderId(orderId);
+                                    ordersModelClass.setUserId(id);
+
+                                    if (promotedOrder != null) {
+                                        ordersModelClass.setPromotedOrder(promotedOrder);
+                                    } else {
+                                        ordersModelClass.setPromotedOrder("no");
+                                    }
+
+                                    Orders.add(ordersModelClass);
+                                    adapter.notifyDataSetChanged();
+                                }
+                            }
+
+                            Collections.sort(Orders, new Comparator<OrdersModelClass>() {
+                                @Override
+                                public int compare(OrdersModelClass o1, OrdersModelClass o2) {
+                                    return o2.getTimestamp().compareTo(o1.getTimestamp());
+                                }
+                            });
+
+                            progressDialog.dismiss();
+                            layoutOrderFrag.setRefreshing(false);
+                            adapter.notifyDataSetChanged();
+                        }
+                    });
+
+//            eventListener = new EventListener<QuerySnapshot>() {
+//                @Override
+//                public void onEvent(@Nullable QuerySnapshot querySnapshot, @Nullable FirebaseFirestoreException error) {
+//
+//                    if (error == null) {
+//                        for (QueryDocumentSnapshot documentSnapshot : querySnapshot) {
+//                            if (documentSnapshot.exists()){
+//
+//                                String resId = documentSnapshot.getId();
+//                                String orderId = documentSnapshot.getString("ID");
+//                                String time = documentSnapshot.getString("Time");
+//                                String resName = documentSnapshot.getString("restaurantName");
+//                                Timestamp timestamp = documentSnapshot.getTimestamp("timeStamp");
+//                                String status = documentSnapshot.getString("status");
+//                                Double lat = documentSnapshot.getDouble("latlng.latitude");
+//                                Double lng = documentSnapshot.getDouble("latlng.longitude");
+//                                String subTotal = documentSnapshot.getString("subTotal");
+//                                String total = documentSnapshot.getString("total");
+//                                String promotedOrder = documentSnapshot.getString("promotedOrder");
+//
+//                                OrdersModelClass ordersModelClass = new OrdersModelClass();
+//
+//                                if (promotedOrder != null && promotedOrder.equals("yes")){
+//                                    if (subTotal != null) {
+//                                        Double deductedTotal = Double.parseDouble(subTotal);
+//                                        ordersModelClass.setSubTotal(String.valueOf(deductedTotal));
+//                                    } else {
+//                                        ordersModelClass.setSubTotal(String.valueOf(total));
+//                                    }
+//                                } else {
+//                                    if (subTotal != null) {
+//                                        Double deductedTotal = Double.parseDouble(subTotal) * 0.8;
+//                                        ordersModelClass.setSubTotal(String.valueOf(deductedTotal));
+//                                    } else {
+//                                        ordersModelClass.setSubTotal(String.valueOf(total));
+//                                    }
+//                                }
+//
+//                                ordersModelClass.setTotalPrice(total);
+//                                ordersModelClass.setResId(resId);
+//                                ordersModelClass.setDate(time);
+//                                ordersModelClass.setTimestamp(timestamp);
+//                                ordersModelClass.setResName(resName);
+//                                ordersModelClass.setStatus(status);
+//                                ordersModelClass.setLat(lat);
+//                                ordersModelClass.setLng(lng);
+//                                ordersModelClass.setOrderId(orderId);
+//                                ordersModelClass.setUserId(id);
+//
+//                                if (promotedOrder != null) {
+//                                    ordersModelClass.setPromotedOrder(promotedOrder);
+//                                } else {
+//                                    ordersModelClass.setPromotedOrder("no");
+//                                }
+//
+//                                Orders.add(ordersModelClass);
+//                                adapter.notifyDataSetChanged();
+//                            }
+//                        }
+//
+//                        Collections.sort(Orders, new Comparator<OrdersModelClass>() {
+//                            @Override
+//                            public int compare(OrdersModelClass o1, OrdersModelClass o2) {
+//                                return o2.getTimestamp().compareTo(o1.getTimestamp());
+//                            }
+//                        });
+//
+//                        progressDialog.dismiss();
+//                        layoutOrderFrag.setRefreshing(false);
+//                        adapter.notifyDataSetChanged();
+//
+//                    }
+//                    else {
+//                        Toast.makeText(getContext(), error.getMessage(), Toast.LENGTH_LONG).show();
+//                        Log.d("firebase", error.getMessage());
+//                    }
+//                }
+//            };
+//
+//            listenerRegistration = firebaseFirestore.collection("Users").document(id).collection("Cart")
+//                    .whereEqualTo("restaurantName", resName)
+//                    .whereIn("status", Arrays.asList("Pending", "Rejected", "Dispatched", "Completed"))
+//                    .addSnapshotListener(eventListener);
         }
     }
 

@@ -11,7 +11,7 @@ android {
         applicationId "com.inkhornsolutions.kitchen"
         minSdkVersion 23
         targetSdkVersion 30
-        versionCode 26
+        versionCode 27
         versionName "3.0"
         multiDexEnabled true
 
@@ -48,6 +48,10 @@ dependencies {
     implementation 'androidx.annotation:annotation:1.2.0'
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.3.1'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.1'
+    
+    implementation "androidx.recyclerview:recyclerview:1.2.1"
+    // For control over item selection of both touch and mouse driven selection
+    implementation "androidx.recyclerview:recyclerview-selection:1.1.0"
 
     implementation 'com.google.firebase:firebase-storage:20.0.0'
     implementation 'com.google.firebase:firebase-core:19.0.1'

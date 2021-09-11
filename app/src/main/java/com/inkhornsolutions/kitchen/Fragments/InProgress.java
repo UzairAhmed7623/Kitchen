@@ -9,7 +9,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
@@ -17,9 +16,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
@@ -27,7 +23,6 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -37,14 +32,9 @@ import com.inkhornsolutions.kitchen.R;
 import com.inkhornsolutions.kitchen.adapters.RecentOrdersAdapter;
 import com.inkhornsolutions.kitchen.modelclasses.OrdersModelClass;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-
-import jp.co.recruit_lifestyle.android.widget.WaveSwipeRefreshLayout;
 
 public class InProgress extends Fragment {
 
@@ -81,7 +71,8 @@ public class InProgress extends Fragment {
 
         Orders = new ArrayList<>();
         rvItemsInProgress.setLayoutManager(new LinearLayoutManager(view.getContext()));
-
+        adapter = new RecentOrdersAdapter(getActivity(), Orders);
+        rvItemsInProgress.setAdapter(adapter);
 
         MainActivity activity = (MainActivity) getActivity();
         resName = activity.sendData();
@@ -106,6 +97,7 @@ public class InProgress extends Fragment {
     private void ordersList(String resName) {
 
         Orders.clear();
+        adapter.notifyDataSetChanged();
 
         for (String id : Common.id) {
 
@@ -169,24 +161,24 @@ public class InProgress extends Fragment {
                                         }
 
                                         Orders.add(ordersModelClass);
+                                        adapter.notifyDataSetChanged();
 
-                                        Collections.sort(Orders, new Comparator<OrdersModelClass>() {
-                                            @Override
-                                            public int compare(OrdersModelClass o1, OrdersModelClass o2) {
-                                                return o2.getTimestamp().compareTo(o1.getTimestamp());
-                                            }
-                                        });
                                     }
                                     else {
                                         Snackbar.make(getActivity().findViewById(android.R.id.content), "Data not found!", Snackbar.LENGTH_LONG).show();
                                     }
                                 }
 
-                                adapter = new RecentOrdersAdapter(getActivity(), Orders);
-                                rvItemsInProgress.setAdapter(adapter);
+                                Collections.sort(Orders, new Comparator<OrdersModelClass>() {
+                                    @Override
+                                    public int compare(OrdersModelClass o1, OrdersModelClass o2) {
+                                        return o2.getTimestamp().compareTo(o1.getTimestamp());
+                                    }
+                                });
 
                                 progressDialog.dismiss();
                                 layoutInProgress.setRefreshing(false);
+                                adapter.notifyDataSetChanged();
                             }
                             else {
                                 Toast.makeText(getContext(), error.getMessage(), Toast.LENGTH_LONG).show();
