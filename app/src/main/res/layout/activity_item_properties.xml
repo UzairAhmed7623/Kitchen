@@ -11,13 +11,37 @@
         android:layout_height="0dp"
         android:orientation="vertical">
 
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/myColor"
-        app:titleTextColor="@android:color/white"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/toolbar"
+                style="@style/TextAppearance.AppCompat.Title"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:background="@color/myColor"
+                android:paddingStart="50dp"
+                android:paddingTop="10dp"
+                android:text="Update product"
+                android:textColor="@color/white" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/backButton"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="8dp"
+                app:cornerRadius="50dp"
+                app:icon="@drawable/arrow_back"
+                app:iconGravity="start"
+                app:iconTint="@color/white"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:rippleColor="#20000000" />
+
+        </RelativeLayout>
 
     <TextView
         android:id="@+id/textView"

@@ -29,6 +29,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -54,10 +55,11 @@ public class ItemProperties extends AppCompatActivity {
     private String resName, itemName;
     private FirebaseStorage firebaseStorage;
     private StorageReference storageReference;
-    private Toolbar toolbar;
+    private TextView toolbar;
     private TextView tvAvailable, tvNotAvailable;
     private SwitchMaterial switchAvailable;
     private String isAvailable = "";
+    private MaterialButton backButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,19 +81,27 @@ public class ItemProperties extends AppCompatActivity {
         tvAvailable = (TextView) findViewById(R.id.tvAvailable);
         tvNotAvailable = (TextView) findViewById(R.id.tvNotAvailable);
         switchAvailable = (SwitchMaterial) findViewById(R.id.switchAvailable);
+        backButton = (MaterialButton) findViewById(R.id.backButton);
 
         btnDone = (Button) findViewById(R.id.btnDone);
         btnPickImage = (Button) findViewById(R.id.btnPickImage);
 
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("Update product");
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        toolbar = (TextView) findViewById(R.id.toolbar);
 
         resName = getIntent().getStringExtra("restaurant");
         itemName = getIntent().getStringExtra("itemName");
 
         Log.d("TAG", resName + " " + itemName);
+
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(ItemProperties.this, Items.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                intent.putExtra("resName", resName);
+                startActivity(intent);
+            }
+        });
 
         switchAvailable.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -136,7 +146,7 @@ public class ItemProperties extends AppCompatActivity {
 
                         try {
                             Date date = f24Hours.parse(time);
-                            SimpleDateFormat f12Hours = new SimpleDateFormat("hh:mm aa");
+                            SimpleDateFormat f12Hours = new SimpleDateFormat("kk:mm");
 
                             tvFrom.setText(f12Hours.format(date));
 
@@ -167,7 +177,7 @@ public class ItemProperties extends AppCompatActivity {
 
                         try {
                             Date date = f24Hours.parse(time);
-                            SimpleDateFormat f12Hours = new SimpleDateFormat("hh:mm aa");
+                            SimpleDateFormat f12Hours = new SimpleDateFormat("kk:mm");
 
                             tvTo.setText(f12Hours.format(date));
 

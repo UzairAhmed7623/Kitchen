@@ -27,6 +27,7 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -51,7 +52,7 @@ public class Items extends AppCompatActivity {
     private RecyclerView rvItems;
     private FirebaseAuth firebaseAuth;
     private FirebaseFirestore firebaseFirestore;
-    private WaveSwipeRefreshLayout layoutItems;
+    private SwipeRefreshLayout layoutItems;
     private final ArrayList<ItemsModelClass> items = new ArrayList<>();
     private final Paint p = new Paint();
     private String resName = "";
@@ -93,7 +94,7 @@ public class Items extends AppCompatActivity {
 
         resName = getIntent().getStringExtra("resName");
 
-        layoutItems = (WaveSwipeRefreshLayout) findViewById(R.id.layoutItems);
+        layoutItems = (SwipeRefreshLayout) findViewById(R.id.layoutItems);
 
         rvItems = (RecyclerView) findViewById(R.id.rvItems);
         rvItems.setLayoutManager(new LinearLayoutManager(this));
@@ -101,13 +102,11 @@ public class Items extends AppCompatActivity {
 
         loadRestaurant(resName);
 
+        layoutItems.setProgressBackgroundColorSchemeColor(ContextCompat.getColor(Items.this, R.color.myColor));
         layoutItems.setColorSchemeColors(Color.WHITE, Color.WHITE);
-        layoutItems.setWaveColor(getColor(R.color.myColor));
-        layoutItems.setMaxDropHeight(750);
-        layoutItems.setMinimumHeight(750);
 //        layoutOrder.setWaveColor(0xFF000000+new Random().nextInt(0xFFFFFF)); // Random color assign
 
-        layoutItems.setOnRefreshListener(new WaveSwipeRefreshLayout.OnRefreshListener() {
+        layoutItems.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
 

@@ -54,12 +54,14 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Objects;
 
+import es.dmoral.toasty.Toasty;
+
 public class AddItem extends AppCompatActivity {
 
     private static final int REQUEST_CODE = 1002;
     private EditText etItemName, etItemPrice, etItemDes, etItemQuantity;
     private TextView tvFrom, tvTo;
-    private TextView  tvAvailable, tvNotAvailable;
+    private TextView tvAvailable, tvNotAvailable;
     private SwitchMaterial switchAvailable;
     private int t1hour, t1minute, t2hour, t2minute;
     private ImageView etItemImage;
@@ -123,12 +125,11 @@ public class AddItem extends AppCompatActivity {
         switchAvailable.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked){
+                if (isChecked) {
                     tvAvailable.setVisibility(View.VISIBLE);
                     tvNotAvailable.setVisibility(View.GONE);
                     isAvailable = "yes";
-                }
-                else {
+                } else {
                     tvNotAvailable.setVisibility(View.VISIBLE);
                     tvAvailable.setVisibility(View.GONE);
 
@@ -158,7 +159,7 @@ public class AddItem extends AppCompatActivity {
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(AddItem.this, R.style.MaterialThemeDialog);
                 builder.setCancelable(false);
-                String[] categories = new String[]{"Main Course","Drinks","Frozen","Sides","Desserts","Organic"};
+                String[] categories = new String[]{"Main Course", "Drinks", "Frozen", "Sides", "Desserts", "Organic"};
 
                 final int checkedItem = -1;
 
@@ -176,11 +177,10 @@ public class AddItem extends AppCompatActivity {
 
                         selectedCategory = tvSpinnerHead.getText().toString();
 
-                        if (selectedCategory.length() > 0){
+                        if (!selectedCategory.equals("Please select your item category")) {
                             dialog.dismiss();
-                        }
-                        else {
-                            Snackbar.make(findViewById(android.R.id.content), "Please select one from all off the categories.", Snackbar.LENGTH_LONG).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).show();
+                        } else {
+                            Toasty.error(AddItem.this, "Please select one from all off the categories.", Toasty.LENGTH_LONG).show();
                         }
                     }
                 });
@@ -202,8 +202,8 @@ public class AddItem extends AppCompatActivity {
             public void onClick(View v) {
 
                 ImagePicker.Companion.with(AddItem.this)
-                        .crop(3f, 2f)	    			//Crop image(Optional), Check Customization for more option
-                        .compress(500)			//Final image size will be less than 1 MB(Optional)
+                        .crop(3f, 2f)                    //Crop image(Optional), Check Customization for more option
+                        .compress(500)            //Final image size will be less than 1 MB(Optional)
                         .start(REQUEST_CODE);
             }
         });
@@ -222,19 +222,22 @@ public class AddItem extends AppCompatActivity {
 
                         SimpleDateFormat f24Hours = new SimpleDateFormat("HH:mm");
 
+                        Log.d("time1time1", "" + f24Hours);
+
                         try {
                             Date date = f24Hours.parse(time);
-                            SimpleDateFormat f12Hours = new SimpleDateFormat("hh:mm aa");
+                            SimpleDateFormat f12Hours = new SimpleDateFormat("kk:mm");
+
+                            Log.d("time1time2", "" + date + " : " + f12Hours);
 
                             tvFrom.setText(f12Hours.format(date));
 
-                        }
-                        catch (Exception e){
+                        } catch (Exception e) {
                             e.printStackTrace();
                         }
 
                     }
-                },12, 0, false);
+                }, 12, 0, false);
 
                 timePickerDialog.updateTime(t1hour, t1minute);
                 timePickerDialog.show();
@@ -256,17 +259,16 @@ public class AddItem extends AppCompatActivity {
 
                         try {
                             Date date = f24Hours.parse(time);
-                            SimpleDateFormat f12Hours = new SimpleDateFormat("hh:mm aa");
+                            SimpleDateFormat f12Hours = new SimpleDateFormat("kk:mm");
 
                             tvTo.setText(f12Hours.format(date));
 
-                        }
-                        catch (Exception e){
+                        } catch (Exception e) {
                             e.printStackTrace();
                         }
 
                     }
-                },12, 0, false);
+                }, 12, 0, false);
 
                 timePickerDialog.updateTime(t2hour, t2minute);
                 timePickerDialog.show();
@@ -293,7 +295,7 @@ public class AddItem extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == REQUEST_CODE || resultCode == RESULT_OK && data!= null && data.getData() != null) {
+        if (requestCode == REQUEST_CODE || resultCode == RESULT_OK && data != null && data.getData() != null) {
             //Image Uri will not be null for RESULT_OK
             fileUri = data.getData();
             etItemImage.setImageURI(fileUri);
@@ -304,11 +306,9 @@ public class AddItem extends AppCompatActivity {
 //
 //            //You can also get File Path from intent
 //            String filePath = ImagePicker.getFilePath(data);
-        }
-        else if (resultCode == ImagePicker.RESULT_ERROR) {
-            Toast.makeText(this, ""+ImagePicker.RESULT_ERROR, Toast.LENGTH_SHORT).show();
-        }
-        else {
+        } else if (resultCode == ImagePicker.RESULT_ERROR) {
+            Toast.makeText(this, "" + ImagePicker.RESULT_ERROR, Toast.LENGTH_SHORT).show();
+        } else {
             Toast.makeText(this, "Task Cancelled", Toast.LENGTH_SHORT).show();
         }
     }
@@ -317,11 +317,11 @@ public class AddItem extends AppCompatActivity {
 
         name = etItemName.getText().toString();
 
-        if (fileUri != null){
+        if (fileUri != null) {
             String someFilepath = String.valueOf(fileUri);
             String extension = someFilepath.substring(someFilepath.lastIndexOf("."));
 
-            StorageReference riversRef = storageReference.child("images/Restaurants/Items" + "." + extension+ " " + name +" "+ resName);
+            StorageReference riversRef = storageReference.child("images/Restaurants/Items" + "." + extension + " " + name + " " + resName);
 
             riversRef.putFile(fileUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
@@ -330,7 +330,7 @@ public class AddItem extends AppCompatActivity {
                     Log.d("Image", "on Success");
 
                     Task<Uri> urlTask = taskSnapshot.getStorage().getDownloadUrl();
-                    while (!urlTask.isSuccessful());
+                    while (!urlTask.isSuccessful()) ;
                     Uri downloadUrl = urlTask.getResult();
 
                     String sdownload_url = String.valueOf(downloadUrl);
@@ -338,8 +338,7 @@ public class AddItem extends AppCompatActivity {
                     setDetails(sdownload_url, name);
                 }
             });
-        }
-        else {
+        } else {
             dialog.dismiss();
             Snackbar.make(findViewById(android.R.id.content), "Please fill all the fields.", Snackbar.LENGTH_LONG).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).show();
         }
@@ -350,28 +349,30 @@ public class AddItem extends AppCompatActivity {
         String price = etItemPrice.getText().toString().trim();
         String quantity = etItemQuantity.getText().toString().trim();
         String description = etItemDes.getText().toString().trim();
-        String from = tvFrom.getText().toString().replace("from","");
-        String to = tvTo.getText().toString().replace("from","");;
+        String from = tvFrom.getText().toString().replace("from", "");
+        String to = tvTo.getText().toString().replace("from", "");
+        String spinner = tvSpinnerHead.getText().toString();
 
         if (TextUtils.isEmpty(price)
                 || TextUtils.isEmpty(from)
                 || TextUtils.isEmpty(to)
-                || TextUtils.isEmpty(description)){
+                || TextUtils.isEmpty(description)
+                || spinner.equals("Please select your item category")
+                || TextUtils.isEmpty(quantity)) {
 
             dialog.dismiss();
 
             Snackbar.make(findViewById(android.R.id.content), "Please fill all the fields.", Snackbar.LENGTH_LONG).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).show();
-        }
-        else {
+        } else {
             HashMap<String, Object> newItem = new HashMap<>();
-            newItem.put("price",price);
-            newItem.put("imageUri",url);
+            newItem.put("price", price);
+            newItem.put("imageUri", url);
             newItem.put("from", from);
             newItem.put("to", to);
-            newItem.put("available",isAvailable);
-            newItem.put("category",selectedCategory);
-            newItem.put("description",description);
-            newItem.put("quantity",quantity);
+            newItem.put("available", isAvailable);
+            newItem.put("category", selectedCategory);
+            newItem.put("description", description);
+            newItem.put("quantity", quantity);
 
             firebaseFirestore.collection("Restaurants").document(resName).collection("Items").document(name)
                     .set(newItem, SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -379,7 +380,7 @@ public class AddItem extends AppCompatActivity {
                 public void onComplete(@NonNull Task<Void> task) {
                     dialog.dismiss();
 
-                    Snackbar.make(findViewById(android.R.id.content), "You have added one product named "+name, Snackbar.LENGTH_SHORT).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).setTextColor(Color.WHITE).show();
+                    Snackbar.make(findViewById(android.R.id.content), "You have added one product named " + name, Snackbar.LENGTH_SHORT).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).setTextColor(Color.WHITE).show();
 
                     android.os.Handler handler = new Handler();
                     handler.postDelayed(new Runnable() {
@@ -410,7 +411,7 @@ public class AddItem extends AppCompatActivity {
 
         //dd=day, MM=month, yyyy=year, hh=hour, mm=minute, ss=second.
 
-        String date = DateFormat.format("dd-MM-yyyy hh-mm",calendar).toString();
+        String date = DateFormat.format("dd-MM-yyyy hh-mm", calendar).toString();
 
         return date;
     }

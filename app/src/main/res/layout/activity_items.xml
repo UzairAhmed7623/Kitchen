@@ -56,12 +56,11 @@
 
     </RelativeLayout>
 
-    <jp.co.recruit_lifestyle.android.widget.WaveSwipeRefreshLayout
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/layoutItems"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:orientation="vertical"
-        android:layout_marginTop="10dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -72,6 +71,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
-    </jp.co.recruit_lifestyle.android.widget.WaveSwipeRefreshLayout>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
