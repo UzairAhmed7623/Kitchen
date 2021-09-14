@@ -205,7 +205,7 @@ public class Items extends AppCompatActivity {
 
                                     items.remove(position);
                                     dialog.dismiss();
-                                    adapter.notifyItemRemoved(position);
+//                                    adapter.notifyItemRemoved(position);
                                 }
                             });
                         }
