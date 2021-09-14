@@ -29,6 +29,7 @@ import com.google.firebase.storage.StorageReference;
 import com.inkhornsolutions.kitchen.Common.Common;
 import com.inkhornsolutions.kitchen.MainActivity;
 import com.inkhornsolutions.kitchen.R;
+import com.inkhornsolutions.kitchen.adapters.InProgressOrdersAdapter;
 import com.inkhornsolutions.kitchen.adapters.RecentOrdersAdapter;
 import com.inkhornsolutions.kitchen.modelclasses.OrdersModelClass;
 
@@ -44,7 +45,7 @@ public class InProgress extends Fragment {
     private StorageReference storageReference;
     private SwipeRefreshLayout layoutInProgress;
     private RecyclerView rvItemsInProgress;
-    private RecentOrdersAdapter adapter;
+    private InProgressOrdersAdapter adapter;
     private String resName;
     private ArrayList<OrdersModelClass> Orders;
     private ProgressDialog progressDialog;
@@ -71,7 +72,8 @@ public class InProgress extends Fragment {
 
         Orders = new ArrayList<>();
         rvItemsInProgress.setLayoutManager(new LinearLayoutManager(view.getContext()));
-        adapter = new RecentOrdersAdapter(getActivity(), Orders);
+
+        adapter = new InProgressOrdersAdapter(getActivity(), Orders);
         rvItemsInProgress.setAdapter(adapter);
 
         MainActivity activity = (MainActivity) getActivity();
@@ -161,7 +163,7 @@ public class InProgress extends Fragment {
                                         }
 
                                         Orders.add(ordersModelClass);
-                                        adapter.notifyDataSetChanged();
+//                                        adapter.notifyDataSetChanged();
 
                                     }
                                     else {
@@ -197,32 +199,26 @@ public class InProgress extends Fragment {
         super.onStart();
         Log.d("methods", "onStart");
 
-        if (!hasBeenPaused) {
-            Orders.clear();
-//            adapter.notifyDataSetChanged();
-            ordersList(resName);
-            Log.d("methods", "onStart inside");
-        }
+        ordersList(resName);
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        hasBeenPaused = true;
 
         Log.d("methods", "onPause");
 
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        Log.d("methods", "onResume");
-
-        if(hasBeenPaused){
-
-            ordersList(resName);
-            Log.d("methods", "onResume inside");
-        }
-    }
+//    @Override
+//    public void onResume() {
+//        super.onResume();
+//        Log.d("methods", "onResume");
+//
+//        if(hasBeenPaused){
+//
+//            ordersList(resName);
+//            Log.d("methods", "onResume inside");
+//        }
+//    }
 }

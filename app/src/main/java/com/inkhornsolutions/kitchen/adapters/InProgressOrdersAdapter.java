@@ -2,7 +2,6 @@ package com.inkhornsolutions.kitchen.adapters;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,29 +10,29 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.inkhornsolutions.kitchen.OrderDetails;
 import com.inkhornsolutions.kitchen.R;
 import com.inkhornsolutions.kitchen.modelclasses.OrdersModelClass;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 
-public class RecentOrdersAdapter extends RecyclerView.Adapter<RecentOrdersAdapter.ViewHolder> {
+public class InProgressOrdersAdapter extends RecyclerView.Adapter<InProgressOrdersAdapter.ViewHolder>{
 
     private final Context context;
     private ArrayList<OrdersModelClass> orders = new ArrayList<>();
 
-    public RecentOrdersAdapter(Context context, ArrayList<OrdersModelClass> orders) {
+    public InProgressOrdersAdapter(Context context, ArrayList<OrdersModelClass> orders) {
         this.context = context;
         this.orders = orders;
     }
 
     @NonNull
     @Override
-    public RecentOrdersAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-        View view = inflater.inflate(R.layout.recent_orders_adapter_layout, parent, false);
-        return new RecentOrdersAdapter.ViewHolder(view);
+        View view = inflater.inflate(R.layout.in_progress_orders_adapter_layout, parent, false);
+        return new InProgressOrdersAdapter.ViewHolder(view);
     }
 
     @Override
@@ -91,7 +90,6 @@ public class RecentOrdersAdapter extends RecyclerView.Adapter<RecentOrdersAdapte
                 v.getContext().startActivity(intent);
             }
         });
-
     }
 
     @Override

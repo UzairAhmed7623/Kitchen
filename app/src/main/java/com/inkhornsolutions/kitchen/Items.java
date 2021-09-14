@@ -97,7 +97,8 @@ public class Items extends AppCompatActivity {
         layoutItems = (SwipeRefreshLayout) findViewById(R.id.layoutItems);
 
         rvItems = (RecyclerView) findViewById(R.id.rvItems);
-        rvItems.setLayoutManager(new LinearLayoutManager(this));
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        rvItems.setLayoutManager(linearLayoutManager);
         adapter = new ItemsAdapter(this, items);
 
         loadRestaurant(resName);
@@ -113,6 +114,8 @@ public class Items extends AppCompatActivity {
                 loadRestaurant(resName);
             }
         });
+
+        initSwipe();
     }
 
     private void loadRestaurant(String resName) {
@@ -158,8 +161,8 @@ public class Items extends AppCompatActivity {
                         }
                         rvItems.setAdapter(adapter);
                         layoutItems.setRefreshing(false);
-                        initSwipe(itemName);
-                    } else {
+                    }
+                    else {
                         Snackbar.make(findViewById(android.R.id.content), "No data found!", Snackbar.LENGTH_LONG).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).show();
                     }
                 }
@@ -173,7 +176,7 @@ public class Items extends AppCompatActivity {
         });
     }
 
-    private void initSwipe(String itemName) {
+    public void initSwipe() {
         ItemTouchHelper.SimpleCallback itemTouchCallBack = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
             @Override
             public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
@@ -182,7 +185,7 @@ public class Items extends AppCompatActivity {
 
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-                int position = viewHolder.getAdapterPosition();
+                int position = viewHolder.getAbsoluteAdapterPosition();
 
                 if (direction == ItemTouchHelper.LEFT) {
 
@@ -193,15 +196,16 @@ public class Items extends AppCompatActivity {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
 
-                            firebaseFirestore.collection("Restaurants").document(resName).collection("Items").document(itemName)
+                            firebaseFirestore.collection("Restaurants").document(resName)
+                                    .collection("Items").document(items.get(position).getItemName())
                                     .delete().addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
                                     Snackbar.make(findViewById(android.R.id.content), "Deleted Successfully!", Snackbar.LENGTH_LONG).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).show();
 
                                     items.remove(position);
-                                    adapter.notifyDataSetChanged();
                                     dialog.dismiss();
+                                    adapter.notifyItemRemoved(position);
                                 }
                             });
                         }
@@ -209,18 +213,17 @@ public class Items extends AppCompatActivity {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             dialog.dismiss();
-                            adapter.notifyDataSetChanged();
+                            adapter.notifyItemChanged(position);
                         }
                     }).show();
-                    adapter.notifyDataSetChanged();
                 } else {
 
                     Intent intent = new Intent(Items.this, ItemProperties.class);
                     intent.putExtra("restaurant", resName);
-                    intent.putExtra("itemName", itemName);
+                    intent.putExtra("itemName", items.get(position).getItemName());
                     startActivity(intent);
 
-                    adapter.notifyDataSetChanged();
+                    adapter.notifyItemChanged(position);
                 }
             }
 

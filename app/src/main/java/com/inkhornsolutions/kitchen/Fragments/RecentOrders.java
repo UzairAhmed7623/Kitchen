@@ -118,13 +118,12 @@ public class RecentOrders extends Fragment {
     }
 
     private void ordersList(String resName) {
-
         Orders.clear();
-        adapter.notifyDataSetChanged();
+//        adapter.notifyDataSetChanged();
 
         for (String id : Common.id) {
 
-            firebaseFirestore.collection("Users").document(id).collection("Cart")
+                        firebaseFirestore.collection("Users").document(id).collection("Cart")
                     .whereEqualTo("restaurantName", resName)
                     .whereIn("status", Arrays.asList("Pending", "Rejected", "Dispatched", "Completed"))
                     .get()
@@ -183,7 +182,7 @@ public class RecentOrders extends Fragment {
                                     }
 
                                     Orders.add(ordersModelClass);
-                                    adapter.notifyDataSetChanged();
+//                                    adapter.notifyDataSetChanged();
                                 }
                             }
 
@@ -204,82 +203,85 @@ public class RecentOrders extends Fragment {
 //                @Override
 //                public void onEvent(@Nullable QuerySnapshot querySnapshot, @Nullable FirebaseFirestoreException error) {
 //
-//                    if (error == null) {
-//                        for (QueryDocumentSnapshot documentSnapshot : querySnapshot) {
-//                            if (documentSnapshot.exists()){
-//
-//                                String resId = documentSnapshot.getId();
-//                                String orderId = documentSnapshot.getString("ID");
-//                                String time = documentSnapshot.getString("Time");
-//                                String resName = documentSnapshot.getString("restaurantName");
-//                                Timestamp timestamp = documentSnapshot.getTimestamp("timeStamp");
-//                                String status = documentSnapshot.getString("status");
-//                                Double lat = documentSnapshot.getDouble("latlng.latitude");
-//                                Double lng = documentSnapshot.getDouble("latlng.longitude");
-//                                String subTotal = documentSnapshot.getString("subTotal");
-//                                String total = documentSnapshot.getString("total");
-//                                String promotedOrder = documentSnapshot.getString("promotedOrder");
-//
-//                                OrdersModelClass ordersModelClass = new OrdersModelClass();
-//
-//                                if (promotedOrder != null && promotedOrder.equals("yes")){
-//                                    if (subTotal != null) {
-//                                        Double deductedTotal = Double.parseDouble(subTotal);
-//                                        ordersModelClass.setSubTotal(String.valueOf(deductedTotal));
-//                                    } else {
-//                                        ordersModelClass.setSubTotal(String.valueOf(total));
-//                                    }
-//                                } else {
-//                                    if (subTotal != null) {
-//                                        Double deductedTotal = Double.parseDouble(subTotal) * 0.8;
-//                                        ordersModelClass.setSubTotal(String.valueOf(deductedTotal));
-//                                    } else {
-//                                        ordersModelClass.setSubTotal(String.valueOf(total));
-//                                    }
-//                                }
-//
-//                                ordersModelClass.setTotalPrice(total);
-//                                ordersModelClass.setResId(resId);
-//                                ordersModelClass.setDate(time);
-//                                ordersModelClass.setTimestamp(timestamp);
-//                                ordersModelClass.setResName(resName);
-//                                ordersModelClass.setStatus(status);
-//                                ordersModelClass.setLat(lat);
-//                                ordersModelClass.setLng(lng);
-//                                ordersModelClass.setOrderId(orderId);
-//                                ordersModelClass.setUserId(id);
-//
-//                                if (promotedOrder != null) {
-//                                    ordersModelClass.setPromotedOrder(promotedOrder);
-//                                } else {
-//                                    ordersModelClass.setPromotedOrder("no");
-//                                }
-//
-//                                Orders.add(ordersModelClass);
-//                                adapter.notifyDataSetChanged();
-//                            }
-//                        }
-//
-//                        Collections.sort(Orders, new Comparator<OrdersModelClass>() {
-//                            @Override
-//                            public int compare(OrdersModelClass o1, OrdersModelClass o2) {
-//                                return o2.getTimestamp().compareTo(o1.getTimestamp());
-//                            }
-//                        });
-//
-//                        progressDialog.dismiss();
-//                        layoutOrderFrag.setRefreshing(false);
-//                        adapter.notifyDataSetChanged();
-//
-//                    }
-//                    else {
+//                    if (error != null) {
 //                        Toast.makeText(getContext(), error.getMessage(), Toast.LENGTH_LONG).show();
 //                        Log.d("firebase", error.getMessage());
+//
+//                        return;
 //                    }
+//                    Orders.clear();
+////                    adapter.notifyDataSetChanged();
+//
+//                    for (QueryDocumentSnapshot documentSnapshot : querySnapshot) {
+//                        if (documentSnapshot.exists()){
+//
+//                            String resId = documentSnapshot.getId();
+//                            String orderId = documentSnapshot.getString("ID");
+//                            String time = documentSnapshot.getString("Time");
+//                            String resName = documentSnapshot.getString("restaurantName");
+//                            Timestamp timestamp = documentSnapshot.getTimestamp("timeStamp");
+//                            String status = documentSnapshot.getString("status");
+//                            Double lat = documentSnapshot.getDouble("latlng.latitude");
+//                            Double lng = documentSnapshot.getDouble("latlng.longitude");
+//                            String subTotal = documentSnapshot.getString("subTotal");
+//                            String total = documentSnapshot.getString("total");
+//                            String promotedOrder = documentSnapshot.getString("promotedOrder");
+//
+//                            OrdersModelClass ordersModelClass = new OrdersModelClass();
+//
+//                            if (promotedOrder != null && promotedOrder.equals("yes")){
+//                                if (subTotal != null) {
+//                                    Double deductedTotal = Double.parseDouble(subTotal);
+//                                    ordersModelClass.setSubTotal(String.valueOf(deductedTotal));
+//                                } else {
+//                                    ordersModelClass.setSubTotal(String.valueOf(total));
+//                                }
+//                            } else {
+//                                if (subTotal != null) {
+//                                    Double deductedTotal = Double.parseDouble(subTotal) * 0.8;
+//                                    ordersModelClass.setSubTotal(String.valueOf(deductedTotal));
+//                                } else {
+//                                    ordersModelClass.setSubTotal(String.valueOf(total));
+//                                }
+//                            }
+//
+//                            ordersModelClass.setTotalPrice(total);
+//                            ordersModelClass.setResId(resId);
+//                            ordersModelClass.setDate(time);
+//                            ordersModelClass.setTimestamp(timestamp);
+//                            ordersModelClass.setResName(resName);
+//                            ordersModelClass.setStatus(status);
+//                            ordersModelClass.setLat(lat);
+//                            ordersModelClass.setLng(lng);
+//                            ordersModelClass.setOrderId(orderId);
+//                            ordersModelClass.setUserId(id);
+//
+//                            if (promotedOrder != null) {
+//                                ordersModelClass.setPromotedOrder(promotedOrder);
+//                            } else {
+//                                ordersModelClass.setPromotedOrder("no");
+//                            }
+//
+//                            Orders.add(ordersModelClass);
+////                                adapter.notifyDataSetChanged();
+//                        }
+//                    }
+//
+//                    Collections.sort(Orders, new Comparator<OrdersModelClass>() {
+//                        @Override
+//                        public int compare(OrdersModelClass o1, OrdersModelClass o2) {
+//                            return o2.getTimestamp().compareTo(o1.getTimestamp());
+//                        }
+//                    });
+//
+//                    progressDialog.dismiss();
+//                    layoutOrderFrag.setRefreshing(false);
+//                    adapter.notifyDataSetChanged();
+//
 //                }
 //            };
 //
-//            listenerRegistration = firebaseFirestore.collection("Users").document(id).collection("Cart")
+//            listenerRegistration = firebaseFirestore.collection("Users").document("JvGrrrZUcmQAWyfBrCtfLxlYQZx1").collection("Cart")
 //                    .whereEqualTo("restaurantName", resName)
 //                    .whereIn("status", Arrays.asList("Pending", "Rejected", "Dispatched", "Completed"))
 //                    .addSnapshotListener(eventListener);
@@ -303,23 +305,17 @@ public class RecentOrders extends Fragment {
         super.onStart();
         Log.d("methods", "onStart");
 
-        if (!hasBeenPaused) {
-            Orders.clear();
-//            adapter.notifyDataSetChanged();
-            ordersList(resName);
-            Log.d("methods", "onStart inside");
-        }
+        ordersList(resName);
     }
 
     @Override
     public void onPause() {
         super.onPause();
         hasBeenPaused = true;
-        Orders.clear();
         Log.d("methods", "onPause");
     }
 
-//
+
 //    @Override
 //    public void onResume() {
 //        super.onResume();

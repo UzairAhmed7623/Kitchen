@@ -258,7 +258,8 @@ public class ItemProperties extends AppCompatActivity {
 
                 }
             });
-        } else {
+        }
+        else {
             setDetails(itemName);
         }
     }

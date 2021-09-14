@@ -9,6 +9,9 @@
         <entry key="..\:/Users/hafiz/AndroidStudioProjects/Kitchen/app/src/main/res/layout/activity_item_properties.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/hafiz/AndroidStudioProjects/Kitchen/app/src/main/res/layout/activity_items.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/hafiz/AndroidStudioProjects/Kitchen/app/src/main/res/layout/fragment_recent_orders.xml" value="0.25416666666666665" />
+        <entry key="..\:/Users/hafiz/AndroidStudioProjects/Kitchen/app/src/main/res/layout/in_progress_orders_adapter_layout.xml" value="0.25416666666666665" />
+        <entry key="..\:/Users/hafiz/AndroidStudioProjects/Kitchen/app/src/main/res/layout/items_activity_adapter_layout.xml" value="0.4" />
+        <entry key="..\:/Users/hafiz/AndroidStudioProjects/Kitchen/app/src/main/res/layout/recent_orders_adapter_layout.xml" value="0.25416666666666665" />
       </map>
     </option>
   </component>

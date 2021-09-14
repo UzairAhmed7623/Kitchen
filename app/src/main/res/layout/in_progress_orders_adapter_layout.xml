@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:cardCornerRadius="5dp"
+            app:cardElevation="5dp"
+            app:cardUseCompatPadding="true">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="10dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tvResNameOrders"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:layout_marginStart="10dp"
+                        android:layout_gravity="left|center_vertical"
+                        android:text="Order ID"
+                        android:textColor="@color/black"
+                        android:textSize="14sp"
+                        android:letterSpacing="0.06"
+                        android:textStyle="bold"
+                        android:fontFamily="@font/montserra_regular" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal"
+                        android:layout_gravity="center_vertical">
+
+                        <TextView
+                            android:id="@+id/tvDateOrders"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="5dp"
+                            android:layout_marginStart="10dp"
+                            android:gravity="start"
+                            android:text="Date"
+                            android:textColor="@color/black"
+                            android:textSize="12sp"
+                            android:letterSpacing="0.06"
+                            android:textStyle="bold"
+                            android:fontFamily="@font/montserra_regular" />
+
+                        <TextView
+                            android:id="@+id/tvGradTotalOrders"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="5dp"
+                            android:gravity="end"
+                            android:text="Total Price"
+                            android:textColor="@color/black"
+                            android:textSize="12sp"
+                            android:letterSpacing="0.06"
+                            android:textStyle="bold"
+                            android:fontFamily="@font/montserra_regular" />
+
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tvStatusOrders"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:layout_marginStart="10dp"
+                        android:text="Pending"
+                        android:textColor="#00804D"
+                        android:letterSpacing="0.06"
+                        android:fontFamily="@font/montserra_regular_bold"
+                        android:textSize="12sp"
+                        android:visibility="visible"
+                        android:gravity="start" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+    </LinearLayout>
+
+</LinearLayout>

@@ -159,19 +159,23 @@ public class MainActivity extends AppCompatActivity
         tvTotalPrice = (TextView) findViewById(R.id.tvTotalPrice);
 
 //        layoutOrder.setWaveColor(0xFF000000+new Random().nextInt(0xFFFFFF)); // Random color assign
+        if (Common.id.size() <= 0) {
 
-        firebaseFirestore.collection("Users").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-            @Override
-            public void onSuccess(QuerySnapshot value) {
-                for (QueryDocumentSnapshot documentSnapshot : value) {
-                    if (documentSnapshot.exists()) {
-                        String id = documentSnapshot.getId();
-                        Common.id.add(id);
-                        Log.d("ids", id);
+            firebaseFirestore.collection("Users").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                @Override
+                public void onSuccess(QuerySnapshot value) {
+//                Common.id.clear();
+                    for (QueryDocumentSnapshot documentSnapshot : value) {
+                        if (documentSnapshot.exists()) {
+                            String id = documentSnapshot.getId();
+                            Common.id.add(id);
+                            Log.d("ids", id);
+                        }
                     }
                 }
-            }
-        });
+            });
+        }
+
 
         FirebaseMessaging.getInstance().getToken().addOnCompleteListener(new OnCompleteListener<String>() {
             @Override
@@ -241,58 +245,6 @@ public class MainActivity extends AppCompatActivity
 
         builder = new Dialog(this);
 
-        firebaseFirestore.collection("Restaurants").whereEqualTo("id", firebaseAuth.getCurrentUser().getUid())
-                .get()
-                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                    @Override
-                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        if (!(queryDocumentSnapshots.size() <= 0)) {
-
-                            for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
-                                if (documentSnapshot.exists()) {
-
-                                    String resNames = documentSnapshot.getString("resName");
-
-                                    SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences("USER_PREF", Context.MODE_PRIVATE);
-                                    SharedPreferences.Editor editor = sharedPreferences.edit();
-                                    editor.putString("restaurantName", resNames);
-                                    editor.apply();
-
-                                    SharedPreferences prefs = getApplicationContext().getSharedPreferences("USER_PREF", Context.MODE_PRIVATE);
-                                    resName = prefs.getString("restaurantName", "");
-                                    validateRes(resName);
-                                    tvResName.setText(resName);
-//                                    ordersList(resName);
-                                    saveLocation(resName);
-                                    makeChatRome(resName);
-
-                                }
-                            }
-                        } else {
-
-                            SharedPreferences prefs = getApplicationContext().getSharedPreferences("USER_PREF", Context.MODE_PRIVATE);
-                            resName = prefs.getString("restaurantName", "");
-
-                            if (resName.length() <= 0) {
-                                dialog();
-                            } else {
-                                validateRes(resName);
-                                tvResName.setText(resName);
-//                                ordersList(resName);
-                                saveLocation(resName);
-                                makeChatRome(resName);
-
-                            }
-                        }
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).show();
-                    }
-                });
-
         ibChat.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -341,6 +293,61 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        firebaseFirestore.collection("Restaurants").whereEqualTo("id", firebaseAuth.getCurrentUser().getUid())
+                .get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                        if (!(queryDocumentSnapshots.size() <= 0)) {
+
+                            for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                                if (documentSnapshot.exists()) {
+
+                                    String resNames = documentSnapshot.getString("resName");
+
+                                    SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences("USER_PREF", Context.MODE_PRIVATE);
+                                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                                    editor.putString("restaurantName", resNames);
+                                    editor.apply();
+
+                                    SharedPreferences prefs = getApplicationContext().getSharedPreferences("USER_PREF", Context.MODE_PRIVATE);
+                                    resName = prefs.getString("restaurantName", "");
+                                    validateRes(resName);
+                                    tvResName.setText(resName);
+//                                    ordersList(resName);
+                                    saveLocation(resName);
+                                    makeChatRome(resName);
+                                }
+                            }
+                        } else {
+
+                            SharedPreferences prefs = getApplicationContext().getSharedPreferences("USER_PREF", Context.MODE_PRIVATE);
+                            resName = prefs.getString("restaurantName", "");
+
+                            if (resName.length() <= 0) {
+                                dialog();
+                            }
+                            else {
+                                validateRes(resName);
+                                tvResName.setText(resName);
+//                                ordersList(resName);
+                                saveLocation(resName);
+                                makeChatRome(resName);
+                            }
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).show();
+                    }
+                });
     }
 
     private void isGPSOn() {
@@ -962,23 +969,26 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
 
         if (item.getItemId() == R.id.yourItems) {
-            Intent intent = new Intent(MainActivity.this, Items.class);
-            intent.putExtra("resName", resName);
-            startActivity(intent);
-            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+            if (!resName.equals("")){
+                Intent intent = new Intent(MainActivity.this, Items.class);
+                intent.putExtra("resName", resName);
+                startActivity(intent);
+                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+            }
         }
         else if (item.getItemId() == R.id.wallet) {
-            Intent intent = new Intent(MainActivity.this, Wallet.class);
-            intent.putExtra("resName", resName);
-            startActivity(intent);
-            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+            if (!resName.equals("")){
+                Intent intent = new Intent(MainActivity.this, Wallet.class);
+                intent.putExtra("resName", resName);
+                startActivity(intent);
+                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+            }
         }
         if (item.getItemId() == R.id.logout) {
             if (firebaseAuth != null){
                 firebaseAuth.signOut();
             }
         }
-
         drawerLayout.closeDrawer(GravityCompat.START);
 
         return true;
