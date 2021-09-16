@@ -8,9 +8,11 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.text.TextPaint;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
@@ -58,6 +60,7 @@ public class Items extends AppCompatActivity {
     private String resName = "";
     private ItemsAdapter adapter;
     private MaterialButton backButton, btnAddItem;
+    String Edit = "Edit", Delete = "Delete";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -236,6 +239,11 @@ public class Items extends AppCompatActivity {
                     float height = (float) itemView.getBottom() - (float) itemView.getTop();
                     float width = height / 3;
 
+                    p.setColor(Color.WHITE);
+                    p.setTextSize(36);
+                    //  p.setTextSize(LayoutHelper.getPx(MyApplication.getAppContext(), 12));
+
+
                     if (dX > 0) {
                         p.setColor(Color.parseColor("#388E3C"));
                         RectF background = new RectF((float) itemView.getLeft(), (float) itemView.getTop(), dX, (float) itemView.getBottom());
@@ -245,8 +253,16 @@ public class Items extends AppCompatActivity {
                         Canvas canvas = new Canvas(icon);
                         drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
                         drawable.draw(canvas);
-                        c.drawBitmap(icon, (float) (itemView.getLeft() + 1.2 * width), (float) (itemView.getTop() + 1.1 * width), p);
-                    } else {
+                        c.drawBitmap(icon, (float) (itemView.getLeft() + 0.8 * width), (float) (itemView.getTop() + 0.9 * width), p);
+
+                        // Draw Text
+                        p.setColor(Color.WHITE);
+                        p.setTextSize(55);
+
+                        c.drawText(Edit, (float) (itemView.getLeft() + 0.8 * width), (float) (itemView.getTop() + 2.0 * width), p);
+
+                    }
+                    else {
                         p.setColor(Color.parseColor("#D32F2F"));
                         RectF background = new RectF((float) itemView.getRight() + dX, (float) itemView.getTop(), (float) itemView.getRight(), (float) itemView.getBottom());
                         c.drawRect(background, p);
@@ -255,7 +271,13 @@ public class Items extends AppCompatActivity {
                         Canvas canvas = new Canvas(icon);
                         drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
                         drawable.draw(canvas);
-                        c.drawBitmap(icon, (float) (itemView.getRight() - 1.5 * width), (float) (itemView.getTop() + 1.1 * width), p);
+                        c.drawBitmap(icon, (float) (itemView.getRight() - 1.4 * width), (float) (itemView.getTop() + 1.0 * width), p);
+
+                        // Draw Text
+                        p.setColor(Color.WHITE);
+                        p.setTextSize(55);
+
+                        c.drawText(Delete, (float) (itemView.getRight() - 1.65 * width), (float) (itemView.getTop() + 1.9 * width), p);
                     }
                 }
                 super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);

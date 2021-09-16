@@ -298,6 +298,7 @@
                     android:layout_weight="1"
                     android:backgroundTint="@color/myColor"
                     style="@style/Widget.AppCompat.Button"
+                    android:background="@drawable/circle"
                     android:foreground="@drawable/ripple"
                     android:text="@string/From"
                     android:textColor="@color/white" />
@@ -327,6 +328,7 @@
                     android:layout_marginTop="5dp"
                     android:layout_marginBottom="5dp"
                     android:layout_weight="1"
+                    android:background="@drawable/circle"
                     android:backgroundTint="@color/myColor"
                     style="@style/Widget.AppCompat.Button"
                     android:foreground="@drawable/ripple"
@@ -371,6 +373,7 @@
                         android:layout_height="wrap_content"
                         android:backgroundTint="@color/myColor"
                         android:text="Pick Image"
+                        android:background="@drawable/circle"
                         android:textColor="@color/white" />
 
                 </LinearLayout>
@@ -397,6 +400,8 @@
                     android:layout_weight="1"
                     android:backgroundTint="@color/myColor"
                     android:text="@string/done"
+                    android:textSize="16sp"
+                    android:background="@drawable/circle"
                     android:textColor="@color/white" />
 
             </LinearLayout>

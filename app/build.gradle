@@ -11,8 +11,8 @@ android {
         applicationId "com.inkhornsolutions.kitchen"
         minSdkVersion 23
         targetSdkVersion 30
-        versionCode 27
-        versionName "3.0"
+        versionCode 29
+        versionName "3.2"
         multiDexEnabled true
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -130,5 +130,9 @@ dependencies {
 
     implementation 'com.github.GrenderG:Toasty:1.5.0'
     implementation 'io.github.muddz:styleabletoast:2.4.0'
+
+    implementation 'org.jsoup:jsoup:1.11.3'
+
+    implementation 'com.github.f0ris.sweetalert:library:1.6.2'
 
 }
