@@ -271,13 +271,13 @@ public class Items extends AppCompatActivity {
                         Canvas canvas = new Canvas(icon);
                         drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
                         drawable.draw(canvas);
-                        c.drawBitmap(icon, (float) (itemView.getRight() - 1.4 * width), (float) (itemView.getTop() + 1.0 * width), p);
+                        c.drawBitmap(icon, (float) (itemView.getRight() - 1.4 * width), (float) (itemView.getTop() + 0.9 * width), p);
 
                         // Draw Text
                         p.setColor(Color.WHITE);
                         p.setTextSize(55);
 
-                        c.drawText(Delete, (float) (itemView.getRight() - 1.65 * width), (float) (itemView.getTop() + 1.9 * width), p);
+                        c.drawText(Delete, (float) (itemView.getRight() - 1.65 * width), (float) (itemView.getTop() + 2.0 * width), p);
                     }
                 }
                 super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
