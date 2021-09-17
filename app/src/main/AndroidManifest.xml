@@ -18,7 +18,11 @@
         android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Kitchen">
+        android:allowBackup="false"
+        android:fullBackupContent="false"
+        android:theme="@style/Theme.Kitchen"
+        tools:replace="android:allowBackup">
+
         <activity android:name=".Wallet" />
 
         <meta-data
