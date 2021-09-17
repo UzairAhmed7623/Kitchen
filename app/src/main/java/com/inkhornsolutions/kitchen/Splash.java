@@ -46,6 +46,7 @@ public class Splash extends AppCompatActivity {
     private void allWork() {
         try {
             currentVersion = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+            Log.d("vCode", "play: "+currentVersion);
         }
         catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();

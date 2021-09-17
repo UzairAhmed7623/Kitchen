@@ -130,8 +130,6 @@ public class MainActivity extends AppCompatActivity
     private ImageView ivResImage;
     private FloatingActionButton ibChat;
     private TextView tvResName, tvTotalPrice;
-    private double sum = 0;
-    private Double deductedTotal = 0.0;
     private FusedLocationProviderClient fusedLocationProviderClient;
 
     private LocationManager locationManager;
@@ -299,6 +297,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onStart() {
         super.onStart();
+
         firebaseFirestore.collection("Restaurants").whereEqualTo("id", firebaseAuth.getCurrentUser().getUid())
                 .get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
@@ -320,7 +319,7 @@ public class MainActivity extends AppCompatActivity
                                     resName = prefs.getString("restaurantName", "");
                                     validateRes(resName);
                                     tvResName.setText(resName);
-//                                    ordersList(resName);
+                                    ordersList(resName);
                                     saveLocation(resName);
                                     makeChatRome(resName);
                                 }
@@ -336,7 +335,7 @@ public class MainActivity extends AppCompatActivity
                             else {
                                 validateRes(resName);
                                 tvResName.setText(resName);
-//                                ordersList(resName);
+                                ordersList(resName);
                                 saveLocation(resName);
                                 makeChatRome(resName);
                             }
@@ -846,45 +845,26 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    //Total dikhana ha abi;
     private void ordersList(String resName) {
-        firebaseFirestore.collection("Users").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+
+        firebaseFirestore.collection("Restaurants").document(resName)
+                .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
-            public void onSuccess(QuerySnapshot value) {
-
-                for (QueryDocumentSnapshot documentSnapshot : value) {
-                    if (documentSnapshot.exists()) {
-                        String id = documentSnapshot.getId();
-
-                        firebaseFirestore.collection("Users").document().collection("Cart")
-                                .whereEqualTo("status", "Completed")
-                                .whereEqualTo("restaurantName", resName)
-                                .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                for (QueryDocumentSnapshot documentSnapshot : task.getResult()) {
-                                    if (documentSnapshot.exists()) {
-
-                                        String total = documentSnapshot.getString("total");
-
-                                        ArrayList<Double> totalPrice = new ArrayList<>();
-                                        totalPrice.add(Double.parseDouble(total) - 45);
-
-                                        for (int i = 0; i < totalPrice.size(); i++) {
-                                            sum = sum + totalPrice.get(i);
-                                        }
-                                        deductedTotal = sum * 0.8;
-
-                                    } else {
-                                        Snackbar.make(getParent().findViewById(android.R.id.content), "Data not found!", Snackbar.LENGTH_LONG).show();
-                                    }
-                                }
-
-                                tvTotalPrice.setText("PKR" + deductedTotal);
-                            }
-                        });
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                if (documentSnapshot.exists()) {
+                    if (documentSnapshot.getString("totalRevenue") != null){
+                        String total = documentSnapshot.getString("totalRevenue");
+                        tvTotalPrice.setText("PKR" + total);
                     }
                 }
+                else {
+                    Snackbar.make(getParent().findViewById(android.R.id.content), "Data not found!", Snackbar.LENGTH_LONG).show();
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Snackbar.make(getParent().findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).show();
             }
         });
     }
