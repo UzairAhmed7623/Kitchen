@@ -64,6 +64,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.badge.BadgeDrawable;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
@@ -127,7 +128,7 @@ public class MainActivity extends AppCompatActivity
     private Uri fileUri;
     private String sdownload_url = "";
     private ImageView ivResImage;
-    private ImageButton ibChat;
+    private FloatingActionButton ibChat;
     private TextView tvResName, tvTotalPrice;
     private double sum = 0;
     private Double deductedTotal = 0.0;
@@ -154,7 +155,7 @@ public class MainActivity extends AppCompatActivity
         tvOnline = (TextView) findViewById(R.id.tvOnline);
         tvOffline = (TextView) findViewById(R.id.tvOffline);
         statusSwitch = (SwitcherX) findViewById(R.id.statusSwitch);
-        ibChat = (ImageButton) findViewById(R.id.ibChat);
+        ibChat = (FloatingActionButton) findViewById(R.id.ibChat);
         tvResName = (TextView) findViewById(R.id.tvResName);
         tvTotalPrice = (TextView) findViewById(R.id.tvTotalPrice);
 
@@ -845,6 +846,7 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    //Total dikhana ha abi;
     private void ordersList(String resName) {
         firebaseFirestore.collection("Users").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
             @Override

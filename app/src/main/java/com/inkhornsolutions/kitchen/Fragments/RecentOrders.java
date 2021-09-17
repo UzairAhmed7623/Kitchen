@@ -106,6 +106,8 @@ public class RecentOrders extends Fragment {
         progressDialog.setCancelable(false);
         progressDialog.show();
 
+        ordersList(resName);
+
         layoutOrderFrag.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -304,14 +306,11 @@ public class RecentOrders extends Fragment {
     public void onStart() {
         super.onStart();
         Log.d("methods", "onStart");
-
-        ordersList(resName);
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        hasBeenPaused = true;
         Log.d("methods", "onPause");
     }
 

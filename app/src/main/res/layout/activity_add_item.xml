@@ -227,6 +227,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:elevation="5dp"
+                app:cardCornerRadius="7dp"
                 app:cardUseCompatPadding="true"
                 android:layout_marginTop="10dp" >
 
@@ -288,18 +289,16 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
-                <TextView
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/tvFrom"
                     android:layout_width="70dp"
-                    android:layout_height="40dp"
+                    android:layout_height="wrap_content"
                     android:layout_margin="10dp"
                     android:layout_marginTop="5dp"
                     android:layout_marginBottom="5dp"
                     android:layout_weight="1"
                     android:backgroundTint="@color/myColor"
-                    style="@style/Widget.AppCompat.Button"
-                    android:background="@drawable/circle"
-                    android:foreground="@drawable/ripple"
+                    app:cornerRadius="50dp"
                     android:text="@string/From"
                     android:textColor="@color/white" />
 
@@ -311,27 +310,23 @@
                     android:layout_marginTop="5dp"
                     android:layout_marginBottom="5dp"
                     android:layout_weight="1"
-                    android:backgroundTint="@color/myColor"
                     android:gravity="center"
                     android:padding="10dp"
                     android:singleLine="true"
                     android:text="@string/To"
                     android:textColor="@color/white"
-                    android:textCursorDrawable="@drawable/cursor_color"
                     android:textSize="16sp" />
 
-                <TextView
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/tvTo"
                     android:layout_width="70dp"
-                    android:layout_height="40dp"
+                    android:layout_height="wrap_content"
                     android:layout_margin="10dp"
                     android:layout_marginTop="5dp"
                     android:layout_marginBottom="5dp"
                     android:layout_weight="1"
-                    android:background="@drawable/circle"
                     android:backgroundTint="@color/myColor"
-                    style="@style/Widget.AppCompat.Button"
-                    android:foreground="@drawable/ripple"
+                    app:cornerRadius="50dp"
                     android:text="@string/From"
                     android:textColor="@color/white" />
 
@@ -346,7 +341,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <ImageView
+                <de.hdodenhof.circleimageview.CircleImageView
                     android:id="@+id/etItemImage"
                     android:layout_width="160dp"
                     android:layout_height="130dp"
@@ -355,7 +350,6 @@
                     android:background="@android:color/transparent"
                     android:gravity="center_vertical"
                     android:padding="10dp"
-                    android:scaleType="fitXY"
                     android:src="@drawable/food_placeholder" />
 
                 <LinearLayout
@@ -365,15 +359,13 @@
                     android:layout_toEndOf="@+id/etItemImage"
                     android:gravity="center">
 
-                    <Button
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnPickImage"
-                        style="@style/Widget.MaterialComponents.Button"
-                        android:foreground="?attr/selectableItemBackground"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:backgroundTint="@color/myColor"
+                        app:cornerRadius="50dp"
                         android:text="Pick Image"
-                        android:background="@drawable/circle"
                         android:textColor="@color/white" />
 
                 </LinearLayout>
@@ -390,18 +382,18 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnDone"
                     style="@style/Widget.MaterialComponents.Button"
                     android:foreground="?attr/selectableItemBackground"
                     android:layout_width="0dp"
-                    android:layout_height="55dp"
+                    android:layout_height="50dp"
                     android:layout_marginTop="40dp"
                     android:layout_weight="1"
                     android:backgroundTint="@color/myColor"
+                    app:cornerRadius="50dp"
                     android:text="@string/done"
-                    android:textSize="16sp"
-                    android:background="@drawable/circle"
+                    android:textSize="14sp"
                     android:textColor="@color/white" />
 
             </LinearLayout>

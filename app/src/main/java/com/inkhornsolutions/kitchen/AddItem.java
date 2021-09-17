@@ -54,18 +54,18 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Objects;
 
+import de.hdodenhof.circleimageview.CircleImageView;
 import es.dmoral.toasty.Toasty;
 
 public class AddItem extends AppCompatActivity {
 
     private static final int REQUEST_CODE = 1002;
     private EditText etItemName, etItemPrice, etItemDes, etItemQuantity;
-    private TextView tvFrom, tvTo;
+    private MaterialButton btnFrom, btnTo, btnDone, btnPickImage;
     private TextView tvAvailable, tvNotAvailable;
     private SwitchMaterial switchAvailable;
     private int t1hour, t1minute, t2hour, t2minute;
-    private ImageView etItemImage;
-    private Button btnDone, btnPickImage;
+    private CircleImageView etItemImage;
     private FirebaseAuth firebaseAuth;
     private FirebaseFirestore firebaseFirestore;
     private String resName, name;
@@ -99,11 +99,11 @@ public class AddItem extends AppCompatActivity {
         etItemQuantity = (EditText) findViewById(R.id.etItemQuantity);
         etItemDes = (EditText) findViewById(R.id.etItemDes);
         etItemPrice = (EditText) findViewById(R.id.etItemPrice);
-        etItemImage = (ImageView) findViewById(R.id.etItemImage);
-        tvFrom = (TextView) findViewById(R.id.tvFrom);
-        tvTo = (TextView) findViewById(R.id.tvTo);
-        btnPickImage = (Button) findViewById(R.id.btnPickImage);
-        btnDone = (Button) findViewById(R.id.btnDone);
+        etItemImage = (CircleImageView) findViewById(R.id.etItemImage);
+        btnFrom = (MaterialButton) findViewById(R.id.tvFrom);
+        btnTo = (MaterialButton) findViewById(R.id.tvTo);
+        btnPickImage = (MaterialButton) findViewById(R.id.btnPickImage);
+        btnDone = (MaterialButton) findViewById(R.id.btnDone);
         tvAvailable = (TextView) findViewById(R.id.tvAvailable);
         tvNotAvailable = (TextView) findViewById(R.id.tvNotAvailable);
         switchAvailable = (SwitchMaterial) findViewById(R.id.switchAvailable);
@@ -208,7 +208,7 @@ public class AddItem extends AppCompatActivity {
             }
         });
 
-        tvFrom.setOnClickListener(new View.OnClickListener() {
+        btnFrom.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 TimePickerDialog timePickerDialog = new TimePickerDialog(AddItem.this, new TimePickerDialog.OnTimeSetListener() {
@@ -230,7 +230,7 @@ public class AddItem extends AppCompatActivity {
 
                             Log.d("time1time2", "" + date + " : " + f12Hours);
 
-                            tvFrom.setText(f12Hours.format(date));
+                            btnFrom.setText(f12Hours.format(date));
 
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -244,7 +244,7 @@ public class AddItem extends AppCompatActivity {
             }
         });
 
-        tvTo.setOnClickListener(new View.OnClickListener() {
+        btnTo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 TimePickerDialog timePickerDialog = new TimePickerDialog(AddItem.this, new TimePickerDialog.OnTimeSetListener() {
@@ -261,7 +261,7 @@ public class AddItem extends AppCompatActivity {
                             Date date = f24Hours.parse(time);
                             SimpleDateFormat f12Hours = new SimpleDateFormat("kk:mm");
 
-                            tvTo.setText(f12Hours.format(date));
+                            btnTo.setText(f12Hours.format(date));
 
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -349,8 +349,8 @@ public class AddItem extends AppCompatActivity {
         String price = etItemPrice.getText().toString().trim();
         String quantity = etItemQuantity.getText().toString().trim();
         String description = etItemDes.getText().toString().trim();
-        String from = tvFrom.getText().toString().replace("from", "");
-        String to = tvTo.getText().toString().replace("from", "");
+        String from = btnFrom.getText().toString().replace("from", "");
+        String to = btnTo.getText().toString().replace("from", "");
         String spinner = tvSpinnerHead.getText().toString();
 
         if (TextUtils.isEmpty(price)

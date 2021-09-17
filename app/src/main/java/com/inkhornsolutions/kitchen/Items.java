@@ -2,29 +2,23 @@ package com.inkhornsolutions.kitchen;
 
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.text.TextPaint;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -42,11 +36,9 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.inkhornsolutions.kitchen.adapters.ItemsAdapter;
 import com.inkhornsolutions.kitchen.modelclasses.ItemsModelClass;
+import com.inkhornsolutions.kitchen.modelclasses.SpacingItemDecorator;
 
 import java.util.ArrayList;
-import java.util.Objects;
-
-import jp.co.recruit_lifestyle.android.widget.WaveSwipeRefreshLayout;
 
 public class Items extends AppCompatActivity {
 
@@ -102,6 +94,8 @@ public class Items extends AppCompatActivity {
         rvItems = (RecyclerView) findViewById(R.id.rvItems);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         rvItems.setLayoutManager(linearLayoutManager);
+        SpacingItemDecorator spacingItemDecorator = new SpacingItemDecorator(90);
+        rvItems.addItemDecoration(spacingItemDecorator);
         adapter = new ItemsAdapter(this, items);
 
         loadRestaurant(resName);
@@ -253,13 +247,13 @@ public class Items extends AppCompatActivity {
                         Canvas canvas = new Canvas(icon);
                         drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
                         drawable.draw(canvas);
-                        c.drawBitmap(icon, (float) (itemView.getLeft() + 0.8 * width), (float) (itemView.getTop() + 0.9 * width), p);
+                        c.drawBitmap(icon, (float) (itemView.getLeft() + 0.8 * width), (float) (itemView.getTop() + 0.75 * width), p);
 
                         // Draw Text
                         p.setColor(Color.WHITE);
-                        p.setTextSize(55);
+                        p.setTextSize(50);
 
-                        c.drawText(Edit, (float) (itemView.getLeft() + 0.8 * width), (float) (itemView.getTop() + 2.0 * width), p);
+                        c.drawText(Edit, (float) (itemView.getLeft() + 0.85 * width), (float) (itemView.getTop() + 2.2 * width), p);
 
                     }
                     else {
@@ -271,13 +265,13 @@ public class Items extends AppCompatActivity {
                         Canvas canvas = new Canvas(icon);
                         drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
                         drawable.draw(canvas);
-                        c.drawBitmap(icon, (float) (itemView.getRight() - 1.4 * width), (float) (itemView.getTop() + 0.9 * width), p);
+                        c.drawBitmap(icon, (float) (itemView.getRight() - 1.4 * width), (float) (itemView.getTop() + 0.75 * width), p);
 
                         // Draw Text
                         p.setColor(Color.WHITE);
-                        p.setTextSize(55);
+                        p.setTextSize(50);
 
-                        c.drawText(Delete, (float) (itemView.getRight() - 1.65 * width), (float) (itemView.getTop() + 2.0 * width), p);
+                        c.drawText(Delete, (float) (itemView.getRight() - 1.70 * width), (float) (itemView.getTop() + 2.2 * width), p);
                     }
                 }
                 super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);

@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/activity_back"
     tools:context=".Items">
 
     <RelativeLayout
@@ -20,7 +21,7 @@
             android:background="@color/myColor"
             android:paddingStart="50dp"
             android:paddingTop="10dp"
-            android:text="Your Items"
+            android:text="My Products"
             android:textColor="@color/white" />
 
         <com.google.android.material.button.MaterialButton
@@ -60,20 +61,24 @@
         android:id="@+id/text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:background="@color/activity_back"
         android:gravity="center_horizontal"
         android:text="@string/swipe_left_and_right_to_edit_and_delete"
         android:textColor="@color/grey_90"
         android:textSize="14sp"
-        android:background="@color/activity_back"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/layout" />
+        app:layout_constraintTop_toBottomOf="@+id/layout"
+        app:layout_constraintVertical_bias="0.001" />
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/layoutItems"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:orientation="vertical"
+        android:layout_marginTop="6dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -82,7 +87,9 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvItems"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+
+            />
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 

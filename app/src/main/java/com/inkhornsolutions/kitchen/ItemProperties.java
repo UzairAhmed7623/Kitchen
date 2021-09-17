@@ -42,14 +42,15 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 
+import de.hdodenhof.circleimageview.CircleImageView;
+
 public class ItemProperties extends AppCompatActivity {
 
     private FirebaseFirestore firebaseFirestore;
     private EditText etItemName, etItemPrice, etItemDes, etItemQuantity;
-    private TextView tvFrom, tvTo;
+    private MaterialButton btnFrom, btnTo, btnDone, btnPickImage;
     private int t1hour, t1minute, t2hour, t2minute;
-    private ImageView etItemImage;
-    private Button btnDone, btnPickImage;
+    private CircleImageView etItemImage;
     private ProgressDialog dialog;
     private Uri fileUri;
     private String resName, itemName;
@@ -74,17 +75,15 @@ public class ItemProperties extends AppCompatActivity {
         etItemQuantity = (EditText) findViewById(R.id.etItemQuantity);
         etItemDes = (EditText) findViewById(R.id.etItemDes);
         etItemPrice = (EditText) findViewById(R.id.etItemPrice);
-        btnDone = (Button) findViewById(R.id.btnDone);
-        tvFrom = (TextView) findViewById(R.id.tvFrom);
-        tvTo = (TextView) findViewById(R.id.tvTo);
-        etItemImage = (ImageView) findViewById(R.id.etItemImage);
+        btnDone = (MaterialButton) findViewById(R.id.btnDone);
+        btnFrom = (MaterialButton) findViewById(R.id.tvFrom);
+        btnTo = (MaterialButton) findViewById(R.id.tvTo);
+        etItemImage = (CircleImageView) findViewById(R.id.etItemImage);
         tvAvailable = (TextView) findViewById(R.id.tvAvailable);
         tvNotAvailable = (TextView) findViewById(R.id.tvNotAvailable);
         switchAvailable = (SwitchMaterial) findViewById(R.id.switchAvailable);
         backButton = (MaterialButton) findViewById(R.id.backButton);
-
-        btnDone = (Button) findViewById(R.id.btnDone);
-        btnPickImage = (Button) findViewById(R.id.btnPickImage);
+        btnPickImage = (MaterialButton) findViewById(R.id.btnPickImage);
 
         toolbar = (TextView) findViewById(R.id.toolbar);
 
@@ -130,7 +129,7 @@ public class ItemProperties extends AppCompatActivity {
             }
         });
 
-        tvFrom.setOnClickListener(new View.OnClickListener() {
+        btnFrom.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 TimePickerDialog timePickerDialog = new TimePickerDialog(ItemProperties.this, new TimePickerDialog.OnTimeSetListener() {
@@ -148,7 +147,7 @@ public class ItemProperties extends AppCompatActivity {
                             Date date = f24Hours.parse(time);
                             SimpleDateFormat f12Hours = new SimpleDateFormat("kk:mm");
 
-                            tvFrom.setText(f12Hours.format(date));
+                            btnFrom.setText(f12Hours.format(date));
 
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -162,7 +161,7 @@ public class ItemProperties extends AppCompatActivity {
             }
         });
 
-        tvTo.setOnClickListener(new View.OnClickListener() {
+        btnTo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 TimePickerDialog timePickerDialog = new TimePickerDialog(ItemProperties.this, new TimePickerDialog.OnTimeSetListener() {
@@ -179,7 +178,7 @@ public class ItemProperties extends AppCompatActivity {
                             Date date = f24Hours.parse(time);
                             SimpleDateFormat f12Hours = new SimpleDateFormat("kk:mm");
 
-                            tvTo.setText(f12Hours.format(date));
+                            btnTo.setText(f12Hours.format(date));
 
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -267,8 +266,8 @@ public class ItemProperties extends AppCompatActivity {
     private void setDetails(String name) {
 
         String price = etItemPrice.getText().toString().trim().replace("PKR", "");
-        String from = tvFrom.getText().toString().replace("from", "");
-        String to = tvTo.getText().toString().replace("from", "");
+        String from = btnFrom.getText().toString().replace("from", "");
+        String to = btnTo.getText().toString().replace("from", "");
         String quantity = etItemQuantity.getText().toString().trim();
         String description = etItemDes.getText().toString().trim();
 
