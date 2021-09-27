@@ -29,7 +29,7 @@
                     android:layout_height="120dp"
                     android:padding="10dp"
                     android:elevation="8dp"
-                    android:src="@drawable/food_placeholder" />
+                    android:src="@drawable/main_course" />
 
                 <TextView
                     android:id="@+id/tvItem"

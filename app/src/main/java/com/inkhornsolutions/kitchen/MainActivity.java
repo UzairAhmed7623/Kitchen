@@ -876,7 +876,7 @@ public class MainActivity extends AppCompatActivity
         if (requestCode == 1002 || resultCode == RESULT_OK && data != null && data.getData() != null) {
             //Image Uri will not be null for RESULT_OK
             fileUri = data.getData();
-            Glide.with(this).load(fileUri).placeholder(ContextCompat.getDrawable(this, R.drawable.food_placeholder)).fitCenter().into(ivResImage);
+            Glide.with(this).load(fileUri).placeholder(ContextCompat.getDrawable(this, R.drawable.main_course)).fitCenter().into(ivResImage);
 
 
 //            //You can get File object from intent

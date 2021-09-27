@@ -89,12 +89,12 @@
                             android:id="@+id/ivResImage"
                             android:layout_width="150dp"
                             android:layout_height="100dp"
-                            android:scaleType="fitXY"
+                            android:layout_alignParentStart="true"
+                            android:layout_centerInParent="true"
                             android:background="@android:color/transparent"
                             android:padding="5dp"
-                            android:src="@drawable/food_placeholder"
-                            android:layout_alignParentStart="true"
-                            android:layout_centerInParent="true" />
+                            android:scaleType="fitXY"
+                            android:src="@drawable/main_course" />
 
                         <LinearLayout
                             android:layout_width="match_parent"

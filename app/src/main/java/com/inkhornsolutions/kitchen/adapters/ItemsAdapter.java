@@ -57,7 +57,7 @@ public class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.ViewHolder> 
         String description = itemsModelClass.getDescription();
 
         holder.tvItem.setText(itemName);
-        Glide.with(context).load(imageUri).placeholder(R.drawable.food_placeholder).fitCenter().into(holder.ivItem);
+        Glide.with(context).load(imageUri).placeholder(R.drawable.main_course).fitCenter().into(holder.ivItem);
 //        Picasso.get().load(imageUri).placeholder(R.drawable.food_placeholder).fit().into(holder.ivItem);
 
         holder.tvItemPrice.setText("PKR"+price);
