@@ -36,7 +36,8 @@
         <activity android:name=".RequestLocation" />
         <activity android:name=".Verified" />
         <activity android:name=".VerifyPhone" />
-        <activity android:name=".Splash">
+        <activity android:name=".Splash"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -49,7 +50,8 @@
         <activity
             android:name=".Profile"
             android:parentActivityName=".MainActivity"
-            android:requestLegacyExternalStorage="true" />
+            android:requestLegacyExternalStorage="true" >
+        </activity>
         <activity
             android:name=".CompletedOrders"
             android:parentActivityName=".MainActivity" />

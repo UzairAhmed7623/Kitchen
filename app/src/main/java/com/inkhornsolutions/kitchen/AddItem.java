@@ -74,7 +74,7 @@ public class AddItem extends AppCompatActivity {
     private StorageReference storageReference;
     private ProgressDialog dialog;
     private TextView toolbar;
-    private String isAvailable = "No";
+    private String isAvailable = "No", isDODAvailable = "No";
     private ImageView ivCategories;
     private String selectedCategory;
     private TextView tvSpinnerHead;
@@ -370,6 +370,7 @@ public class AddItem extends AppCompatActivity {
             newItem.put("from", from);
             newItem.put("to", to);
             newItem.put("available", isAvailable);
+            newItem.put("isDODAvailable", isDODAvailable);
             newItem.put("category", selectedCategory);
             newItem.put("description", description);
             newItem.put("quantity", quantity);

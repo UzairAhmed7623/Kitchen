@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -15,6 +16,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.transition.Transition;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.checkbox.MaterialCheckBox;
+import com.google.firebase.firestore.SetOptions;
 import com.inkhornsolutions.kitchen.Items;
 import com.inkhornsolutions.kitchen.R;
 import com.inkhornsolutions.kitchen.modelclasses.ItemsModelClass;
@@ -22,6 +27,9 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+
+import es.dmoral.toasty.Toasty;
 
 public class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.ViewHolder> {
 
@@ -64,6 +72,42 @@ public class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.ViewHolder> 
         holder.tvItemDescription.setText(description);
         holder.tvItemSchedule.setText("Available: "+ schedule);
 
+        holder.cbDOD.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+
+                if (isChecked){
+                    firebaseFirestore.collection("Restaurants").document(resName).collection("Items").document(itemName)
+                            .update("isDODAvailable", "yes")
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void unused) {
+
+                                }
+                            }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toasty.error(context, e.getMessage(),Toasty.LENGTH_LONG).show();
+                        }
+                    });
+                }
+                else {
+                    firebaseFirestore.collection("Restaurants").document(resName).collection("Items").document(itemName)
+                            .update("isDODAvailable","no")
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void unused) {
+
+                                }
+                            }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toasty.error(context, e.getMessage(),Toasty.LENGTH_LONG).show();
+                        }
+                    });
+                }
+            }
+        });
     }
 
     @Override
@@ -74,6 +118,8 @@ public class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.ViewHolder> 
     public class ViewHolder extends RecyclerView.ViewHolder {
         private TextView tvItem, tvItemPrice, tvItemSchedule, tvItemDescription;
         private ImageView ivItem;
+        private MaterialCheckBox cbDOD;
+
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
 
@@ -81,6 +127,7 @@ public class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.ViewHolder> 
             tvItemPrice = (TextView) itemView.findViewById(R.id.tvItemPrice);
             tvItemSchedule = (TextView) itemView.findViewById(R.id.tvItemSchedule);
             tvItemDescription = (TextView) itemView.findViewById(R.id.tvItemDescription);
+            cbDOD = (MaterialCheckBox) itemView.findViewById(R.id.cbDOD);
 
             ivItem = (ImageView) itemView.findViewById(R.id.ivItem);
 
