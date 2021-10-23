@@ -98,7 +98,7 @@ public class Items extends AppCompatActivity {
         rvItems.addItemDecoration(spacingItemDecorator);
         adapter = new ItemsAdapter(this, items);
 
-        loadRestaurant(resName);
+        loadRestaurantItems(resName);
 
         layoutItems.setProgressBackgroundColorSchemeColor(ContextCompat.getColor(Items.this, R.color.myColor));
         layoutItems.setColorSchemeColors(Color.WHITE, Color.WHITE);
@@ -108,14 +108,14 @@ public class Items extends AppCompatActivity {
             @Override
             public void onRefresh() {
 
-                loadRestaurant(resName);
+                loadRestaurantItems(resName);
             }
         });
 
         initSwipe();
     }
 
-    private void loadRestaurant(String resName) {
+    private void loadRestaurantItems(String resName) {
 
         firebaseFirestore.collection("Restaurants").document(resName).collection("Items")
                 .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -139,6 +139,7 @@ public class Items extends AppCompatActivity {
                                 String from = documentSnapshot.getString("from");
                                 String to = documentSnapshot.getString("to");
                                 String description = documentSnapshot.getString("description");
+                                String isDODAvailable = documentSnapshot.getString("isDODAvailable");
 
                                 Log.d("TAG", itemName + " " + imageUri + " " + price + " " + available + " " + from + " " + to);
 
@@ -148,6 +149,7 @@ public class Items extends AppCompatActivity {
                                 itemsModelClass.setImage(imageUri);
                                 itemsModelClass.setPrice(price);
                                 itemsModelClass.setAvailability(available);
+                                itemsModelClass.setIsDODAvailable(isDODAvailable);
                                 if (!TextUtils.isEmpty(from) || !TextUtils.isEmpty(to)) {
                                     itemsModelClass.setSchedule(from + " " + "to" + " " + to);
                                 }

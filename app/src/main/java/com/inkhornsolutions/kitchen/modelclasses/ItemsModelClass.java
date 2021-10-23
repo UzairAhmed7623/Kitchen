@@ -1,12 +1,12 @@
 package com.inkhornsolutions.kitchen.modelclasses;
 
 public class ItemsModelClass {
-    private String resName, itemName, price, image, availability, schedule, description;
+    private String resName, itemName, price, image, availability, schedule, description, isDODAvailable;
 
     public ItemsModelClass() {
     }
 
-    public ItemsModelClass(String resName, String itemName, String price, String image, String availability, String schedule, String description) {
+    public ItemsModelClass(String resName, String itemName, String price, String image, String availability, String schedule, String description, String isDODAvailable) {
         this.resName = resName;
         this.itemName = itemName;
         this.price = price;
@@ -14,6 +14,15 @@ public class ItemsModelClass {
         this.availability = availability;
         this.schedule = schedule;
         this.description = description;
+        this.isDODAvailable = isDODAvailable;
+    }
+
+    public String getIsDODAvailable() {
+        return isDODAvailable;
+    }
+
+    public void setIsDODAvailable(String isDODAvailable) {
+        this.isDODAvailable = isDODAvailable;
     }
 
     public String getDescription() {

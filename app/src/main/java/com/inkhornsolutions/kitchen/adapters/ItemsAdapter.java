@@ -63,6 +63,7 @@ public class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.ViewHolder> 
         String available = itemsModelClass.getAvailability();
         String schedule = itemsModelClass.getSchedule();
         String description = itemsModelClass.getDescription();
+        String isDODAvailable = itemsModelClass.getIsDODAvailable();
 
         holder.tvItem.setText(itemName);
         Glide.with(context).load(imageUri).placeholder(R.drawable.main_course).fitCenter().into(holder.ivItem);
@@ -71,6 +72,8 @@ public class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.ViewHolder> 
         holder.tvItemPrice.setText("PKR"+price);
         holder.tvItemDescription.setText(description);
         holder.tvItemSchedule.setText("Available: "+ schedule);
+
+        holder.cbDOD.setChecked(isDODAvailable.equals("yes"));
 
         holder.cbDOD.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -82,7 +85,7 @@ public class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.ViewHolder> 
                             .addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
                                 public void onSuccess(Void unused) {
-
+                                    Toasty.info(context, "Successfully changed.", Toasty.LENGTH_SHORT).show();
                                 }
                             }).addOnFailureListener(new OnFailureListener() {
                         @Override
