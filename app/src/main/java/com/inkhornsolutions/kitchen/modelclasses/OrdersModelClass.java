@@ -5,7 +5,7 @@ import com.google.firebase.Timestamp;
 import java.util.Comparator;
 
 public class OrdersModelClass {
-    private String resId, id, pId, itemName, finalPrice, price,  items_Count, status, resName, totalPrice, date, orderId, userId, subTotal, promotedOrder;
+    private String resId, id, pId, itemName, finalPrice, price,  items_Count, status, resName, totalPrice, date, orderId, userId, subTotal, promotedOrder, schedule;
     private Double lat, lng;
     private boolean expanded;
     private Timestamp timestamp;
@@ -40,6 +40,18 @@ public class OrdersModelClass {
         this.lat = lat;
         this.lng = lng;
         this.expanded = expanded;
+    }
+
+    public OrdersModelClass(String schedule) {
+        this.schedule = schedule;
+    }
+
+    public String getSchedule() {
+        return schedule;
+    }
+
+    public void setSchedule(String schedule) {
+        this.schedule = schedule;
     }
 
     public OrdersModelClass(Timestamp timestamp) {

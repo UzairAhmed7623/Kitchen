@@ -3,9 +3,11 @@ package com.inkhornsolutions.kitchen.adapters;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -50,10 +52,21 @@ public class RecentOrdersAdapter extends RecyclerView.Adapter<RecentOrdersAdapte
         String orderId = ordersModelClass.getOrderId();
         String userId = ordersModelClass.getUserId();
         String promotedOrder = ordersModelClass.getPromotedOrder();
+        String schedule = ordersModelClass.getSchedule();
 
         holder.tvResNameOrders.setText("Order ID: " + orderId);
         holder.tvGradTotalOrders.setText("Price: " + subTotal);
         holder.tvDateOrders.setText("Date: " + date);
+
+        if (schedule!= null && !schedule.equals("0")){
+            holder.scheduleLayout.setVisibility(View.VISIBLE);
+            holder.tvScheduled.setVisibility(View.VISIBLE);
+            holder.tvScheduleDate.setText(schedule.replace(":00 GMT+05:00",""));
+        }
+        else {
+            holder.scheduleLayout.setVisibility(View.GONE);
+            holder.tvScheduled.setVisibility(View.GONE);
+        }
 
         switch (status) {
             case "Pending":
@@ -101,7 +114,8 @@ public class RecentOrdersAdapter extends RecyclerView.Adapter<RecentOrdersAdapte
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
-        private final TextView tvStatusOrders, tvResNameOrders, tvDateOrders, tvGradTotalOrders;
+        private final TextView tvStatusOrders, tvResNameOrders, tvDateOrders, tvGradTotalOrders, tvScheduled, tvScheduleDate;
+        private LinearLayout scheduleLayout;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -111,6 +125,10 @@ public class RecentOrdersAdapter extends RecyclerView.Adapter<RecentOrdersAdapte
             tvResNameOrders = (TextView) itemView.findViewById(R.id.tvResNameOrders);
             tvDateOrders = (TextView) itemView.findViewById(R.id.tvDateOrders);
             tvGradTotalOrders = (TextView) itemView.findViewById(R.id.tvGradTotalOrders);
+            tvScheduled = (TextView) itemView.findViewById(R.id.tvScheduled);
+            tvScheduleDate = (TextView) itemView.findViewById(R.id.tvScheduleDate);
+            scheduleLayout = (LinearLayout) itemView.findViewById(R.id.scheduleLayout);
+
         }
     }
 }

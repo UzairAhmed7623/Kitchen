@@ -146,7 +146,7 @@ public class RecentOrders extends Fragment {
                                     String subTotal = documentSnapshot.getString("subTotal");
                                     String total = documentSnapshot.getString("total");
                                     String promotedOrder = documentSnapshot.getString("promotedOrder");
-                                    //actual total add krna ha or us mn se chj ka commision kat kr baqi pese show krwane hn orderk kitchen ko.
+                                    String schedule = documentSnapshot.getString("schedule");
 
                                     OrdersModelClass ordersModelClass = new OrdersModelClass();
 
@@ -176,6 +176,7 @@ public class RecentOrders extends Fragment {
                                     ordersModelClass.setLng(lng);
                                     ordersModelClass.setOrderId(orderId);
                                     ordersModelClass.setUserId(id);
+                                    ordersModelClass.setSchedule(schedule);
 
                                     if (promotedOrder != null) {
                                         ordersModelClass.setPromotedOrder(promotedOrder);

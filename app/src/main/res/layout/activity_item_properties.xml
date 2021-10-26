@@ -49,6 +49,15 @@
         android:orientation="vertical"
         android:padding="15dp">
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Update one or more fields out of all fields and press done button."
+            android:textColor="@color/black"
+            android:textSize="14sp"
+            android:fontFamily="@font/montserra_regular_bold"
+            android:layout_marginBottom="10dp"/>
+
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"

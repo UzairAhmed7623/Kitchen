@@ -123,6 +123,7 @@ public class InProgress extends Fragment {
                                         String subTotal = documentSnapshot.getString("subTotal");
                                         String total = documentSnapshot.getString("total");
                                         String promotedOrder = documentSnapshot.getString("promotedOrder");
+                                        String schedule = documentSnapshot.getString("schedule");
 
                                         OrdersModelClass ordersModelClass = new OrdersModelClass();
 
@@ -155,6 +156,8 @@ public class InProgress extends Fragment {
                                         ordersModelClass.setLng(lng);
                                         ordersModelClass.setOrderId(orderId);
                                         ordersModelClass.setUserId(id);
+                                        ordersModelClass.setSchedule(schedule);
+
                                         if (promotedOrder != null){
                                             ordersModelClass.setPromotedOrder(promotedOrder);
                                         }

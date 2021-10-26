@@ -27,9 +27,9 @@
                     android:id="@+id/ivItem"
                     android:layout_width="120dp"
                     android:layout_height="120dp"
+                    android:layout_centerVertical="true"
                     android:elevation="8dp"
                     android:padding="10dp"
-                    android:layout_centerVertical="true"
                     android:src="@drawable/main_course" />
 
                 <TextView
@@ -93,10 +93,37 @@
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/tvItemSchedule"
                     android:layout_alignParentEnd="true"
+                    android:fontFamily="@font/montserra_regular_bold"
                     android:layoutDirection="rtl"
                     android:text="Deal of the day"
+                    android:textSize="12sp" />
+
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/cbUFG"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/tvItemSchedule"
+                    android:layout_marginStart="10dp"
+                    android:layout_toEndOf="@+id/ivItem"
+                    android:layout_toStartOf="@+id/cbDOD"
                     android:fontFamily="@font/montserra_regular_bold"
-                    android:textSize="14sp"/>
+                    android:layoutDirection="rtl"
+                    android:text="Up for grab"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/tvTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/cbUFG"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_toEndOf="@+id/ivItem"
+                    android:fontFamily="@font/montserra_regular_bold"
+                    android:text=""
+                    android:textColor="@android:color/black"
+                    android:textSize="12sp" />
 
             </RelativeLayout>
 

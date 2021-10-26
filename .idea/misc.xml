@@ -20,11 +20,12 @@
         <entry key="..\:/Users/hafiz/AndroidStudioProjects/Kitchen/app/src/main/res/layout/chat_item_adapter_layout_left.xml" value="0.4" />
         <entry key="..\:/Users/hafiz/AndroidStudioProjects/Kitchen/app/src/main/res/layout/chat_item_adapter_layout_right.xml" value="0.4" />
         <entry key="..\:/Users/hafiz/AndroidStudioProjects/Kitchen/app/src/main/res/layout/custom_network_dialog.xml" value="0.4" />
+        <entry key="..\:/Users/hafiz/AndroidStudioProjects/Kitchen/app/src/main/res/layout/edit_details.xml" value="0.35" />
         <entry key="..\:/Users/hafiz/AndroidStudioProjects/Kitchen/app/src/main/res/layout/edittext_for_restaurant_name.xml" value="0.196875" />
         <entry key="..\:/Users/hafiz/AndroidStudioProjects/Kitchen/app/src/main/res/layout/fragment_recent_orders.xml" value="0.25416666666666665" />
-        <entry key="..\:/Users/hafiz/AndroidStudioProjects/Kitchen/app/src/main/res/layout/in_progress_orders_adapter_layout.xml" value="0.25416666666666665" />
-        <entry key="..\:/Users/hafiz/AndroidStudioProjects/Kitchen/app/src/main/res/layout/items_activity_adapter_layout.xml" value="0.33" />
-        <entry key="..\:/Users/hafiz/AndroidStudioProjects/Kitchen/app/src/main/res/layout/recent_orders_adapter_layout.xml" value="0.25416666666666665" />
+        <entry key="..\:/Users/hafiz/AndroidStudioProjects/Kitchen/app/src/main/res/layout/in_progress_orders_adapter_layout.xml" value="0.5" />
+        <entry key="..\:/Users/hafiz/AndroidStudioProjects/Kitchen/app/src/main/res/layout/items_activity_adapter_layout.xml" value="0.5" />
+        <entry key="..\:/Users/hafiz/AndroidStudioProjects/Kitchen/app/src/main/res/layout/recent_orders_adapter_layout.xml" value="0.5" />
         <entry key="..\:/Users/hafiz/AndroidStudioProjects/Kitchen/app/src/main/res/menu/add_item.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/hafiz/AndroidStudioProjects/Kitchen/app/src/main/res/menu/orders.xml" value="0.25416666666666665" />
       </map>

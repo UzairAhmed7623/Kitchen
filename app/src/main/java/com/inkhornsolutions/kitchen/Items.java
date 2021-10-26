@@ -140,6 +140,7 @@ public class Items extends AppCompatActivity {
                                 String to = documentSnapshot.getString("to");
                                 String description = documentSnapshot.getString("description");
                                 String isDODAvailable = documentSnapshot.getString("isDODAvailable");
+                                String scheduled = documentSnapshot.getString("scheduled");
 
                                 Log.d("TAG", itemName + " " + imageUri + " " + price + " " + available + " " + from + " " + to);
 
@@ -150,6 +151,7 @@ public class Items extends AppCompatActivity {
                                 itemsModelClass.setPrice(price);
                                 itemsModelClass.setAvailability(available);
                                 itemsModelClass.setIsDODAvailable(isDODAvailable);
+                                itemsModelClass.setScheduled(scheduled);
                                 if (!TextUtils.isEmpty(from) || !TextUtils.isEmpty(to)) {
                                     itemsModelClass.setSchedule(from + " " + "to" + " " + to);
                                 }
