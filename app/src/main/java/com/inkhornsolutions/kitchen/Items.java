@@ -27,18 +27,22 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.SetOptions;
 import com.inkhornsolutions.kitchen.adapters.ItemsAdapter;
 import com.inkhornsolutions.kitchen.modelclasses.ItemsModelClass;
 import com.inkhornsolutions.kitchen.modelclasses.SpacingItemDecorator;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Items extends AppCompatActivity {
 
@@ -113,12 +117,65 @@ public class Items extends AppCompatActivity {
         });
 
         initSwipe();
+
+        checkForSchedule(resName);
+    }
+
+    private void checkForSchedule(String resName) {
+        firebaseFirestore.collection("Restaurants").document(resName).collection("Items")
+                .whereNotEqualTo("scheduled", "0")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        int id = task.getResult().size();
+                        HashMap<String, Object> ufg = new HashMap<>();
+                        if (id == 0){
+                            ufg.put("UFG", "no");
+                            firebaseFirestore.collection("Restaurants").document(resName)
+                                    .set(ufg, SetOptions.merge())
+                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void unused) {
+
+                                        }
+                                    }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).show();
+                                }
+                            });
+                        }
+                        else {
+                            ufg.put("UFG", "yes");
+                            firebaseFirestore.collection("Restaurants").document(resName)
+                                    .set(ufg, SetOptions.merge())
+                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void unused) {
+
+                                        }
+                                    }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).show();
+                                }
+                            });
+                        }
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Snackbar.make(findViewById(android.R.id.content), e.getMessage(), Snackbar.LENGTH_LONG).setBackgroundTint(ContextCompat.getColor(getApplicationContext(), R.color.myColor)).show();
+            }
+        });
     }
 
     private void loadRestaurantItems(String resName) {
 
         firebaseFirestore.collection("Restaurants").document(resName).collection("Items")
-                .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
 

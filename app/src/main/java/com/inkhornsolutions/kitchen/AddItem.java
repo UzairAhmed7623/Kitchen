@@ -74,7 +74,7 @@ public class AddItem extends AppCompatActivity {
     private StorageReference storageReference;
     private ProgressDialog dialog;
     private TextView toolbar;
-    private String isAvailable = "No", isDODAvailable = "No";
+    private String isAvailable = "no", isDODAvailable = "no";
     private ImageView ivCategories;
     private String selectedCategory;
     private TextView tvSpinnerHead;
@@ -374,6 +374,8 @@ public class AddItem extends AppCompatActivity {
             newItem.put("category", selectedCategory);
             newItem.put("description", description);
             newItem.put("quantity", quantity);
+            newItem.put("scheduled", "no");
+
 
             firebaseFirestore.collection("Restaurants").document(resName).collection("Items").document(name)
                     .set(newItem, SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {

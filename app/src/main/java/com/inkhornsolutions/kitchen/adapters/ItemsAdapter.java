@@ -18,6 +18,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -86,7 +87,10 @@ public class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.ViewHolder> 
         holder.tvItemSchedule.setText("Available: "+ schedule);
 
         holder.cbDOD.setChecked(isDODAvailable.equals("yes"));
-        holder.cbUFG.setChecked(scheduled.equals("1"));
+        if (!scheduled.equals("0")){
+            holder.cbUFG.setChecked(true);
+            holder.tvTime.setText("Cooking time " + scheduled + " Hours");
+        }
 
         holder.cbDOD.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -100,6 +104,21 @@ public class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.ViewHolder> 
                                 @Override
                                 public void onSuccess(Void unused) {
                                     Toasty.info(context, "Successfully changed.", Toasty.LENGTH_SHORT).show();
+
+                                    holder.cbUFG.setChecked(false);
+                                    firebaseFirestore.collection("Restaurants").document(resName).collection("Items").document(itemName)
+                                            .update("scheduled","0")
+                                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                @Override
+                                                public void onSuccess(Void unused) {
+                                                    holder.tvTime.setVisibility(View.GONE);
+                                                }
+                                            }).addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            Toasty.error(context, e.getMessage(),Toasty.LENGTH_LONG).show();
+                                        }
+                                    });
                                 }
                             }).addOnFailureListener(new OnFailureListener() {
                         @Override
@@ -143,6 +162,7 @@ public class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.ViewHolder> 
 
                     AlertDialog alertDialog = builder.create();
                     alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                    alertDialog.setCancelable(false);
 
                     alertDialog.show();
 
@@ -163,7 +183,8 @@ public class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.ViewHolder> 
                                 editText.setError("Please write your first name");
                             }
                             else {
-                                holder.tvTime.setText(time + " Hours");
+                                holder.tvTime.setVisibility(View.VISIBLE);
+                                holder.tvTime.setText("Cooking time " + time + " Hours");
 
                                 firebaseFirestore.collection("Restaurants").document(resName).collection("Items").document(itemName)
                                         .update("scheduled", time)
@@ -171,6 +192,36 @@ public class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.ViewHolder> 
                                             @Override
                                             public void onSuccess(Void unused) {
                                                 Toasty.info(context, "Successfully changed.", Toasty.LENGTH_SHORT).show();
+
+                                                holder.cbDOD.setChecked(false);
+                                                firebaseFirestore.collection("Restaurants").document(resName).collection("Items").document(itemName)
+                                                        .update("isDODAvailable","no")
+                                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                            @Override
+                                                            public void onSuccess(Void unused) {
+
+                                                            }
+                                                        }).addOnFailureListener(new OnFailureListener() {
+                                                    @Override
+                                                    public void onFailure(@NonNull Exception e) {
+                                                        Toasty.error(context, e.getMessage(),Toasty.LENGTH_LONG).show();
+                                                    }
+                                                });
+                                                HashMap<String, Object> ufg = new HashMap<>();
+                                                ufg.put("UFG", "yes");
+                                                firebaseFirestore.collection("Restaurants").document(resName)
+                                                        .set(ufg, SetOptions.merge())
+                                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                            @Override
+                                                            public void onSuccess(Void unused) {
+
+                                                            }
+                                                        }).addOnFailureListener(new OnFailureListener() {
+                                                    @Override
+                                                    public void onFailure(@NonNull Exception e) {
+                                                        Toasty.error(context, e.getMessage(),Toasty.LENGTH_LONG).show();
+                                                    }
+                                                });
                                             }
                                         }).addOnFailureListener(new OnFailureListener() {
                                     @Override
@@ -188,6 +239,23 @@ public class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.ViewHolder> 
                 else {
                     firebaseFirestore.collection("Restaurants").document(resName).collection("Items").document(itemName)
                             .update("scheduled","0")
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void unused) {
+                                    holder.tvTime.setVisibility(View.GONE);
+
+                                }
+                            }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toasty.error(context, e.getMessage(),Toasty.LENGTH_LONG).show();
+                        }
+                    });
+
+                    HashMap<String, Object> ufg = new HashMap<>();
+                    ufg.put("UFG", "no");
+                    firebaseFirestore.collection("Restaurants").document(resName)
+                            .set(ufg, SetOptions.merge())
                             .addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
                                 public void onSuccess(Void unused) {
