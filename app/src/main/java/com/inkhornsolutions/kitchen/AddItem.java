@@ -77,6 +77,7 @@ public class AddItem extends AppCompatActivity {
     private String isAvailable = "no", isDODAvailable = "no";
     private ImageView ivCategories;
     private String selectedCategory;
+    private String[] categories;
     private TextView tvSpinnerHead;
     private RelativeLayout spinnerLayout;
     private MaterialButton backButton;
@@ -152,14 +153,18 @@ public class AddItem extends AppCompatActivity {
 //            }
 //        });
 
-
         spinnerLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(AddItem.this, R.style.MaterialThemeDialog);
                 builder.setCancelable(false);
-                String[] categories = new String[]{"Main Course", "Drinks", "Frozen", "Sides", "Desserts", "Organic", "Mess"};
+                if (resName.equals("Organic Shop")){
+                    categories = new String[]{"Vegetables", "Fruits", "Flour", "Grains", "Super Foods", "Meat", "Seafood","Eggs","Dairy","Drinks","Ghee","Oil"};
+                }
+                else {
+                    categories = new String[]{"Main Course", "Drinks", "Frozen", "Sides", "Desserts", "Organic", "Mess"};
+                }
 
                 final int checkedItem = -1;
 

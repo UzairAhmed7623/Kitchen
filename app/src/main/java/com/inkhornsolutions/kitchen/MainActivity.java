@@ -969,7 +969,16 @@ public class MainActivity extends AppCompatActivity
         if (item.getItemId() == R.id.logout) {
             if (firebaseAuth != null){
                 firebaseAuth.signOut();
+
+                SharedPreferences preferences = getApplicationContext().getSharedPreferences("USER_PREF", Context.MODE_PRIVATE);
+                preferences.edit().clear().apply();
+
+                Intent intent = new Intent(MainActivity.this, Splash.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+
             }
+
         }
         drawerLayout.closeDrawer(GravityCompat.START);
 

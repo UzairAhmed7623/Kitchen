@@ -41,6 +41,7 @@ public class Splash extends AppCompatActivity {
 
         progress_circular.setVisibility(View.VISIBLE);
 
+        allWork();
     }
 
     private void allWork() {
