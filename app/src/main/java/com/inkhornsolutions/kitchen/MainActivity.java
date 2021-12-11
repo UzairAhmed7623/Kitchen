@@ -2,6 +2,7 @@ package com.inkhornsolutions.kitchen;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -158,12 +159,12 @@ public class MainActivity extends AppCompatActivity
         tvTotalPrice = (TextView) findViewById(R.id.tvTotalPrice);
 
 //        layoutOrder.setWaveColor(0xFF000000+new Random().nextInt(0xFFFFFF)); // Random color assign
-        if (Common.id.size() <= 0) {
+
 
             firebaseFirestore.collection("Users").get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                 @Override
                 public void onSuccess(QuerySnapshot value) {
-//                Common.id.clear();
+                Common.id.clear();
                     for (QueryDocumentSnapshot documentSnapshot : value) {
                         if (documentSnapshot.exists()) {
                             String id = documentSnapshot.getId();
@@ -173,7 +174,7 @@ public class MainActivity extends AppCompatActivity
                     }
                 }
             });
-        }
+
 
 
         FirebaseMessaging.getInstance().getToken().addOnCompleteListener(new OnCompleteListener<String>() {
@@ -525,6 +526,8 @@ public class MainActivity extends AppCompatActivity
                                         resReg.put("withdrawn", "0");
                                         resReg.put("paymentStatus", "");
                                         resReg.put("paymentRequested", "0");
+                                        resReg.put("resRating", "0.0");
+                                        resReg.put("noOfOrders", "0.0");
 
                                         firebaseFirestore.collection("Restaurants").document(getResNameFromEditText).set(resReg, SetOptions.merge())
                                                 .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -931,7 +934,7 @@ public class MainActivity extends AppCompatActivity
                         if (documentSnapshot.exists()) {
                             if (documentSnapshot.getString("ResImageProfile") != null) {
                                 String imageUri = documentSnapshot.getString("ResImageProfile");
-                                Glide.with(MainActivity.this).load(imageUri).placeholder(ContextCompat.getDrawable(getApplicationContext(), R.drawable.user)).into(ivProfileImage);
+                                Glide.with(getApplicationContext()).load(imageUri).placeholder(ContextCompat.getDrawable(getApplicationContext(), R.drawable.user)).into(ivProfileImage);
                             } else {
                                 Log.d("TAG", "Not found!");
                             }
@@ -1027,9 +1030,11 @@ public class MainActivity extends AppCompatActivity
                     }
                 });
 
-        AlertDialog alert = alertDialogBuilder.create();
-        alert.show();
-
+        Activity activity = MainActivity.this;
+        if(!activity.isFinishing() && !activity.isDestroyed()) {
+            AlertDialog alert = alertDialogBuilder.create();
+            alert.show();
+        }
     }
 
     private void makeChatRome(String resName) {
@@ -1074,5 +1079,4 @@ public class MainActivity extends AppCompatActivity
         saveLocation(resName);
         }
     }
-
 }

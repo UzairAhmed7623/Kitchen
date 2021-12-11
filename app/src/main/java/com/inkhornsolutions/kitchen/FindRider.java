@@ -246,7 +246,7 @@ public class FindRider extends FragmentActivity implements OnMapReadyCallback {
 
                                                 initDriverForMoving(event.getTripId(), tripPlanModel);
 
-                                                Glide.with(FindRider.this).load(tripPlanModel.getDriverInfoModel().getDriverProfileImage()).into(ivDriver);
+                                                Glide.with(getApplicationContext()).load(tripPlanModel.getDriverInfoModel().getDriverProfileImage()).into(ivDriver);
                                                 tvDriverName.setText(tripPlanModel.getDriverInfoModel().getFirstName()+" "+tripPlanModel.getDriverInfoModel().getLastName());
 
 
@@ -320,7 +320,10 @@ public class FindRider extends FragmentActivity implements OnMapReadyCallback {
                 "Your driver has arrived for order pickup.",
                 getIntent());
 
-        mgoogleMap.clear();
+        if (mgoogleMap != null){
+
+            mgoogleMap.clear();
+        }
         if (animator != null){
             animator.cancel();
         }
@@ -601,12 +604,22 @@ public class FindRider extends FragmentActivity implements OnMapReadyCallback {
                 public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
 
                     if (snapshot.exists()) {
-                        String done = snapshot.child("done").getValue(String.class);
-                        String cancel = snapshot.child("cancel").getValue(String.class);
+                        boolean done = snapshot.child("done").getValue(Boolean.class);
+                        boolean cancel = snapshot.child("cancel").getValue(Boolean.class);
 
-                        if (done.equals("false") && cancel.equals("false")) {
-
+                        if (!done) {
+                            Toast.makeText(getApplicationContext(), "Chala1", Toast.LENGTH_SHORT).show();
                             drawPathForMovingDriver(tripKey);
+                        }
+                        else if (cancel){
+                            Toast.makeText(getApplicationContext(), "Chala2", Toast.LENGTH_SHORT).show();
+
+                            sharedPreferences.edit().clear().apply();
+                        }
+                        else {
+                            Toast.makeText(getApplicationContext(), "Chala3", Toast.LENGTH_SHORT).show();
+
+                            drawPath(selectPlaceEvent);
                         }
                     }
                 }
